@@ -10,7 +10,7 @@ import { WEEKLY_CHALLENGES } from "@/data/weeklyData";
 import { getBestScore, recordResult } from "@/store/challengeProgress";
 import { Challenge, ChallengeQuestion, ChallengeType } from "@/types/challenges";
 import { router, useLocalSearchParams } from "expo-router";
-import { ChevronLeft } from "lucide-react-native";
+import { ChevronLeft, Clock } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import {
   Pressable,
@@ -85,6 +85,22 @@ function BlobChar({ color, size, rotate }: { color: string; size: number; rotate
     </View>
   );
 }
+
+function getEstimatedTime(challengeId: ChallengeType): string {
+  switch (challengeId) {
+    case "adivina_concepto":   return "~7 min";
+    case "verdad_mito":        return "2–15 min";
+    case "identifica_patron":  return "2–8 min";
+    case "completa_reflexion": return "2–8 min";
+  }
+}
+
+const STEPS: Record<ChallengeType, string[]> = {
+  adivina_concepto:   ["Elige las áreas que quieres explorar", "Identifica el concepto en cada situación", "Descubre tu resultado al terminar"],
+  verdad_mito:        ["Elige los temas que te interesan", "Decide si cada afirmación es verdad o mito", "Lee la explicación de cada respuesta"],
+  identifica_patron:  ["Elige qué tipo de patrón explorar", "Analiza la situación y elige el patrón", "Aprende a reconocerlos en tu vida diaria"],
+  completa_reflexion: ["Elige los temas de reflexión", "Completa la frase con la opción correcta", "Incorpora conceptos clave de bienestar"],
+};
 
 function getTagItems(challengeId: ChallengeType): TagItem[] {
   switch (challengeId) {
@@ -253,10 +269,29 @@ export default function ChallengeDetailScreen() {
             <Text style={styles.statLabel}>jugadas</Text>
           </View>
         </View>
+
+        {/* Steps */}
+        <View style={styles.stepsCard}>
+          <Text style={styles.stepsTitle}>¿Cómo funciona?</Text>
+          {STEPS[challenge.id as ChallengeType].map((text, i) => (
+            <View key={i} style={styles.step}>
+              <View style={[styles.stepBullet, { backgroundColor: challenge.color + "22" }]}>
+                <Text style={[styles.stepNum, { color: challenge.color }]}>{i + 1}</Text>
+              </View>
+              <Text style={styles.stepText}>{text}</Text>
+            </View>
+          ))}
+        </View>
       </ScrollView>
 
       {/* Footer */}
       <View style={[styles.footer, { paddingBottom: bottom + SPACING }]}>
+        <View style={styles.timeRow}>
+          <Clock size={13} color={MUTED} />
+          <Text style={styles.timeText}>
+            {getEstimatedTime(challenge.id as ChallengeType)} según los temas que elijas
+          </Text>
+        </View>
         <Pressable
           style={[styles.startBtn, { backgroundColor: challenge.color }]}
           onPress={() => setTagPickerOpen(true)}
@@ -364,4 +399,43 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   startBtnText: { color: "#fff", fontSize: 16, fontWeight: "800" },
+
+  timeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 5,
+    marginBottom: SPACING,
+  },
+  timeText: { fontSize: 12, color: MUTED, fontWeight: "500" },
+
+  stepsCard: {
+    marginHorizontal: SPACING * 2,
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: SPACING * 2,
+    gap: SPACING * 1.5,
+  },
+  stepsTitle: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: MUTED,
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+    marginBottom: SPACING * 0.5,
+  },
+  step: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING * 1.2,
+  },
+  stepBullet: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stepNum: { fontSize: 13, fontWeight: "800" },
+  stepText: { flex: 1, fontSize: 13, color: TEXT, lineHeight: 19, fontWeight: "500" },
 });
