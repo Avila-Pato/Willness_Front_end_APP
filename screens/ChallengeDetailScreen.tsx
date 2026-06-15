@@ -1,29 +1,27 @@
 import { ChallengeSheet } from "@/components/challenges/ChallengeSheet";
+import { TagPickerSheet, TagItem } from "@/components/challenges/TagPickerSheet";
 import { SPACING } from "@/constants/constants";
 import { BG, MUTED, TEXT } from "@/constants/theme";
-import { getQuestionsForConcepts } from "@/data/languageQuestions";
-import { VERDAD_MITO_TOPICS, VerdadMitoTopic } from "@/data/verdadMitoTopics";
+import { COMPLETA_REFLEXION_GROUPS } from "@/data/completaReflexionGroups";
+import { IDENTIFICA_PATRON_GROUPS } from "@/data/identificaPatronGroups";
+import { CONCEPT_GROUPS, getQuestionsForConcepts } from "@/data/languageQuestions";
+import { VERDAD_MITO_TOPICS } from "@/data/verdadMitoTopics";
 import { WEEKLY_CHALLENGES } from "@/data/weeklyData";
 import { getBestScore, recordResult } from "@/store/challengeProgress";
-import { getSelectedLangs } from "@/store/languagePrefs";
 import { Challenge, ChallengeQuestion, ChallengeType } from "@/types/challenges";
 import { router, useLocalSearchParams } from "expo-router";
-import { Image } from "expo-image";
-import { ChevronLeft, ChevronRight } from "lucide-react-native";
-
+import { ChevronLeft } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import {
-  Dimensions,
-  ImageSourcePropType,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
+  ViewStyle,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
-const { width: SCREEN_W } = Dimensions.get("window");
 
 const DESCRIPTIONS: Record<ChallengeType, string> = {
   adivina_concepto:
@@ -36,50 +34,139 @@ const DESCRIPTIONS: Record<ChallengeType, string> = {
     "Elige la opción correcta para completar la reflexión o concepto de bienestar.",
 };
 
-type IconCfg = { image: ImageSourcePropType; bg: string; color: string };
-const CHALLENGE_ICON: Record<string, IconCfg> = {
-  adivina_concepto: { image: require("@/assets/icons/Dialog.svg"), bg: "#EDE9F8", color: "#7B6BB5" },
-  identifica_patron: { image: require("@/assets/icons/Surveillance.svg"), bg: "#F5E8EF", color: "#9E5C72" },
-  verdad_mito: { image: require("@/assets/icons/Approval.svg"), bg: "#E8F0EE", color: "#4D8B7A" },
-  completa_reflexion: { image: require("@/assets/icons/Documentation.svg"), bg: "#E8E8F5", color: "#5A5CA0" },
+const TAG_CONFIG: Record<
+  ChallengeType,
+  { heading: string; subheading: string; confirmLabel: (n: number) => string }
+> = {
+  adivina_concepto: {
+    heading: "¿Qué áreas quieres explorar?",
+    subheading: "Elige uno o más temas — las preguntas se adaptarán a ellos",
+    confirmLabel: (n) => `Explorar ${n} área${n > 1 ? "s" : ""} →`,
+  },
+  verdad_mito: {
+    heading: "¿Qué temas quieres poner a prueba?",
+    subheading: "Elige uno o más — combinamos las preguntas de cada tema",
+    confirmLabel: (n) => `Explorar ${n} tema${n > 1 ? "s" : ""} →`,
+  },
+  identifica_patron: {
+    heading: "¿Qué patrones quieres identificar?",
+    subheading: "Elige uno o más tipos de patrón para personalizar el reto",
+    confirmLabel: (n) => `Identificar ${n} patrón${n > 1 ? "es" : ""} →`,
+  },
+  completa_reflexion: {
+    heading: "¿Qué reflexiones quieres completar?",
+    subheading: "Elige uno o más temas para tu sesión de reflexión",
+    confirmLabel: (n) => `Completar ${n} tema${n > 1 ? "s" : ""} →`,
+  },
 };
 
 const H_PAD = SPACING * 2;
-const CARD_GAP = SPACING * 1.2;
-const TOPIC_CARD_W = (SCREEN_W - H_PAD * 2 - CARD_GAP) / 2;
+
+function BlobChar({ color, size, rotate }: { color: string; size: number; rotate: string }) {
+  const blob: ViewStyle = {
+    width: size,
+    height: size * 0.92,
+    backgroundColor: color,
+    borderTopLeftRadius: size * 0.55,
+    borderTopRightRadius: size * 0.72,
+    borderBottomLeftRadius: size * 0.68,
+    borderBottomRightRadius: size * 0.52,
+    transform: [{ rotate }],
+    alignItems: "center",
+    justifyContent: "center",
+  };
+  const eye = Math.max(4, Math.round(size * 0.057));
+  return (
+    <View style={blob}>
+      <View style={{ flexDirection: "row", gap: size * 0.1, marginTop: size * 0.06 }}>
+        <View style={{ width: eye, height: eye, borderRadius: eye / 2, backgroundColor: "#1C1B2988" }} />
+        <View style={{ width: eye, height: eye, borderRadius: eye / 2, backgroundColor: "#1C1B2988" }} />
+      </View>
+    </View>
+  );
+}
+
+function getTagItems(challengeId: ChallengeType): TagItem[] {
+  switch (challengeId) {
+    case "adivina_concepto":
+      return CONCEPT_GROUPS.flatMap((g) =>
+        g.items.map((item) => ({
+          id: item.id,
+          title: item.id,
+          description: item.description,
+          color: item.color,
+          bg: item.bg,
+        })),
+      );
+    case "verdad_mito": {
+      const MYTH_LABELS: Record<string, { title: string; description: string }> = {
+        vm_limites:      { title: "¿Límites = egoísmo?",          description: "¿Poner límites te hace mala persona? Descúbrelo" },
+        vm_emociones:    { title: "¿Las emociones debilitan?",     description: "Lo que crees sobre sentir: ¿verdad o mito?" },
+        vm_autoestima:   { title: "Quererte sin culpa",            description: "Mitos sobre la autoestima y el amor propio" },
+        vm_comunicacion: { title: "¿Asertivo o agresivo?",        description: "Lo que confundimos sobre comunicarnos bien" },
+        vm_relaciones:   { title: "El amor sano",                  description: "Creencias sobre los vínculos: ¿cuáles son falsas?" },
+        vm_felicidad:    { title: "¿Qué tan real es ser feliz?",   description: "Mitos sobre la felicidad y el bienestar" },
+      };
+      return VERDAD_MITO_TOPICS.map((t) => ({
+        id: t.id,
+        title: MYTH_LABELS[t.id]?.title ?? t.title,
+        description: MYTH_LABELS[t.id]?.description ?? t.description,
+        color: t.color,
+        bg: t.bg,
+      }));
+    }
+    case "identifica_patron":
+      return IDENTIFICA_PATRON_GROUPS.map((g) => ({
+        id: g.id,
+        title: g.title,
+        description: g.description,
+        color: g.color,
+        bg: g.bg,
+      }));
+    case "completa_reflexion":
+      return COMPLETA_REFLEXION_GROUPS.map((g) => ({
+        id: g.id,
+        title: g.title,
+        description: g.description,
+        color: g.color,
+        bg: g.bg,
+      }));
+  }
+}
+
+function getTotalQuestions(challengeId: ChallengeType): number {
+  switch (challengeId) {
+    case "adivina_concepto":
+      return 15;
+    case "verdad_mito":
+      return VERDAD_MITO_TOPICS.reduce((s, t) => s + t.questions.length, 0);
+    case "identifica_patron":
+      return IDENTIFICA_PATRON_GROUPS.reduce((s, g) => s + g.questions.length, 0);
+    case "completa_reflexion":
+      return COMPLETA_REFLEXION_GROUPS.reduce((s, g) => s + g.questions.length, 0);
+  }
+}
 
 export default function ChallengeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { bottom } = useSafeAreaInsets();
 
-  const base: Challenge | undefined = WEEKLY_CHALLENGES.find((c) => c.id === id);
-
-  const challenge: Challenge | undefined = useMemo(() => {
-    if (!base) return undefined;
-    if (base.id !== "adivina_concepto") return base;
-    const langs = getSelectedLangs();
-    const count = Math.min(Math.max(langs.length * 5, 5), 20);
-    const dynamic: ChallengeQuestion[] =
-      langs.length > 0 ? getQuestionsForConcepts(langs, count) : base.questions;
-    return { ...base, questions: dynamic };
-  }, [base]);
+  const challenge: Challenge | undefined = useMemo(
+    () => WEEKLY_CHALLENGES.find((c) => c.id === id),
+    [id],
+  );
 
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sheetChallenge, setSheetChallenge] = useState<Challenge | null>(null);
+  const [tagPickerOpen, setTagPickerOpen] = useState(false);
   const [stat, setStat] = useState(() => getBestScore(id ?? ""));
 
   if (!challenge) return null;
 
-  const isVerdadMito = challenge.id === "verdad_mito";
-
-  const cfg = CHALLENGE_ICON[challenge.id] ?? {
-    image: require("@/assets/icons/Dialog.svg"),
-    bg: "#F3F4F6",
-    color: challenge.color,
-  };
-
-  const total = challenge.questions.length;
   const bestPct = Math.round(stat.bestScore * 100);
+  const totalAvailable = getTotalQuestions(challenge.id as ChallengeType);
+  const tagItems = getTagItems(challenge.id as ChallengeType);
+  const cfg = TAG_CONFIG[challenge.id as ChallengeType];
 
   const handleSheetClose = (correct: number, sessionTotal: number) => {
     if (sessionTotal > 0) {
@@ -90,13 +177,30 @@ export default function ChallengeDetailScreen() {
     setSheetChallenge(null);
   };
 
-  const handleStart = () => {
-    setSheetChallenge(challenge);
-    setSheetOpen(true);
-  };
-
-  const handleTopicPress = (topic: VerdadMitoTopic) => {
-    setSheetChallenge({ ...challenge, questions: topic.questions });
+  const handleTagConfirm = (selectedIds: string[]) => {
+    let questions: ChallengeQuestion[] = [];
+    switch (challenge.id as ChallengeType) {
+      case "adivina_concepto":
+        questions = getQuestionsForConcepts(selectedIds, 15);
+        break;
+      case "verdad_mito":
+        questions = VERDAD_MITO_TOPICS.filter((t) =>
+          selectedIds.includes(t.id),
+        ).flatMap((t) => t.questions);
+        break;
+      case "identifica_patron":
+        questions = IDENTIFICA_PATRON_GROUPS.filter((g) =>
+          selectedIds.includes(g.id),
+        ).flatMap((g) => g.questions);
+        break;
+      case "completa_reflexion":
+        questions = COMPLETA_REFLEXION_GROUPS.filter((g) =>
+          selectedIds.includes(g.id),
+        ).flatMap((g) => g.questions);
+        break;
+    }
+    setTagPickerOpen(false);
+    setSheetChallenge({ ...challenge, questions });
     setSheetOpen(true);
   };
 
@@ -107,7 +211,6 @@ export default function ChallengeDetailScreen() {
 
   return (
     <SafeAreaView edges={["top", "left", "right"]} style={styles.root}>
-      {/* Back */}
       <Pressable style={styles.backBtn} onPress={handleBack}>
         <ChevronLeft size={22} color={TEXT} />
         <Text style={styles.backText}>Retos</Text>
@@ -117,29 +220,24 @@ export default function ChallengeDetailScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: bottom + (isVerdadMito ? SPACING * 3 : SPACING * 10) },
+          { paddingBottom: bottom + SPACING * 10 },
         ]}
       >
         {/* Hero */}
         <View style={[styles.hero, { backgroundColor: challenge.color + "12" }]}>
-          <View style={[styles.iconCircle, { backgroundColor: cfg.bg }]}>
-            <Image
-              source={cfg.image}
-              style={{ width: 44, height: 44 }}
-              tintColor={cfg.color}
-              contentFit="contain"
-            />
+          <View style={styles.blobRow}>
+            <BlobChar color={challenge.color + "50"} size={72} rotate="-10deg" />
+            <BlobChar color={challenge.color + "99"} size={96} rotate="0deg" />
+            <BlobChar color={challenge.color + "40"} size={68} rotate="8deg" />
           </View>
           <Text style={styles.title}>{challenge.title}</Text>
-          <Text style={styles.description}>{DESCRIPTIONS[challenge.id]}</Text>
+          <Text style={styles.description}>{DESCRIPTIONS[challenge.id as ChallengeType]}</Text>
         </View>
 
         {/* Stats */}
         <View style={styles.statsCard}>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>
-              {isVerdadMito ? VERDAD_MITO_TOPICS.length * 5 : total}
-            </Text>
+            <Text style={styles.statValue}>{totalAvailable}+</Text>
             <Text style={styles.statLabel}>preguntas</Text>
           </View>
           <View style={styles.statDivider} />
@@ -155,62 +253,29 @@ export default function ChallengeDetailScreen() {
             <Text style={styles.statLabel}>jugadas</Text>
           </View>
         </View>
-
-        {/* Concept note (adivina_concepto) */}
-        {challenge.id === "adivina_concepto" && getSelectedLangs().length > 0 && (
-          <View style={styles.langNote}>
-            <Text style={styles.langNoteText}>
-              Explorando:{" "}
-              <Text style={{ fontWeight: "700" }}>
-                {getSelectedLangs().join(", ")}
-              </Text>
-            </Text>
-          </View>
-        )}
-
-        {/* Topic grid (verdad_mito) */}
-        {isVerdadMito && (
-          <View style={styles.topicSection}>
-            <Text style={styles.topicHeading}>Elige un tema</Text>
-            <View style={styles.topicGrid}>
-              {VERDAD_MITO_TOPICS.map((topic) => (
-                <Pressable
-                  key={topic.id}
-                  style={({ pressed }) => [styles.topicCard, pressed && { opacity: 0.85 }]}
-                  onPress={() => handleTopicPress(topic)}
-                >
-                  {/* Top accent line */}
-                  <View style={[styles.topicAccent, { backgroundColor: topic.color }]} />
-
-                  <View style={styles.topicCardBody}>
-                    <Text style={styles.topicTitle} numberOfLines={1}>{topic.title}</Text>
-                    <Text style={styles.topicDesc} numberOfLines={2}>{topic.description}</Text>
-                    <View style={styles.topicFooter}>
-                      <Text style={[styles.topicCount, { color: topic.color }]}>
-                        {topic.questions.length} preguntas
-                      </Text>
-                      <ChevronRight size={13} color={topic.color} />
-                    </View>
-                  </View>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-        )}
       </ScrollView>
 
-      {/* Footer (non-verdad_mito only) */}
-      {!isVerdadMito && (
-        <View style={[styles.footer, { paddingBottom: bottom + SPACING }]}>
-          <Pressable
-            style={[styles.startBtn, { backgroundColor: challenge.color }]}
-            onPress={handleStart}
-          >
-            <Text style={styles.startBtnText}>
-              {stat.timesPlayed > 0 ? "Jugar de nuevo →" : "Comenzar →"}
-            </Text>
-          </Pressable>
-        </View>
+      {/* Footer */}
+      <View style={[styles.footer, { paddingBottom: bottom + SPACING }]}>
+        <Pressable
+          style={[styles.startBtn, { backgroundColor: challenge.color }]}
+          onPress={() => setTagPickerOpen(true)}
+        >
+          <Text style={styles.startBtnText}>
+            {stat.timesPlayed > 0 ? "Jugar de nuevo →" : "Elegir temas →"}
+          </Text>
+        </Pressable>
+      </View>
+
+      {tagPickerOpen && (
+        <TagPickerSheet
+          items={tagItems}
+          heading={cfg.heading}
+          subheading={cfg.subheading}
+          confirmLabel={cfg.confirmLabel}
+          onConfirm={handleTagConfirm}
+          onClose={() => setTagPickerOpen(false)}
+        />
       )}
 
       {sheetOpen && sheetChallenge && (
@@ -238,18 +303,16 @@ const styles = StyleSheet.create({
 
   hero: {
     alignItems: "center",
-    paddingVertical: SPACING * 3.5,
+    paddingVertical: SPACING * 3,
     paddingHorizontal: SPACING * 3,
     gap: SPACING * 1.2,
-    marginHorizontal: SPACING * 2,
+    marginHorizontal: H_PAD,
     borderRadius: 24,
   },
-  iconCircle: {
-    width: 84,
-    height: 84,
-    borderRadius: 26,
-    alignItems: "center",
-    justifyContent: "center",
+  blobRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: SPACING * 1.2,
     marginBottom: SPACING * 0.5,
   },
   title: {
@@ -284,75 +347,6 @@ const styles = StyleSheet.create({
   statLabel: { fontSize: 11, color: MUTED, fontWeight: "500" },
   statDivider: { width: 1, backgroundColor: "#F3F4F6", marginVertical: 4 },
 
-  langNote: {
-    marginHorizontal: SPACING * 2,
-    backgroundColor: "#F0FDF4",
-    borderRadius: 14,
-    paddingHorizontal: SPACING * 1.5,
-    paddingVertical: SPACING,
-  },
-  langNoteText: { fontSize: 13, color: "#15803D", lineHeight: 19 },
-
-  // ── Topic grid ────────────────────────────────────────────────
-  topicSection: {
-    paddingHorizontal: H_PAD,
-    gap: SPACING * 1.5,
-  },
-  topicHeading: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: MUTED,
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
-  },
-  topicGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: CARD_GAP,
-  },
-  topicCard: {
-    width: TOPIC_CARD_W,
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    overflow: "hidden",
-    shadowColor: "#1C1B29",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.07,
-    shadowRadius: 14,
-    elevation: 3,
-  },
-  topicAccent: {
-    height: 3,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-  },
-  topicCardBody: {
-    padding: SPACING * 1.5,
-    gap: SPACING * 0.6,
-  },
-  topicTitle: {
-    fontSize: 15,
-    fontWeight: "800",
-    color: TEXT,
-    letterSpacing: -0.3,
-  },
-  topicDesc: {
-    fontSize: 11,
-    color: MUTED,
-    lineHeight: 16,
-  },
-  topicFooter: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: SPACING * 0.8,
-  },
-  topicCount: {
-    fontSize: 11,
-    fontWeight: "700",
-  },
-
-  // ── Footer ────────────────────────────────────────────────────
   footer: {
     position: "absolute",
     bottom: 0,

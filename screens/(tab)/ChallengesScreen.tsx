@@ -1,4 +1,3 @@
-import { ConceptPickerSheet } from "@/components/challenges/ConceptPickerSheet";
 import { SPACING, TAB_ITEM_SIZE } from "@/constants/constants";
 import {
   BG,
@@ -12,7 +11,6 @@ import {
 import { WEEKLY_CHALLENGES } from "@/data/weeklyData";
 
 import { getAllProgress } from "@/store/challengeProgress";
-import { setSelectedLangs } from "@/store/languagePrefs";
 import { ChallengeType } from "@/types/challenges";
 
 import { Image } from "expo-image";
@@ -91,8 +89,6 @@ function openDetail(id: ChallengeType) {
 export default function ChallengesScreen() {
   const { bottom } = useSafeAreaInsets();
   const [progress, setProgressState] = useState<Record<string, number>>({});
-  const [langPickerOpen, setLangPickerOpen] = useState(false);
-
   useFocusEffect(
     useCallback(() => {
       setProgressState(getAllProgress());
@@ -100,17 +96,7 @@ export default function ChallengesScreen() {
   );
 
   function handleCardPress(id: ChallengeType) {
-    if (id === "adivina_concepto") {
-      setLangPickerOpen(true);
-    } else {
-      openDetail(id);
-    }
-  }
-
-  function handleLangConfirm(langs: string[]) {
-    setSelectedLangs(langs);
-    setLangPickerOpen(false);
-    openDetail("adivina_concepto");
+    openDetail(id);
   }
 
   const totalDone = WEEKLY_CHALLENGES.filter(
@@ -238,12 +224,6 @@ export default function ChallengesScreen() {
         </View>
       </ScrollView>
 
-      {langPickerOpen && (
-        <ConceptPickerSheet
-          onConfirm={handleLangConfirm}
-          onClose={() => setLangPickerOpen(false)}
-        />
-      )}
     </SafeAreaView>
   );
 }

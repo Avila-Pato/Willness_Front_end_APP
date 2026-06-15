@@ -1,6 +1,5 @@
 import { SPACING } from "@/constants/constants";
 import { BG, MUTED, TEXT } from "@/constants/theme";
-import { CONCEPT_GROUPS } from "@/data/languageQuestions";
 import { useCallback, useEffect, useState } from "react";
 import {
   Dimensions,
@@ -32,14 +31,33 @@ const CARD_W = SCREEN_W * 0.5;
 const SIDE_MARGIN = SPACING * 2;
 const PIN_SIZE = 18;
 
-const allConcepts = CONCEPT_GROUPS.flatMap((g) => g.items);
+export type TagItem = {
+  id: string;
+  title: string;
+  description: string;
+  color: string;
+  bg: string;
+};
 
 type Props = {
-  onConfirm: (concepts: string[]) => void;
+  items: TagItem[];
+  heading: string;
+  subheading: string;
+  emptyLabel?: string;
+  confirmLabel?: (count: number) => string;
+  onConfirm: (ids: string[]) => void;
   onClose: () => void;
 };
 
-export function ConceptPickerSheet({ onConfirm, onClose }: Props) {
+export function TagPickerSheet({
+  items,
+  heading,
+  subheading,
+  emptyLabel = "Elige al menos un tema",
+  confirmLabel,
+  onConfirm,
+  onClose,
+}: Props) {
   const translateY = useSharedValue(SHEET_H);
   const backdropOpacity = useSharedValue(0);
   const [selected, setSelected] = useState<string[]>([]);
@@ -49,17 +67,14 @@ export function ConceptPickerSheet({ onConfirm, onClose }: Props) {
     backdropOpacity.value = withTiming(1, { duration: 220 });
   }, []);
 
-  const dismiss = useCallback(
-    (callback: () => void) => {
-      translateY.value = withTiming(
-        SHEET_H,
-        { duration: 380, easing: Easing.in(Easing.cubic) },
-        () => runOnJS(callback)(),
-      );
-      backdropOpacity.value = withTiming(0, { duration: 360 });
-    },
-    [],
-  );
+  const dismiss = useCallback((callback: () => void) => {
+    translateY.value = withTiming(
+      SHEET_H,
+      { duration: 380, easing: Easing.in(Easing.cubic) },
+      () => runOnJS(callback)(),
+    );
+    backdropOpacity.value = withTiming(0, { duration: 360 });
+  }, []);
 
   const panGesture = Gesture.Pan()
     .onUpdate((e) => {
@@ -82,13 +97,20 @@ export function ConceptPickerSheet({ onConfirm, onClose }: Props) {
 
   function toggle(id: string) {
     setSelected((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id],
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   }
 
   function handleConfirm() {
     dismiss(() => onConfirm(selected));
   }
+
+  const btnLabel =
+    selected.length < 1
+      ? emptyLabel
+      : confirmLabel
+        ? confirmLabel(selected.length)
+        : `Explorar ${selected.length} tema${selected.length > 1 ? "s" : ""} →`;
 
   return (
     <Modal transparent animationType="none" onRequestClose={() => dismiss(onClose)}>
@@ -99,34 +121,28 @@ export function ConceptPickerSheet({ onConfirm, onClose }: Props) {
 
         <GestureDetector gesture={panGesture}>
           <Animated.View style={[styles.sheet, sheetStyle]}>
-            {/* Handle */}
             <View style={styles.handle} />
 
-            {/* Header */}
             <View style={styles.headerPad}>
-              <Text style={styles.title}>¿Qué áreas quieres explorar?</Text>
-              <Text style={styles.subtitle}>
-                Elige uno o más temas — las preguntas se adaptarán a ellos
-              </Text>
+              <Text style={styles.title}>{heading}</Text>
+              <Text style={styles.subtitle}>{subheading}</Text>
             </View>
 
             <ScrollView
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scroll}
             >
-              {/* Zigzag pinboard layout */}
               <View style={styles.zigzagOuter}>
-                {/* Center connecting line */}
                 <View style={styles.centerLine} pointerEvents="none" />
 
-                {allConcepts.map((concept, index) => {
+                {items.map((item, index) => {
                   const isLeft = index % 2 === 0;
-                  const active = selected.includes(concept.id);
+                  const active = selected.includes(item.id);
                   const num = String(index + 1).padStart(2, "0");
 
                   return (
                     <View
-                      key={concept.id}
+                      key={item.id}
                       style={[
                         styles.zigzagRow,
                         isLeft ? styles.rowLeft : styles.rowRight,
@@ -136,22 +152,21 @@ export function ConceptPickerSheet({ onConfirm, onClose }: Props) {
                         style={({ pressed }) => [
                           styles.zigzagCard,
                           {
-                            backgroundColor: active ? concept.bg : "#fff",
+                            backgroundColor: active ? item.bg : "#fff",
                             transform: [{ rotate: isLeft ? "-1.5deg" : "1.5deg" }],
                           },
-                          active && { borderColor: concept.color, borderWidth: 2 },
+                          active && { borderColor: item.color, borderWidth: 2 },
                           pressed && { opacity: 0.88 },
                         ]}
-                        onPress={() => toggle(concept.id)}
+                        onPress={() => toggle(item.id)}
                       >
-                        {/* Number + pin row */}
                         <View
                           style={[
                             styles.cardTopRow,
                             { flexDirection: isLeft ? "row" : "row-reverse" },
                           ]}
                         >
-                          <Text style={[styles.cardNum, { color: concept.color }]}>
+                          <Text style={[styles.cardNum, { color: item.color }]}>
                             {num}
                           </Text>
                           <View
@@ -159,25 +174,23 @@ export function ConceptPickerSheet({ onConfirm, onClose }: Props) {
                               styles.pinCircle,
                               {
                                 backgroundColor: active
-                                  ? concept.color
-                                  : concept.color + "28",
-                                borderColor: concept.color,
+                                  ? item.color
+                                  : item.color + "28",
+                                borderColor: item.color,
                               },
                             ]}
                           />
                         </View>
 
-                        {/* Title */}
                         <Text
                           style={[
                             styles.cardTitle,
                             { textAlign: isLeft ? "left" : "right" },
                           ]}
                         >
-                          {concept.id}
+                          {item.title}
                         </Text>
 
-                        {/* Description */}
                         <Text
                           style={[
                             styles.cardDesc,
@@ -185,7 +198,7 @@ export function ConceptPickerSheet({ onConfirm, onClose }: Props) {
                           ]}
                           numberOfLines={2}
                         >
-                          {concept.description}
+                          {item.description}
                         </Text>
                       </Pressable>
                     </View>
@@ -194,7 +207,6 @@ export function ConceptPickerSheet({ onConfirm, onClose }: Props) {
               </View>
             </ScrollView>
 
-            {/* Footer */}
             <View style={styles.footer}>
               <Pressable
                 style={[styles.btn, selected.length < 1 && styles.btnDisabled]}
@@ -207,9 +219,7 @@ export function ConceptPickerSheet({ onConfirm, onClose }: Props) {
                     selected.length < 1 && styles.btnTextDisabled,
                   ]}
                 >
-                  {selected.length < 1
-                    ? "Elige al menos un área"
-                    : `Explorar ${selected.length} área${selected.length > 1 ? "s" : ""} →`}
+                  {btnLabel}
                 </Text>
               </Pressable>
             </View>
@@ -264,7 +274,6 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING * 2,
   },
 
-  /* ── Zigzag ── */
   zigzagOuter: {
     position: "relative",
     paddingVertical: SPACING * 0.5,
@@ -339,7 +348,6 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
 
-  /* ── Footer ── */
   footer: {
     paddingHorizontal: SPACING * 2,
     paddingVertical: SPACING * 1.5,
