@@ -44,7 +44,9 @@ const CHALLENGE_ICON: Record<string, IconCfg> = {
   completa_reflexion: { image: require("@/assets/icons/Documentation.svg"), bg: "#E8E8F5", color: "#5A5CA0" },
 };
 
-const TOPIC_CARD_W = (SCREEN_W - SPACING * 4 - SPACING) / 2;
+const H_PAD = SPACING * 2;
+const CARD_GAP = SPACING * 1.2;
+const TOPIC_CARD_W = (SCREEN_W - H_PAD * 2 - CARD_GAP) / 2;
 
 export default function ChallengeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -56,8 +58,9 @@ export default function ChallengeDetailScreen() {
     if (!base) return undefined;
     if (base.id !== "adivina_concepto") return base;
     const langs = getSelectedLangs();
+    const count = Math.min(Math.max(langs.length * 5, 5), 20);
     const dynamic: ChallengeQuestion[] =
-      langs.length > 0 ? getQuestionsForConcepts(langs, 5) : base.questions;
+      langs.length > 0 ? getQuestionsForConcepts(langs, count) : base.questions;
     return { ...base, questions: dynamic };
   }, [base]);
 
@@ -173,27 +176,21 @@ export default function ChallengeDetailScreen() {
               {VERDAD_MITO_TOPICS.map((topic) => (
                 <Pressable
                   key={topic.id}
-                  style={({ pressed }) => [
-                    styles.topicCard,
-                    { borderTopColor: topic.color, opacity: pressed ? 0.85 : 1 },
-                  ]}
+                  style={({ pressed }) => [styles.topicCard, pressed && { opacity: 0.85 }]}
                   onPress={() => handleTopicPress(topic)}
                 >
-                  <View style={[styles.topicIconBox, { backgroundColor: topic.bg }]}>
-                    <Image
-                      source={topic.icon}
-                      style={{ width: 22, height: 22 }}
-                      tintColor={topic.color}
-                      contentFit="contain"
-                    />
-                  </View>
-                  <Text style={styles.topicTitle} numberOfLines={1}>{topic.title}</Text>
-                  <Text style={styles.topicDesc} numberOfLines={2}>{topic.description}</Text>
-                  <View style={styles.topicFooter}>
-                    <Text style={[styles.topicCount, { color: topic.color }]}>
-                      {topic.questions.length} preguntas
-                    </Text>
-                    <ChevronRight size={14} color={topic.color} />
+                  {/* Top accent line */}
+                  <View style={[styles.topicAccent, { backgroundColor: topic.color }]} />
+
+                  <View style={styles.topicCardBody}>
+                    <Text style={styles.topicTitle} numberOfLines={1}>{topic.title}</Text>
+                    <Text style={styles.topicDesc} numberOfLines={2}>{topic.description}</Text>
+                    <View style={styles.topicFooter}>
+                      <Text style={[styles.topicCount, { color: topic.color }]}>
+                        {topic.questions.length} preguntas
+                      </Text>
+                      <ChevronRight size={13} color={topic.color} />
+                    </View>
                   </View>
                 </Pressable>
               ))}
@@ -298,7 +295,7 @@ const styles = StyleSheet.create({
 
   // ── Topic grid ────────────────────────────────────────────────
   topicSection: {
-    paddingHorizontal: SPACING * 2,
+    paddingHorizontal: H_PAD,
     gap: SPACING * 1.5,
   },
   topicHeading: {
@@ -311,23 +308,27 @@ const styles = StyleSheet.create({
   topicGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: SPACING,
+    gap: CARD_GAP,
   },
   topicCard: {
     width: TOPIC_CARD_W,
     backgroundColor: "#fff",
-    borderRadius: 16,
-    borderTopWidth: 3,
+    borderRadius: 20,
+    overflow: "hidden",
+    shadowColor: "#1C1B29",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.07,
+    shadowRadius: 14,
+    elevation: 3,
+  },
+  topicAccent: {
+    height: 3,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  topicCardBody: {
     padding: SPACING * 1.5,
     gap: SPACING * 0.6,
-  },
-  topicIconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: SPACING * 0.4,
   },
   topicTitle: {
     fontSize: 15,
@@ -344,7 +345,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: SPACING * 0.5,
+    marginTop: SPACING * 0.8,
   },
   topicCount: {
     fontSize: 11,

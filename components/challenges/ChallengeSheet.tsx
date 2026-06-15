@@ -266,6 +266,8 @@ export function ChallengeSheet({ challenge, onClose }: Props) {
   };
 
   const isVerdadMito = challenge.id === "verdad_mito";
+  const isTrueFalse = (q: ChallengeQuestion) =>
+    q.type === "true_false" || isVerdadMito;
 
   const optionBg = (i: number, q: ChallengeQuestion, sel: number | null, state: AnswerState) => {
     if (state === "idle") return CARD_BG;
@@ -372,12 +374,12 @@ export function ChallengeSheet({ challenge, onClose }: Props) {
                       </View>
                     )}
 
-                    <View style={styles.optionsCol}>
+                    <View style={isTrueFalse(currentPQ) ? styles.optionsRow : styles.optionsCol}>
                       {currentPQ.options.map((opt, i) => (
                         <Pressable
                           key={i}
                           style={[
-                            styles.option,
+                            isTrueFalse(currentPQ) ? styles.optionBig : styles.option,
                             {
                               backgroundColor: optionBg(i, currentPQ, practiceSelected, practiceState),
                               borderColor: optionBorder(i, currentPQ, practiceSelected, practiceState),
@@ -385,27 +387,29 @@ export function ChallengeSheet({ challenge, onClose }: Props) {
                           ]}
                           onPress={() => handlePracticeSelect(i)}
                         >
-                          <View
-                            style={[
-                              styles.optionLetter,
-                              { borderColor: optionBorder(i, currentPQ, practiceSelected, practiceState) },
-                            ]}
-                          >
-                            <Text
+                          {!isTrueFalse(currentPQ) && (
+                            <View
                               style={[
-                                styles.optionLetterText,
-                                { color: optionColor(i, currentPQ, practiceSelected, practiceState) },
+                                styles.optionLetter,
+                                { borderColor: optionBorder(i, currentPQ, practiceSelected, practiceState) },
                               ]}
                             >
-                              {String.fromCharCode(65 + i)}
-                            </Text>
-                          </View>
+                              <Text
+                                style={[
+                                  styles.optionLetterText,
+                                  { color: optionColor(i, currentPQ, practiceSelected, practiceState) },
+                                ]}
+                              >
+                                {String.fromCharCode(65 + i)}
+                              </Text>
+                            </View>
+                          )}
                           <Text
                             style={[
-                              styles.optionText,
+                              isTrueFalse(currentPQ) ? styles.optionBigText : styles.optionText,
                               {
                                 color: optionColor(i, currentPQ, practiceSelected, practiceState),
-                                flex: 1,
+                                flex: isTrueFalse(currentPQ) ? undefined : 1,
                               },
                             ]}
                           >
@@ -525,12 +529,12 @@ export function ChallengeSheet({ challenge, onClose }: Props) {
                   </View>
                 )}
 
-                <View style={isVerdadMito ? styles.optionsRow : styles.optionsCol}>
+                <View style={isTrueFalse(currentQ) ? styles.optionsRow : styles.optionsCol}>
                   {currentQ.options.map((opt, i) => (
                     <Pressable
                       key={i}
                       style={[
-                        isVerdadMito ? styles.optionBig : styles.option,
+                        isTrueFalse(currentQ) ? styles.optionBig : styles.option,
                         {
                           backgroundColor: optionBg(i, currentQ, selected, answerState),
                           borderColor: optionBorder(i, currentQ, selected, answerState),
@@ -538,7 +542,7 @@ export function ChallengeSheet({ challenge, onClose }: Props) {
                       ]}
                       onPress={() => handleSelect(i)}
                     >
-                      {!isVerdadMito && (
+                      {!isTrueFalse(currentQ) && (
                         <View
                           style={[
                             styles.optionLetter,
@@ -557,10 +561,10 @@ export function ChallengeSheet({ challenge, onClose }: Props) {
                       )}
                       <Text
                         style={[
-                          isVerdadMito ? styles.optionBigText : styles.optionText,
+                          isTrueFalse(currentQ) ? styles.optionBigText : styles.optionText,
                           {
                             color: optionColor(i, currentQ, selected, answerState),
-                            flex: isVerdadMito ? undefined : 1,
+                            flex: isTrueFalse(currentQ) ? undefined : 1,
                           },
                         ]}
                       >

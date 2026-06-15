@@ -1,11 +1,12 @@
 import { SPACING, TAB_ITEM_SIZE } from "@/constants/constants";
 import { BG, MUTED, TEXT } from "@/constants/theme";
 import { HABITS } from "@/data/habitsData";
+import { TEST_CATEGORIES, SelfTest } from "@/data/selfTestsData";
 import { ABSTRACT_IMAGES, TIPS } from "@/data/tipsData";
 import { useUserStore } from "@/store/useUserStore";
 import { Image } from "expo-image";
 import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -13,6 +14,8 @@ import {
 
 const BAR_HEIGHT = TAB_ITEM_SIZE + SPACING * 1.5;
 const DARK = "#1A1244";
+const SCREEN_W = Dimensions.get("window").width;
+const TEST_CARD_W = SCREEN_W * 0.46;
 const CARD_H = 210;
 const PEEK = 14;
 
@@ -179,11 +182,73 @@ export default function ExploraScreen() {
         )}
 
         {/* Contador */}
-        {
-          <Text style={s.deckCounter}>
-            {`${addedIds.length} de ${HABITS.length} hábitos añadidos`}
+        <Text style={s.deckCounter}>
+          {`${addedIds.length} de ${HABITS.length} hábitos añadidos`}
+        </Text>
+
+        {/* ── Tests de autoconocimiento ── */}
+        <View style={s.testsHeader}>
+          <Text style={s.testsTitle}>{"Evaluaciones"}</Text>
+          <Text style={s.testsSub}>
+            {"Conócete mejor con estas autoevaluaciones de bienestar"}
           </Text>
-        }
+        </View>
+
+        {TEST_CATEGORIES.map((cat) => (
+          <View key={cat.label} style={s.catBlock}>
+            <View style={s.catLabelRow}>
+              <Text style={s.catEmoji}>{cat.emoji}</Text>
+              <Text style={s.catLabel}>{cat.label}</Text>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={s.catScroll}
+            >
+              {cat.tests.map((test: SelfTest) => (
+                <Pressable
+                  key={test.id}
+                  style={({ pressed }) => [
+                    s.testCard,
+                    pressed && { opacity: 0.88 },
+                  ]}
+                >
+                  {/* Image area */}
+                  <View style={[s.testCardImg, { backgroundColor: test.color }]}>
+                    <Image
+                      source={test.character}
+                      style={s.testCharacter}
+                      contentFit="contain"
+                      contentPosition="bottom center"
+                    />
+                  </View>
+
+                  {/* Body */}
+                  <View style={s.testCardBody}>
+                    <Text style={s.testCardTitle} numberOfLines={2}>
+                      {test.title}
+                    </Text>
+                    <Text style={s.testCardDesc} numberOfLines={2}>
+                      {test.desc}
+                    </Text>
+                    <View style={s.testCardMeta}>
+                      <View style={[s.metaBadge, { backgroundColor: test.accent + "18" }]}>
+                        <Text style={[s.metaBadgeText, { color: test.accent }]}>
+                          {`${test.minutes} min`}
+                        </Text>
+                      </View>
+                      <View style={[s.metaBadge, { backgroundColor: test.accent + "18" }]}>
+                        <Text style={[s.metaBadgeText, { color: test.accent }]}>
+                          {`${test.questions} preg`}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
+        ))}
       </ScrollView>
     </SafeAreaView>
   );
@@ -360,6 +425,99 @@ const s = StyleSheet.create({
     fontSize: 12,
     color: MUTED,
     fontWeight: "500",
+  },
+
+  /* ── Tests de autoconocimiento ── */
+  testsHeader: {
+    paddingHorizontal: SPACING * 2,
+    gap: SPACING * 0.4,
+  },
+  testsTitle: {
+    fontSize: 22,
+    fontWeight: "900",
+    color: TEXT,
+    letterSpacing: -0.5,
+  },
+  testsSub: {
+    fontSize: 13,
+    color: MUTED,
+    lineHeight: 19,
+  },
+  catBlock: {
+    gap: SPACING * 1.2,
+  },
+  catLabelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING * 0.6,
+    paddingHorizontal: SPACING * 2,
+  },
+  catEmoji: {
+    fontSize: 14,
+    color: MUTED,
+  },
+  catLabel: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: MUTED,
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+  },
+  catScroll: {
+    paddingHorizontal: SPACING * 2,
+    gap: SPACING * 1.2,
+  },
+  testCard: {
+    width: TEST_CARD_W,
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    overflow: "hidden",
+    shadowColor: "#1C1B29",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.07,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  testCardImg: {
+    height: 130,
+    overflow: "hidden",
+  },
+  testCharacter: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 140,
+  },
+  testCardBody: {
+    padding: SPACING * 1.4,
+    gap: SPACING * 0.6,
+  },
+  testCardTitle: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: TEXT,
+    letterSpacing: -0.2,
+    lineHeight: 18,
+  },
+  testCardDesc: {
+    fontSize: 11,
+    color: MUTED,
+    lineHeight: 15,
+  },
+  testCardMeta: {
+    flexDirection: "row",
+    gap: SPACING * 0.6,
+    marginTop: SPACING * 0.4,
+  },
+  metaBadge: {
+    borderRadius: 8,
+    paddingHorizontal: SPACING * 0.8,
+    paddingVertical: 3,
+  },
+  metaBadgeText: {
+    fontSize: 10,
+    fontWeight: "700",
   },
 
   /* Empty state */

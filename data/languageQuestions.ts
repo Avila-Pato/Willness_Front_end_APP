@@ -251,14 +251,116 @@ export const CONCEPT_QUESTIONS: ConceptQuestion[] = [
   },
 ];
 
-export const CONCEPT_GROUPS = [
+// ── Preguntas Verdad / Mito por concepto ──────────────────────────────────────
+const tf = (
+  id: string,
+  concept: string,
+  statement: string,
+  correctIndex: 0 | 1,
+  explanation: string,
+): ConceptQuestion => ({
+  id,
+  concept,
+  type: "true_false",
+  statement,
+  options: ["Verdad", "Mito"],
+  correctIndex,
+  explanation,
+});
+
+export const CONCEPT_TF_QUESTIONS: ConceptQuestion[] = [
+  // Límites
+  tf("lim_tf1", "Límites",
+    "Es posible poner límites con amabilidad, sin enojo ni culpa.",
+    0, "Los límites sanos se comunican con calma y claridad. No necesitan agresividad ni disculpas para ser válidos."),
+  tf("lim_tf2", "Límites",
+    "Para que un límite sea válido, necesitas dar una explicación detallada de tus razones.",
+    1, "Un límite no necesita justificarse. 'No puedo' es suficiente. Dar demasiadas explicaciones a veces abre la puerta a la negociación."),
+  tf("lim_tf3", "Límites",
+    "Poner límites puede mejorar la calidad de tus relaciones.",
+    0, "Los límites generan relaciones más honestas y menos resentimiento. Cuando comunicas lo que puedes y no puedes, construyes vínculos más sanos."),
+
+  // Autoestima
+  tf("aut_tf1", "Autoestima",
+    "La autocompasión es más efectiva que la autocrítica severa para mejorar y crecer.",
+    0, "Tratar los propios errores con amabilidad —como lo harías con un amigo— genera más motivación para cambiar que la autocrítica dura, que solo produce vergüenza."),
+  tf("aut_tf2", "Autoestima",
+    "Tener autoestima alta significa nunca dudar de uno mismo.",
+    1, "La autoestima sana no implica ausencia de dudas. Significa que puedes enfrentar la incertidumbre sin que tu valor como persona se derrumbe."),
+  tf("aut_tf3", "Autoestima",
+    "La autoestima puede fortalecerse a lo largo de toda la vida.",
+    0, "A diferencia del CI, la autoestima es moldeable. El autoconocimiento, la terapia y las relaciones sanas pueden transformarla en cualquier etapa."),
+
+  // Emociones
+  tf("emo_tf1", "Emociones",
+    "Las emociones difíciles como la tristeza o el miedo tienen información valiosa para ti.",
+    0, "Todas las emociones son señales. La tristeza indica una pérdida o necesidad no cubierta; el miedo señala un peligro percibido. Ignorarlas suprime la información."),
+  tf("emo_tf2", "Emociones",
+    "Ignorar las emociones hace que desaparezcan más rápido.",
+    1, "Las emociones ignoradas se acumulan y emergen con más intensidad. Reconocerlas y procesarlas —aunque sea brevemente— es la vía más efectiva."),
+  tf("emo_tf3", "Emociones",
+    "La inteligencia emocional se puede desarrollar con práctica.",
+    0, "A diferencia del coeficiente intelectual, la inteligencia emocional es altamente entrenable a través de la reflexión, la terapia o el mindfulness."),
+
+  // Comunicación
+  tf("com_tf1", "Comunicación",
+    "Escuchar activamente es tan importante como saber hablar en una conversación.",
+    0, "La escucha activa —atención plena sin interrumpir— es fundamental para la comprensión real. Muchos problemas de comunicación vienen de no escuchar bien, no de no hablar bien."),
+  tf("com_tf2", "Comunicación",
+    "Ser asertivo significa imponer tu opinión sobre los demás.",
+    1, "La asertividad es expresar lo que piensas y necesitas con respeto, sin agredir ni someterte. No es imposición; es comunicación honesta con cuidado del otro."),
+  tf("com_tf3", "Comunicación",
+    "Hablar en primera persona ('yo siento...') reduce el conflicto comparado con acusar ('tú siempre...').",
+    0, "El lenguaje en primera persona genera menos defensividad en el otro y abre más espacio para resolver el problema real."),
+
+  // Relaciones
+  tf("rel_tf1", "Relaciones",
+    "Los conflictos son inevitables incluso en relaciones sanas.",
+    0, "El conflicto no es señal de una relación rota; es parte natural de cualquier vínculo cercano. Lo que importa es cómo se gestionan: con respeto o con daño."),
+  tf("rel_tf2", "Relaciones",
+    "El amor verdadero no debería requerir esfuerzo ni trabajo.",
+    1, "Esta idea romántica es un mito dañino. Las relaciones sanas requieren comunicación, elecciones conscientes y esfuerzo mutuo. La facilidad permanente es ficción."),
+  tf("rel_tf3", "Relaciones",
+    "Sentirte solo emocionalmente es posible incluso rodeado de muchas personas.",
+    0, "La soledad emocional surge de la falta de conexión significativa, no de la cantidad de personas alrededor. Extrovertidos también pueden sentirse profundamente solos."),
+
+  // Mindfulness
+  tf("min_tf1", "Mindfulness",
+    "La práctica de atención plena puede reducir los niveles de estrés.",
+    0, "Múltiples estudios respaldan que la práctica regular de mindfulness reduce el cortisol y mejora la respuesta al estrés crónico."),
+  tf("min_tf2", "Mindfulness",
+    "Practicar mindfulness requiere vaciar la mente de pensamientos.",
+    1, "El mindfulness no trata de tener una mente en blanco. Se trata de observar los pensamientos sin engancharse en ellos, con curiosidad y sin juicio."),
+  tf("min_tf3", "Mindfulness",
+    "El mindfulness solo funciona si se practica en meditación formal sentada.",
+    1, "La atención plena puede aplicarse en cualquier momento: comiendo, caminando, escuchando. La meditación formal ayuda a entrenarlo, pero no es la única forma."),
+];
+
+CONCEPT_QUESTIONS.push(...CONCEPT_TF_QUESTIONS);
+
+export type ConceptItem = {
+  id: string;
+  description: string;
+  color: string;
+  bg: string;
+};
+
+export const CONCEPT_GROUPS: { label: string; items: ConceptItem[] }[] = [
   {
     label: "Bienestar personal",
-    items: ["Límites", "Autoestima", "Emociones"],
+    items: [
+      { id: "Límites", description: "Define tu espacio y aprende a decir no", color: "#7C3AED", bg: "#F5F3FF" },
+      { id: "Autoestima", description: "Construye una relación positiva contigo mismo", color: "#0284C7", bg: "#EFF6FF" },
+      { id: "Emociones", description: "Reconoce y gestiona lo que sientes", color: "#D97706", bg: "#FFFBEB" },
+    ],
   },
   {
     label: "Relaciones y comunicación",
-    items: ["Comunicación", "Relaciones", "Mindfulness"],
+    items: [
+      { id: "Comunicación", description: "Exprésate con claridad y empatía", color: "#4D8B7A", bg: "#F0FDF4" },
+      { id: "Relaciones", description: "Cultiva vínculos sanos y significativos", color: "#BE185D", bg: "#FDF2F8" },
+      { id: "Mindfulness", description: "Conecta con el presente y contigo mismo", color: "#8980B8", bg: "#EEF2FF" },
+    ],
   },
 ];
 

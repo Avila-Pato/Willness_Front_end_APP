@@ -10,9 +10,11 @@ import {
   TEXT,
 } from "@/constants/theme";
 import { WEEKLY_CHALLENGES } from "@/data/weeklyData";
+
 import { getAllProgress } from "@/store/challengeProgress";
 import { setSelectedLangs } from "@/store/languagePrefs";
 import { ChallengeType } from "@/types/challenges";
+
 import { Image } from "expo-image";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
@@ -211,7 +213,12 @@ export default function ChallengesScreen() {
                         style={StyleSheet.absoluteFill}
                         contentFit="cover"
                       />
-                      <View style={[StyleSheet.absoluteFill, { backgroundColor: cfg.bg + "A0" }]} />
+                      <View
+                        style={[
+                          StyleSheet.absoluteFill,
+                          { backgroundColor: cfg.bg + "A0" },
+                        ]}
+                      />
                       <Text style={[s.rowTitle, { color: cfg.color }]}>
                         {c.title}
                       </Text>

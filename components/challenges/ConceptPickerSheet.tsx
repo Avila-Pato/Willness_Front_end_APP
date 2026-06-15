@@ -1,5 +1,5 @@
 import { SPACING } from "@/constants/constants";
-import { BG, MUTED, P_TEAL, TEXT } from "@/constants/theme";
+import { BG, MUTED, TEXT } from "@/constants/theme";
 import { CONCEPT_GROUPS } from "@/data/languageQuestions";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -25,9 +25,11 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-const { height: SCREEN_H } = Dimensions.get("window");
-const SHEET_H = SCREEN_H * 0.75;
+const { height: SCREEN_H, width: SCREEN_W } = Dimensions.get("window");
+const SHEET_H = SCREEN_H * 0.82;
 const DISMISS_THRESHOLD = SHEET_H * 0.25;
+const CARD_W = (SCREEN_W - SPACING * 4 - SPACING * 3) / 2;
+
 
 type Props = {
   onConfirm: (concepts: string[]) => void;
@@ -75,9 +77,9 @@ export function ConceptPickerSheet({ onConfirm, onClose }: Props) {
     opacity: backdropOpacity.value,
   }));
 
-  function toggle(concept: string) {
+  function toggle(id: string) {
     setSelected((prev) =>
-      prev.includes(concept) ? prev.filter((c) => c !== concept) : [...prev, concept],
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id],
     );
   }
 
@@ -99,7 +101,7 @@ export function ConceptPickerSheet({ onConfirm, onClose }: Props) {
 
             <Text style={styles.title}>¿Qué áreas quieres explorar?</Text>
             <Text style={styles.subtitle}>
-              Elige los temas que más te interesan y las preguntas serán sobre esos
+              Elige uno o más temas — las preguntas se adaptarán a ellos
             </Text>
 
             <ScrollView
@@ -109,20 +111,36 @@ export function ConceptPickerSheet({ onConfirm, onClose }: Props) {
               {CONCEPT_GROUPS.map((group) => (
                 <View key={group.label} style={styles.group}>
                   <Text style={styles.groupLabel}>{group.label}</Text>
-                  <View style={styles.chips}>
+                  <View style={styles.cardGrid}>
                     {group.items.map((concept) => {
-                      const active = selected.includes(concept);
+                      const active = selected.includes(concept.id);
                       return (
                         <Pressable
-                          key={concept}
-                          style={[styles.chip, active && styles.chipActive]}
-                          onPress={() => toggle(concept)}
+                          key={concept.id}
+                          style={({ pressed }) => [
+                            styles.card,
+                            active && { borderColor: concept.color, borderWidth: 2 },
+                            pressed && { opacity: 0.88 },
+                          ]}
+                          onPress={() => toggle(concept.id)}
                         >
-                          <Text
-                            style={[styles.chipText, active && styles.chipTextActive]}
-                          >
-                            {concept}
-                          </Text>
+                          {/* Accent line */}
+                          <View style={[styles.cardAccent, { backgroundColor: concept.color }]} />
+
+                          {/* Body */}
+                          <View style={styles.cardBody}>
+                            <View style={styles.cardTitleRow}>
+                              <Text style={styles.cardTitle}>{concept.id}</Text>
+                              {active && (
+                                <View style={[styles.checkBadge, { backgroundColor: concept.color }]}>
+                                  <Text style={styles.checkMark}>✓</Text>
+                                </View>
+                              )}
+                            </View>
+                            <Text style={styles.cardDesc} numberOfLines={2}>
+                              {concept.description}
+                            </Text>
+                          </View>
                         </Pressable>
                       );
                     })}
@@ -140,7 +158,7 @@ export function ConceptPickerSheet({ onConfirm, onClose }: Props) {
                 onPress={handleConfirm}
                 disabled={selected.length < 1}
               >
-                <Text style={styles.btnText}>
+                <Text style={[styles.btnText, selected.length < 1 && styles.btnTextDisabled]}>
                   {selected.length < 1
                     ? "Elige al menos un área"
                     : `Explorar ${selected.length} área${selected.length > 1 ? "s" : ""} →`}
@@ -194,10 +212,10 @@ const styles = StyleSheet.create({
   },
   scroll: {
     paddingBottom: SPACING * 2,
-    gap: SPACING * 2,
+    gap: SPACING * 2.5,
   },
   group: {
-    gap: SPACING,
+    gap: SPACING * 1.2,
   },
   groupLabel: {
     fontSize: 11,
@@ -206,47 +224,84 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.8,
   },
-  chips: {
+
+  /* ── Area cards grid ── */
+  cardGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: SPACING * 0.8,
+    gap: SPACING * 1.2,
   },
-  chip: {
-    paddingHorizontal: SPACING * 1.4,
-    paddingVertical: SPACING * 0.7,
-    borderRadius: 100,
+  card: {
+    width: CARD_W,
     backgroundColor: "#fff",
+    borderRadius: 18,
+    overflow: "hidden",
     borderWidth: 1.5,
-    borderColor: "#E5E7EB",
+    borderColor: "#F3F4F6",
+    shadowColor: "#1C1B29",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
   },
-  chipActive: {
-    backgroundColor: P_TEAL.bg,
-    borderColor: P_TEAL.fg,
+  cardAccent: {
+    height: 3,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
   },
-  chipText: {
-    fontSize: 13,
-    fontWeight: "600",
+  cardBody: {
+    padding: SPACING * 1.3,
+    gap: SPACING * 0.5,
+  },
+  cardTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  cardTitle: {
+    fontSize: 14,
+    fontWeight: "800",
+    color: TEXT,
+    letterSpacing: -0.2,
+  },
+  checkBadge: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkMark: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "800",
+  },
+  cardDesc: {
+    fontSize: 11,
     color: MUTED,
+    lineHeight: 15,
   },
-  chipTextActive: {
-    color: P_TEAL.fg,
-  },
+
+  /* ── Footer ── */
   footer: {
     paddingVertical: SPACING * 1.5,
     paddingBottom: SPACING * 3,
   },
   btn: {
-    backgroundColor: P_TEAL.fg,
+    backgroundColor: "#7C3AED",
     borderRadius: 16,
     paddingVertical: SPACING * 1.7,
     alignItems: "center",
   },
   btnDisabled: {
-    backgroundColor: "#E5E7EB",
+    backgroundColor: "#F3F4F6",
   },
   btnText: {
     color: "#fff",
     fontSize: 15,
     fontWeight: "800",
+  },
+  btnTextDisabled: {
+    color: MUTED,
   },
 });

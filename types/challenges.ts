@@ -6,8 +6,11 @@ export type ChallengeType =
   | "verdad_mito"
   | "completa_reflexion";
 
+export type QuestionType = "multiple_choice" | "true_false";
+
 export type ChallengeQuestion = {
   id: string;
+  type?: QuestionType; // default: "multiple_choice"
   statement: string;
   code?: string;
   options: string[];

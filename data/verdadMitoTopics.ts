@@ -30,7 +30,7 @@ export const VERDAD_MITO_TOPICS: VerdadMitoTopic[] = [
     description: "Mitos sobre poner límites en las relaciones",
     color: "#7C3AED",
     bg: "#EDE9FE",
-    icon: require("@/assets/icons/Documentation.svg"),
+    icon: require("@/assets/abstracts/Group-2.png"),
     questions: [
       q("vml1", "Poner límites es un acto egoísta.", 1,
         "Los límites son una forma de autocuidado y comunicación honesta. Nedra Tawwab explica que protegen el bienestar propio sin necesitar lastimar a los demás."),
@@ -50,7 +50,7 @@ export const VERDAD_MITO_TOPICS: VerdadMitoTopic[] = [
     description: "Lo real y lo falso sobre la gestión emocional",
     color: "#0284C7",
     bg: "#E0F2FE",
-    icon: require("@/assets/icons/Dialog.svg"),
+    icon: require("@/assets/abstracts/Group-3.png"),
     questions: [
       q("vme1", "La tristeza es una emoción negativa que debemos evitar o suprimir.", 1,
         "La tristeza es una emoción adaptativa que nos señala pérdidas o necesidades no cubiertas. Suprimirla no la elimina; la acumula y puede intensificarla."),
@@ -70,7 +70,7 @@ export const VERDAD_MITO_TOPICS: VerdadMitoTopic[] = [
     description: "Verdades y mitos sobre quererte a ti mismo",
     color: "#4D8B7A",
     bg: "#E8F0EE",
-    icon: require("@/assets/icons/Approval.svg"),
+    icon: require("@/assets/abstracts/Group-5.png"),
     questions: [
       q("vma1", "La autoestima alta significa pensar que eres mejor que los demás.", 1,
         "La autoestima sana implica reconocer tu valor sin necesitar compararte ni disminuir a otros. No es superioridad; es una valoración interna estable de uno mismo."),
@@ -90,7 +90,7 @@ export const VERDAD_MITO_TOPICS: VerdadMitoTopic[] = [
     description: "Mitos sobre cómo nos comunicamos",
     color: "#9E5C72",
     bg: "#F5E8EF",
-    icon: require("@/assets/icons/Notifications.svg"),
+    icon: require("@/assets/abstracts/Group-7.png"),
     questions: [
       q("vmc1", "Ser asertivo es lo mismo que ser agresivo o imponer tu opinión.", 1,
         "La asertividad es expresar tus necesidades y opiniones con respeto, sin agredir ni someterte. Es el equilibrio entre la pasividad y la agresividad."),
@@ -110,7 +110,7 @@ export const VERDAD_MITO_TOPICS: VerdadMitoTopic[] = [
     description: "Lo verdadero y lo falso sobre los vínculos",
     color: "#8A7040",
     bg: "#F2ECDD",
-    icon: require("@/assets/icons/Information Data.svg"),
+    icon: require("@/assets/abstracts/Group-9.png"),
     questions: [
       q("vmr1", "Una relación sana no debería tener conflictos.", 1,
         "Los conflictos son inevitables en toda relación cercana. Lo que define la salud de un vínculo es cómo se gestionan: con respeto, escucha y voluntad de resolver."),
@@ -130,7 +130,7 @@ export const VERDAD_MITO_TOPICS: VerdadMitoTopic[] = [
     description: "Verdades sobre el bienestar y los caminos a la felicidad",
     color: "#7B6BB5",
     bg: "#EDE9F8",
-    icon: require("@/assets/icons/Speed.svg"),
+    icon: require("@/assets/abstracts/Group-10.png"),
     questions: [
       q("vmf1", "La felicidad es un estado permanente que se alcanza cuando tienes todo en orden.", 1,
         "La felicidad es transitoria y variable, no un estado fijo. James Allen señala que el bienestar surge del estado interno de la mente, no de las circunstancias externas perfectas."),
