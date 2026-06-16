@@ -15,7 +15,7 @@ const TEST_ACCENT: Record<string, string> = {
   tk_dialogo:         "#059669",
   tk_conflicto:       "#BE185D",
   tk_codependencia:   "#EA580C",
-  tk_red_apoyo:       "#4D8B7A",
+  tk_vinculos:        "#BE185D",
   tk_limites_rel:     "#4F46E5",
   tk_estres:          "#DC2626",
   tk_burnout:         "#7C3AED",
@@ -33,6 +33,76 @@ const TEST_STEPS: Record<string, string[]> = {
     "No hay respuestas correctas ni incorrectas",
     "Descubre tu estilo de vinculación al terminar",
   ],
+  tk_asertividad: [
+    "Responde con la primera impresión que tengas",
+    "No hay respuestas correctas ni incorrectas",
+    "Descubre tu estilo de comunicación al terminar",
+  ],
+  tk_valores: [
+    "Responde según cómo te sientes, no cómo quisieras ser",
+    "No hay valores mejores ni peores",
+    "Descubre qué principios mueven realmente tus decisiones",
+  ],
+  tk_dialogo: [
+    "Responde pensando en cómo eres habitualmente, no en casos puntuales",
+    "No hay formas correctas ni incorrectas de dialogar contigo mismo",
+    "Descubre el patrón de tu voz interna al terminar",
+  ],
+  tk_conflicto: [
+    "Piensa en cómo reaccionas habitualmente ante situaciones de tensión",
+    "No hay estilos mejores ni peores, todos tienen su lugar",
+    "Descubre tu patrón de respuesta al conflicto al terminar",
+  ],
+  tk_codependencia: [
+    "Responde según cómo te sientes en tus relaciones habituales",
+    "Este test es de autoconocimiento, no de diagnóstico",
+    "Descubre qué señales de codependencia están más presentes en ti",
+  ],
+  tk_vinculos: [
+    "Piensa en cómo eres habitualmente en tus relaciones románticas",
+    "No hay estilos mejores ni peores — todos pueden trabajarse",
+    "Descubre qué patrón de apego caracteriza tus vínculos",
+  ],
+  tk_limites_rel: [
+    "Responde pensando en tu relación de pareja actual o más reciente",
+    "Sé honesto/a — no hay respuestas correctas ni incorrectas",
+    "Descubre en qué áreas tu relación está más fuerte y cuáles necesitan atención",
+  ],
+  tk_estres: [
+    "Responde pensando en cómo te has sentido en los últimos días o semanas",
+    "Hay preguntas sobre síntomas cognitivos, emocionales y físicos",
+    "Descubre en qué área el estrés está impactando más tu vida",
+  ],
+  tk_burnout: [
+    "Piensa en cómo te sientes habitualmente en tu contexto laboral o de responsabilidades",
+    "No hay respuestas correctas ni incorrectas — es un ejercicio de autoconocimiento",
+    "Descubre qué dimensión del burnout está más presente en ti",
+  ],
+  tk_autocompasion: [
+    "Responde pensando en cómo te tratas habitualmente, no solo en los buenos momentos",
+    "Algunas preguntas son sobre cómo te criticas y otras sobre cómo te cuidas",
+    "Descubre qué dimensión de la autocompasión es tu mayor fortaleza",
+  ],
+  tk_resiliencia: [
+    "Responde con honestidad — cómo eres, no cómo quisieras ser",
+    "Algunas preguntas son sobre situaciones concretas, otras sobre actitudes habituales",
+    "Descubre cuál es tu mayor pilar de resiliencia al terminar",
+  ],
+};
+
+const TEST_STYLES_COUNT: Record<string, number> = {
+  tk_apego:           4,
+  tk_asertividad:     4,
+  tk_valores:        10,
+  tk_dialogo:         4,
+  tk_conflicto:       5,
+  tk_codependencia:   4,
+  tk_vinculos:        3,
+  tk_limites_rel:     4,
+  tk_estres:          4,
+  tk_burnout:         3,
+  tk_autocompasion:   3,
+  tk_resiliencia:     5,
 };
 
 const DEFAULT_STEPS = [
@@ -59,6 +129,7 @@ export default function SelfTestDetailScreen() {
 
   const accent = TEST_ACCENT[test.id] ?? "#8980B8";
   const steps = TEST_STEPS[test.id] ?? DEFAULT_STEPS;
+  const stylesCount = TEST_STYLES_COUNT[test.id] ?? 4;
 
   const handleBack = () => {
     if (router.canGoBack()) router.back();
@@ -106,7 +177,7 @@ export default function SelfTestDetailScreen() {
           </View>
           <View style={s.statDivider} />
           <View style={s.statItem}>
-            <Text style={[s.statValue, { color: accent }]}>4</Text>
+            <Text style={[s.statValue, { color: accent }]}>{stylesCount}</Text>
             <Text style={s.statLabel}>estilos posibles</Text>
           </View>
         </View>

@@ -1,6 +1,65 @@
 import { SPACING } from "@/constants/constants";
 import { BG, MUTED, TEXT } from "@/constants/theme";
-import { APEGO_QUESTIONS, ApegoStyle, APEGO_STYLE_META, computeApegoResult } from "@/data/apegoTestData";
+import {
+  APEGO_QUESTIONS,
+  APEGO_STYLE_META,
+  computeApegoResult,
+} from "@/data/apegoTestData";
+import {
+  ASERTIVIDAD_QUESTIONS,
+  ASERTIVIDAD_STYLE_META,
+  computeAsertividadResult,
+} from "@/data/asertividadTestData";
+import {
+  VALOR_QUESTIONS,
+  VALOR_STYLE_META,
+  computeValoresResult,
+} from "@/data/valoresTestData";
+import {
+  DIALOGO_QUESTIONS,
+  DIALOGO_STYLE_META,
+  computeDialogoResult,
+} from "@/data/dialogoTestData";
+import {
+  CONFLICTO_QUESTIONS,
+  CONFLICTO_STYLE_META,
+  computeConflictoResult,
+} from "@/data/conflictoTestData";
+import {
+  CODEPENDENCIA_QUESTIONS,
+  CODEPENDENCIA_STYLE_META,
+  computeCodependenciaResult,
+} from "@/data/codependenciaTestData";
+import {
+  VINCULOS_QUESTIONS,
+  VINCULOS_STYLE_META,
+  computeVinculosResult,
+} from "@/data/vinculosTestData";
+import {
+  LIMITES_REL_QUESTIONS,
+  LIMITES_REL_STYLE_META,
+  computeLimitesRelResult,
+} from "@/data/limitesRelTestData";
+import {
+  ESTRES_QUESTIONS,
+  ESTRES_STYLE_META,
+  computeEstresResult,
+} from "@/data/estresTestData";
+import {
+  BURNOUT_QUESTIONS,
+  BURNOUT_STYLE_META,
+  computeBurnoutResult,
+} from "@/data/burnoutTestData";
+import {
+  AUTOCOMPASION_QUESTIONS,
+  AUTOCOMPASION_STYLE_META,
+  computeAutocompasionResult,
+} from "@/data/autocompasionTestData";
+import {
+  RESILIENCIA_QUESTIONS,
+  RESILIENCIA_STYLE_META,
+  computeResilienciaResult,
+} from "@/data/resilienciaTestData";
 import { router, useLocalSearchParams } from "expo-router";
 import { X } from "lucide-react-native";
 import { useRef, useState } from "react";
@@ -16,26 +75,99 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width: W } = Dimensions.get("window");
 const CIRCLE_SIZE = Math.min(52, (W - SPACING * 8) / 5);
-
-const STYLE_ORDER: ApegoStyle[] = ["seguro", "ansioso", "evitativo", "desorganizado"];
-
 const LABELS = ["Totalmente\nen desacuerdo", "Totalmente\nde acuerdo"];
 
-function getQuestionsForTest(testId: string) {
-  if (testId === "tk_apego") return APEGO_QUESTIONS;
-  return [];
-}
+type AnyQuestion = { id: string; text: string; style: string };
 
-function computeResult(testId: string, answers: Record<string, number>) {
-  if (testId === "tk_apego") return computeApegoResult(answers);
-  return null;
+function getTestData(testId: string): {
+  questions: AnyQuestion[];
+  getColor: (style: string) => string;
+  compute: (answers: Record<string, number>) => { primary: string; averages: Record<string, number> };
+} {
+  switch (testId) {
+    case "tk_apego":
+      return {
+        questions: APEGO_QUESTIONS,
+        getColor: (s) => (APEGO_STYLE_META as Record<string, { color: string }>)[s]?.color ?? "#8980B8",
+        compute: computeApegoResult,
+      };
+    case "tk_asertividad":
+      return {
+        questions: ASERTIVIDAD_QUESTIONS,
+        getColor: (s) => (ASERTIVIDAD_STYLE_META as Record<string, { color: string }>)[s]?.color ?? "#8980B8",
+        compute: computeAsertividadResult,
+      };
+    case "tk_valores":
+      return {
+        questions: VALOR_QUESTIONS,
+        getColor: (s) => (VALOR_STYLE_META as Record<string, { color: string }>)[s]?.color ?? "#8980B8",
+        compute: computeValoresResult,
+      };
+    case "tk_dialogo":
+      return {
+        questions: DIALOGO_QUESTIONS,
+        getColor: (s) => (DIALOGO_STYLE_META as Record<string, { color: string }>)[s]?.color ?? "#8980B8",
+        compute: computeDialogoResult,
+      };
+    case "tk_conflicto":
+      return {
+        questions: CONFLICTO_QUESTIONS,
+        getColor: (s) => (CONFLICTO_STYLE_META as Record<string, { color: string }>)[s]?.color ?? "#8980B8",
+        compute: computeConflictoResult,
+      };
+    case "tk_codependencia":
+      return {
+        questions: CODEPENDENCIA_QUESTIONS,
+        getColor: (s) => (CODEPENDENCIA_STYLE_META as Record<string, { color: string }>)[s]?.color ?? "#8980B8",
+        compute: computeCodependenciaResult,
+      };
+    case "tk_vinculos":
+      return {
+        questions: VINCULOS_QUESTIONS,
+        getColor: (s) => (VINCULOS_STYLE_META as Record<string, { color: string }>)[s]?.color ?? "#8980B8",
+        compute: computeVinculosResult,
+      };
+    case "tk_limites_rel":
+      return {
+        questions: LIMITES_REL_QUESTIONS,
+        getColor: (s) => (LIMITES_REL_STYLE_META as Record<string, { color: string }>)[s]?.color ?? "#8980B8",
+        compute: computeLimitesRelResult,
+      };
+    case "tk_estres":
+      return {
+        questions: ESTRES_QUESTIONS,
+        getColor: (s) => (ESTRES_STYLE_META as Record<string, { color: string }>)[s]?.color ?? "#8980B8",
+        compute: computeEstresResult,
+      };
+    case "tk_burnout":
+      return {
+        questions: BURNOUT_QUESTIONS,
+        getColor: (s) => (BURNOUT_STYLE_META as Record<string, { color: string }>)[s]?.color ?? "#8980B8",
+        compute: computeBurnoutResult,
+      };
+    case "tk_autocompasion":
+      return {
+        questions: AUTOCOMPASION_QUESTIONS,
+        getColor: (s) => (AUTOCOMPASION_STYLE_META as Record<string, { color: string }>)[s]?.color ?? "#8980B8",
+        compute: computeAutocompasionResult,
+      };
+    case "tk_resiliencia":
+      return {
+        questions: RESILIENCIA_QUESTIONS,
+        getColor: (s) => (RESILIENCIA_STYLE_META as Record<string, { color: string }>)[s]?.color ?? "#8980B8",
+        compute: computeResilienciaResult,
+      };
+    default:
+      return { questions: [], getColor: () => "#8980B8", compute: () => ({ primary: "", averages: {} }) };
+  }
 }
 
 export default function SelfTestQuestionScreen() {
   const { testId } = useLocalSearchParams<{ testId: string }>();
   const { top, bottom } = useSafeAreaInsets();
 
-  const questions = useRef(getQuestionsForTest(testId ?? "")).current;
+  const { questions, getColor, compute } = useRef(getTestData(testId ?? "")).current;
+
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [selected, setSelected] = useState<number | null>(null);
@@ -45,12 +177,8 @@ export default function SelfTestQuestionScreen() {
   const slideX = useSharedValue(0);
 
   const current = questions[step];
-  const progress = (step + 1) / questions.length;
-
-  const accentColor =
-    current && testId === "tk_apego"
-      ? APEGO_STYLE_META[(current as (typeof APEGO_QUESTIONS)[0]).style].color
-      : "#8980B8";
+  const progress = questions.length > 0 ? (step + 1) / questions.length : 0;
+  const accentColor = current ? getColor(current.style) : "#8980B8";
 
   const questionStyle = useAnimatedStyle(() => ({
     opacity: fadeOpacity.value,
@@ -76,7 +204,7 @@ export default function SelfTestQuestionScreen() {
     setTimeout(() => {
       animateTransition(() => {
         if (step + 1 >= questions.length) {
-          const result = computeResult(testId ?? "", newAnswers);
+          const result = compute(newAnswers);
           router.replace({
             pathname: "/self-test-result",
             params: { testId, result: JSON.stringify(result) },
