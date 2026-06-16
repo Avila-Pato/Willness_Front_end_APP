@@ -26,8 +26,8 @@ export const TEST_CATEGORIES: TestCategory[] = [
         id: "tk_apego",
         title: "Tu estilo de apego",
         desc: "Descubre cómo te vinculas emocionalmente y qué tan seguros te sientes en tus relaciones cercanas.",
-        minutes: 7,
-        questions: 12,
+        minutes: 15,
+        questions: 48,
         color: "#EDE9FE", // color fondo de tarjeta
         accent: "#898989", // color de acento para detalles y texto destacado
         character: require("@/assets/character/5.png"),

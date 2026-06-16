@@ -5,6 +5,7 @@ import { SelfTest, TEST_CATEGORIES } from "@/data/selfTestsData";
 import { ABSTRACT_IMAGES, TIPS } from "@/data/tipsData";
 import { useUserStore } from "@/store/useUserStore";
 import { Image } from "expo-image";
+import { router } from "expo-router";
 import { useState } from "react";
 import {
   Dimensions,
@@ -219,6 +220,7 @@ export default function ExploraScreen() {
                     s.testCard,
                     pressed && { opacity: 0.88 },
                   ]}
+                  onPress={() => router.push({ pathname: "/self-test-detail", params: { testId: test.id } })}
                 >
                   {/* Image area */}
                   <View

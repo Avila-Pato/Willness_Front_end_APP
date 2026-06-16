@@ -41,6 +41,9 @@ export default function RootLayout() {
         <Stack.Screen name="challenge-detail" options={{ headerShown: false, animation: "slide_from_right" }} />
         <Stack.Screen name="role-test" options={{ headerShown: false, animation: "fade" }} />
         <Stack.Screen name="role-result" options={{ headerShown: false, animation: "slide_from_right" }} />
+        <Stack.Screen name="self-test-detail" options={{ headerShown: false, animation: "slide_from_right" }} />
+        <Stack.Screen name="self-test-question" options={{ headerShown: false, animation: "slide_from_right" }} />
+        <Stack.Screen name="self-test-result" options={{ headerShown: false, animation: "slide_from_right" }} />
       </Stack>
     </GestureHandlerRootView>
   );
