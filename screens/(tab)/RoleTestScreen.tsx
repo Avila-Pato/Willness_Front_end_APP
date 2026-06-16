@@ -277,7 +277,7 @@ export default function RoleTestScreen() {
                 </View>
                 <View style={s.statDivider} />
                 <View style={s.statItem}>
-                  <Text style={s.statValue}>5 min</Text>
+                  <Text style={s.statValue}>10 min</Text>
                   <Text style={s.statLabel}>duración</Text>
                 </View>
               </View>

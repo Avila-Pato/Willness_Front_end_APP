@@ -28,8 +28,8 @@ export const TEST_CATEGORIES: TestCategory[] = [
         desc: "Descubre cómo te vinculas emocionalmente y qué tan seguros te sientes en tus relaciones cercanas.",
         minutes: 7,
         questions: 12,
-        color: "#EDE9FE",
-        accent: "#7C3AED",
+        color: "#EDE9FE", // color fondo de tarjeta
+        accent: "#898989", // color de acento para detalles y texto destacado
         character: require("@/assets/character/5.png"),
       },
       {
@@ -39,7 +39,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
         minutes: 8,
         questions: 15,
         color: "#E0F2FE",
-        accent: "#0284C7",
+        accent: "#898989",
         character: require("@/assets/character/9.png"),
       },
       {
@@ -49,7 +49,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
         minutes: 6,
         questions: 10,
         color: "#FEF3C7",
-        accent: "#D97706",
+        accent: "#898989",
         character: require("@/assets/character/11.png"),
       },
       {
@@ -59,7 +59,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
         minutes: 7,
         questions: 12,
         color: "#F0FDF4",
-        accent: "#16A34A",
+        accent: "#898989",
         character: require("@/assets/character/15.png"),
       },
     ],
@@ -75,7 +75,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
         minutes: 7,
         questions: 12,
         color: "#FDF2F8",
-        accent: "#BE185D",
+        accent: "#898989",
         character: require("@/assets/character/4.png"),
       },
       {
@@ -85,7 +85,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
         minutes: 9,
         questions: 14,
         color: "#FFF7ED",
-        accent: "#C2410C",
+        accent: "#898989",
         character: require("@/assets/character/8.png"),
       },
       {
@@ -95,7 +95,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
         minutes: 6,
         questions: 10,
         color: "#E8F0EE",
-        accent: "#4D8B7A",
+        accent: "#898989",
         character: require("@/assets/character/12.png"),
       },
       {
@@ -105,7 +105,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
         minutes: 8,
         questions: 13,
         color: "#EEF2FF",
-        accent: "#4338CA",
+        accent: "#898989",
         character: require("@/assets/character/16.png"),
       },
     ],
@@ -121,7 +121,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
         minutes: 9,
         questions: 14,
         color: "#FEE2E2",
-        accent: "#DC2626",
+        accent: "#898989",
         character: require("@/assets/character/6.png"),
       },
       {
@@ -131,7 +131,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
         minutes: 7,
         questions: 11,
         color: "#F5F3FF",
-        accent: "#7C3AED",
+        accent: "#898989",
         character: require("@/assets/character/13.png"),
       },
       {
@@ -141,7 +141,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
         minutes: 6,
         questions: 10,
         color: "#F0FDF4",
-        accent: "#059669",
+        accent: "#898989",
         character: require("@/assets/character/17.png"),
       },
       {
@@ -151,7 +151,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
         minutes: 8,
         questions: 13,
         color: "#FFFBEB",
-        accent: "#B45309",
+        accent: "#898989",
         character: require("@/assets/character/20.png"),
       },
     ],
@@ -167,7 +167,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
         minutes: 5,
         questions: 8,
         color: "#EFF6FF",
-        accent: "#1D4ED8",
+        accent: "#898989",
         character: require("@/assets/character/21.png"),
       },
       {
@@ -177,7 +177,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
         minutes: 7,
         questions: 12,
         color: "#FDF4FF",
-        accent: "#A21CAF",
+        accent: "#898989",
         character: require("@/assets/character/22.png"),
       },
       {
@@ -187,7 +187,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
         minutes: 6,
         questions: 10,
         color: "#F0FDF4",
-        accent: "#15803D",
+        accent: "#898989",
         character: require("@/assets/character/24.png"),
       },
       {
@@ -197,7 +197,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
         minutes: 8,
         questions: 12,
         color: "#EDE9FE",
-        accent: "#6D28D9",
+        accent: "#898989",
         character: require("@/assets/character/25.png"),
       },
     ],

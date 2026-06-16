@@ -11,7 +11,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { SectionHeader } from "./SectionHeader";
 
 type SkillCard = {
   id: string;
@@ -100,7 +99,7 @@ export function LayoutTodo() {
       </ScrollView>
 
       {/* ── Sección 3: Noticias reales de la API ─────────────── */}
-      <SectionHeader title="Tendencias tech" />
+      {/* <SectionHeader title="Tendencias tech" /> */}
 
       {loading ? (
         <ActivityIndicator color={ACCENT} style={{ marginVertical: 16 }} />

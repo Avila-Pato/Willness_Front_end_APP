@@ -1,12 +1,19 @@
 import { SPACING, TAB_ITEM_SIZE } from "@/constants/constants";
 import { BG, MUTED, TEXT } from "@/constants/theme";
 import { HABITS } from "@/data/habitsData";
-import { TEST_CATEGORIES, SelfTest } from "@/data/selfTestsData";
+import { SelfTest, TEST_CATEGORIES } from "@/data/selfTestsData";
 import { ABSTRACT_IMAGES, TIPS } from "@/data/tipsData";
 import { useUserStore } from "@/store/useUserStore";
 import { Image } from "expo-image";
 import { useState } from "react";
-import { Dimensions, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Dimensions,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -214,7 +221,9 @@ export default function ExploraScreen() {
                   ]}
                 >
                   {/* Image area */}
-                  <View style={[s.testCardImg, { backgroundColor: test.color }]}>
+                  <View
+                    style={[s.testCardImg, { backgroundColor: test.color }]}
+                  >
                     <Image
                       source={test.character}
                       style={s.testCharacter}
@@ -232,14 +241,24 @@ export default function ExploraScreen() {
                       {test.desc}
                     </Text>
                     <View style={s.testCardMeta}>
-                      <View style={[s.metaBadge, { backgroundColor: test.accent + "18" }]}>
+                      <View
+                        style={[
+                          s.metaBadge,
+                          { backgroundColor: test.accent + "18" },
+                        ]}
+                      >
                         <Text style={[s.metaBadgeText, { color: test.accent }]}>
                           {`${test.minutes} min`}
                         </Text>
                       </View>
-                      <View style={[s.metaBadge, { backgroundColor: test.accent + "18" }]}>
+                      <View
+                        style={[
+                          s.metaBadge,
+                          { backgroundColor: test.accent + "18" },
+                        ]}
+                      >
                         <Text style={[s.metaBadgeText, { color: test.accent }]}>
-                          {`${test.questions} preg`}
+                          {`${test.questions} preguntas`}
                         </Text>
                       </View>
                     </View>
