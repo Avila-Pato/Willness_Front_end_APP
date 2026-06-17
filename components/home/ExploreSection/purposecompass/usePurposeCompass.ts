@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ExpoClipboard from "expo-clipboard";
 import { useEffect, useRef, useState } from "react";
 import { Animated, PanResponder } from "react-native";
-import { Extrapolation, interpolate, SensorType, useAnimatedSensor, useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
+import { useAnimatedStyle, useSharedValue, withDelay, withRepeat, withSequence, withSpring, withTiming } from "react-native-reanimated";
 import { CompassItem, COMPASS_X, COMPASS_Y, NODE_DEFS, ORBIT, SNAP_THRESHOLD, STAT_BAR_W, STORAGE_KEY } from "./constants";
 
 export function usePurposeCompass(visible: boolean) {
@@ -36,32 +36,21 @@ export function usePurposeCompass(visible: boolean) {
 
   const cardScale   = useSharedValue(0);
   const cardOpacity = useSharedValue(0);
-  const gyro        = useAnimatedSensor(SensorType.ROTATION);
+  const cardFloat   = useSharedValue(0);
+  const sheenX      = useSharedValue(-220);
 
-  const cardTiltStyle = useAnimatedStyle(() => {
-    const { pitch, roll } = gyro.sensor.value;
-    const tiltX = interpolate(pitch + 1.5708, [-0.5, 0.5], [-24, 24], Extrapolation.CLAMP);
-    const tiltY = interpolate(roll,            [-0.5, 0.5], [-24, 24], Extrapolation.CLAMP);
-    return {
-      opacity: cardOpacity.value,
-      transform: [
-        { perspective: 500 },
-        { scale: cardScale.value },
-        { rotateX: `${tiltX}deg` },
-        { rotateY: `${tiltY}deg` },
-      ],
-    };
-  });
+  const cardTiltStyle = useAnimatedStyle(() => ({
+    opacity: cardOpacity.value,
+    transform: [
+      { scale: cardScale.value },
+      { translateY: cardFloat.value },
+    ],
+  }));
 
-  const sheenStyle = useAnimatedStyle(() => {
-    const { pitch, roll } = gyro.sensor.value;
-    const offsetX = interpolate(roll, [-0.5, 0.5], [-50, 50], Extrapolation.CLAMP);
-    const offsetY = interpolate(pitch + 1.5708, [-0.5, 0.5], [-50, 50], Extrapolation.CLAMP);
-    return {
-      transform: [{ translateX: offsetX }, { translateY: offsetY }],
-      opacity: interpolate(Math.abs(pitch + 1.5708) + Math.abs(roll), [0, 0.7], [0.12, 0.55], Extrapolation.CLAMP),
-    };
-  });
+  const sheenStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: sheenX.value }],
+    opacity: 0.4,
+  }));
 
   useEffect(() => {
     if (phase !== "compass") { ringScale.setValue(1); ringOpacity.setValue(0.3); return; }
@@ -83,11 +72,26 @@ export function usePurposeCompass(visible: boolean) {
 
   useEffect(() => {
     if (phase !== "revealed" || !selected) return;
-    cardScale.value = 0; cardOpacity.value = 0;
+    cardScale.value = 0; cardOpacity.value = 0; cardFloat.value = 0; sheenX.value = -220;
     textFade.setValue(0); btnsFade.setValue(0);
     statWidths.forEach((sw) => sw.setValue(0));
+
     cardOpacity.value = withTiming(1, { duration: 350 });
     cardScale.value   = withSpring(1, { damping: 9, stiffness: 75 });
+
+    // Subtle float loop
+    cardFloat.value = withRepeat(
+      withSequence(
+        withTiming(-5, { duration: 2400 }),
+        withTiming(0,  { duration: 2400 }),
+      ),
+      -1,
+      false,
+    );
+
+    // One-time holographic sheen sweep
+    sheenX.value = withDelay(550, withTiming(360, { duration: 820 }));
+
     Animated.stagger(180, selected.stats.map((stat, i) =>
       Animated.timing(statWidths[i], { toValue: stat.value / 100, duration: 700, useNativeDriver: false })
     )).start();
@@ -104,6 +108,7 @@ export function usePurposeCompass(visible: boolean) {
     nodeScales.forEach((ns) => ns.setValue(1));
     nodeGlows.forEach((g) => g.setValue(0));
     burstScale.setValue(0); burstOpacity.setValue(0);
+    cardFloat.value = 0; sheenX.value = -220;
     alignedRef.current = new Set();
     setAlignedCount(0); setAnchored(false); setCopied(false);
   };

@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { ACCENT, ACCENT_BORDER, ACCENT_MUTED, CARD_BG, CARD_BORDER, CARD_W, NODE_RADIUS, STAT_BAR_W, STAT_LABEL_W, STAT_PCT_W, TEXT_DARK, TEXT_MID, TEXT_MUTED, ACCENT_LIGHT } from "./constants";
+import { ACCENT, ACCENT_BORDER, ACCENT_LIGHT, ACCENT_MUTED, CARD_BG, CARD_BORDER, CARD_W, NODE_RADIUS, STAT_LABEL_W, STAT_PCT_W, TEXT_DARK, TEXT_MID, TEXT_MUTED } from "./constants";
 
 export const s = StyleSheet.create({
   overlay: { flex: 1 },
@@ -61,21 +61,21 @@ export const s = StyleSheet.create({
   node: { width: "100%", height: "100%", alignItems: "center", justifyContent: "center" },
   nodeLabel: { fontSize: 9, fontFamily: "Poppins-SemiBold", color: TEXT_MID, textAlign: "center", marginTop: 5, width: NODE_RADIUS * 2 + 10, letterSpacing: 0.3 },
 
-  collectCard: { width: CARD_W, borderRadius: 22, padding: 18, marginBottom: 18, elevation: 0, shadowOpacity: 0 },
+  collectCard: { width: CARD_W, borderRadius: 22, padding: 18, marginBottom: 18, borderWidth: 1, borderColor: ACCENT_BORDER, shadowColor: ACCENT, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 16, elevation: 4 },
   cardSheen: { ...StyleSheet.absoluteFillObject, borderRadius: 22 },
   cardTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 14 },
-  cardBadge: { backgroundColor: "rgba(104,153,180,0.22)", borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1, borderColor: "rgba(104,153,180,0.4)" },
-  cardBadgeTxt: { fontSize: 7, fontFamily: "Poppins-SemiBold", letterSpacing: 1.5, color: "rgba(168,210,235,0.95)" },
+  cardBadge: { backgroundColor: ACCENT_MUTED, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1, borderColor: ACCENT_BORDER },
+  cardBadgeTxt: { fontSize: 7, fontFamily: "Poppins-SemiBold", letterSpacing: 1.5, color: ACCENT },
   cardIconArea: { alignItems: "center", justifyContent: "center", marginBottom: 12, height: 60 },
-  cardIconRing: { position: "absolute", width: 56, height: 56, borderRadius: 28, borderWidth: 1, borderColor: "rgba(104,153,180,0.45)", overflow: "hidden" },
-  cardTitle: { fontSize: 20, fontFamily: "Playfair-ExtraBold", color: "#E8F4FA", textAlign: "center", marginBottom: 4, lineHeight: 26 },
-  cardSubtitle: { fontSize: 10, fontFamily: "Poppins-Regular", color: "rgba(168,200,220,0.75)", textAlign: "center", marginBottom: 14, letterSpacing: 0.3 },
-  cardDivider: { height: 1, backgroundColor: "rgba(104,153,180,0.3)", marginBottom: 12 },
+  cardIconRing: { position: "absolute", width: 56, height: 56, borderRadius: 28, borderWidth: 1, borderColor: ACCENT_BORDER, overflow: "hidden" },
+  cardTitle: { fontSize: 20, fontFamily: "Playfair-ExtraBold", color: TEXT_DARK, textAlign: "center", marginBottom: 4, lineHeight: 26 },
+  cardSubtitle: { fontSize: 10, fontFamily: "Poppins-Regular", color: TEXT_MUTED, textAlign: "center", marginBottom: 14, letterSpacing: 0.3 },
+  cardDivider: { height: 1, backgroundColor: ACCENT_BORDER, marginBottom: 12 },
   statRow: { flexDirection: "row", alignItems: "center", marginBottom: 8, gap: 8 },
-  statLabel: { fontSize: 10, fontFamily: "Poppins-Medium", color: "rgba(168,200,220,0.85)", width: STAT_LABEL_W },
-  statTrack: { flex: 1, height: 6, borderRadius: 3, backgroundColor: "rgba(255,255,255,0.1)", overflow: "hidden" },
-  statFill: { height: "100%", borderRadius: 3, backgroundColor: "#6899B4" },
-  statPct: { fontSize: 10, fontFamily: "Poppins-SemiBold", color: "rgba(168,210,235,0.9)", width: STAT_PCT_W, textAlign: "right" },
+  statLabel: { fontSize: 10, fontFamily: "Poppins-Medium", color: TEXT_MID, width: STAT_LABEL_W },
+  statTrack: { flex: 1, height: 6, borderRadius: 3, backgroundColor: ACCENT_MUTED, overflow: "hidden" },
+  statFill: { height: "100%", borderRadius: 3, backgroundColor: ACCENT },
+  statPct: { fontSize: 10, fontFamily: "Poppins-SemiBold", color: ACCENT, width: STAT_PCT_W, textAlign: "right" },
 
   reflectionCard: { backgroundColor: CARD_BG, borderRadius: 20, padding: 20, marginBottom: 14, borderWidth: 1, borderColor: CARD_BORDER, overflow: "hidden", width: "100%", shadowColor: ACCENT, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 10, elevation: 3 },
   reflectionAccent: { position: "absolute", left: 0, top: 0, bottom: 0, width: 4, backgroundColor: ACCENT, borderRadius: 2 },

@@ -35,9 +35,11 @@ export default function ResultsScreen() {
   const diagnostic = useUserStore((s) => s.diagnostic);
   const scores = diagnostic?.scores ?? {};
 
-  const sortedAreas = Object.entries(scores)
-    .filter(([, v]) => v > 0)
+  const allAreas: [string, number][] = Object.keys(AREA_META)
+    .map((key) => [key, scores[key] ?? 0] as [string, number])
     .sort(([, a], [, b]) => b - a);
+
+  const sortedAreas = allAreas.filter(([, v]) => v > 0);
 
   const topArea = sortedAreas[0]?.[0] ?? "emociones";
   const archetype = ARCHETYPE[topArea] ?? ARCHETYPE.emociones;
@@ -224,12 +226,10 @@ export default function ResultsScreen() {
         )}
 
         {/* Bar chart */}
-        {sortedAreas.length > 0 && (
-          <Animated2.View style={[s.chartCard, chartStyle]}>
-            <Text style={s.chartTitle}>Intensidad por área</Text>
-            <AreaBarChart areas={sortedAreas} />
-          </Animated2.View>
-        )}
+        <Animated2.View style={[s.chartCard, chartStyle]}>
+          <Text style={s.chartTitle}>Intensidad por área</Text>
+          <AreaBarChart areas={allAreas} />
+        </Animated2.View>
       </ScrollView>
 
       {/* Fixed bottom button */}

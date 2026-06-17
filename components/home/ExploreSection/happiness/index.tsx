@@ -79,21 +79,21 @@ export default function HappinessGameAssistant({ visible, onClose, onComplete }:
                 <Animated.View pointerEvents="none" style={[s.jackpotOverlay, { opacity: jackpotGlow }]} />
                 <View style={s.reelsRow}>
                   <ReelWindow
-                    label={"EL HECHO"} hint={"¿Qué pasó?"}
+                    label={"EL MOMENTO"} hint={"¿Qué viviste?"}
                     content={FACTS[display[0]].label}
                     bounce={reel1Bounce} reelScale={reel1Scale}
                     locked={locked[0]} idle={isIdle}
                     alchemistMode={alchemistMode} accentColor={"#F59E0B"}
                   />
                   <ReelWindow
-                    label={"SUPERPODER"} hint={"¿Qué usaste?"}
+                    label={"TU FORTALEZA"} hint={"¿Qué pusiste de ti?"}
                     content={SUPERPOWERS[display[1]].label}
                     bounce={reel2Bounce} reelScale={reel2Scale}
                     locked={locked[1]} idle={isIdle}
                     alchemistMode={alchemistMode} accentColor={"#7B6BB5"}
                   />
                   <ReelWindow
-                    label={"QUÍMICA"} hint={"¿Qué ganaste?"}
+                    label={"EL EFECTO"} hint={"¿Qué liberaste?"}
                     content={CHEMICALS[display[2]].molecule}
                     bounce={reel3Bounce} reelScale={reel3Scale}
                     locked={locked[2]} idle={isIdle}

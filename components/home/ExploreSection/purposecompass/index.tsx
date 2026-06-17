@@ -132,19 +132,19 @@ export default function PurposeCompassAssistant({ visible, onClose, onComplete }
         {phase === "revealed" && selected && (
           <ScrollView style={s.scroll} contentContainerStyle={s.revealScrollContent} showsVerticalScrollIndicator={false}>
             <ReAnimated.View style={[s.collectCard, cardTiltStyle]}>
-              <LinearGradient colors={["#152232", "#0E1C2E", "#1A3050"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[StyleSheet.absoluteFill, { borderRadius: 22 }]} />
+              <LinearGradient colors={["#F0EBF8", "#FAF8FF", "#EDE8F5"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[StyleSheet.absoluteFill, { borderRadius: 22 }]} />
               <ReAnimated.View style={[s.cardSheen, sheenStyle]} pointerEvents="none">
-                <LinearGradient colors={["rgba(255,255,255,0)", "rgba(104,153,180,0.75)", "rgba(200,235,255,0.65)", "rgba(255,255,255,0)"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+                <LinearGradient colors={["rgba(255,255,255,0)", "rgba(255,255,255,0.55)", "rgba(255,255,255,0.4)", "rgba(255,255,255,0)"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
               </ReAnimated.View>
               <View style={s.cardTopRow}>
                 <View style={s.cardBadge}><Text style={s.cardBadgeTxt}>{"ARQUETIPO REVELADO"}</Text></View>
-                <Compass size={13} color="rgba(168,210,235,0.85)" strokeWidth={1.5} />
+                <Compass size={13} color="#8B7AB8" strokeWidth={1.5} />
               </View>
               <View style={s.cardIconArea}>
                 <View style={s.cardIconRing}>
-                  <LinearGradient colors={["rgba(104,153,180,0.45)", "rgba(61,90,114,0.2)"]} style={StyleSheet.absoluteFill} />
+                  <LinearGradient colors={["rgba(139,122,184,0.18)", "rgba(107,90,158,0.08)"]} style={StyleSheet.absoluteFill} />
                 </View>
-                <Compass size={24} color="#A8D0E8" strokeWidth={1.5} />
+                <Compass size={24} color="#6B5A9E" strokeWidth={1.5} />
               </View>
               <Text style={s.cardTitle}>{selected.title}</Text>
               <Text style={s.cardSubtitle}>{selected.subtitle}</Text>

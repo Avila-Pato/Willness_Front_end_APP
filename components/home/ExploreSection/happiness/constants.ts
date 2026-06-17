@@ -17,7 +17,13 @@ export const FACTS: Fact[] = [
   { id: "f5", label: "Un rato de sol o de aire fresco", sabotaje: "Solo fue un rato. No sirve de mucho con todo lo que tengo pendiente.", destello: "Le diste a tu cuerpo y a tu mente el respiro que necesitaban" },
   { id: "f6", label: "Recordé algo con claridad", sabotaje: "Suerte. Cada vez me cuesta más recordar las cosas importantes.", destello: "Tu mente sigue activa y tus recuerdos siguen siendo tuyos" },
   { id: "f7", label: "Ayudé a alguien hoy", sabotaje: "No fue gran cosa. Cualquiera lo hubiera hecho en mi lugar.", destello: "Usaste tu experiencia y tu corazón para hacer la vida de alguien más fácil" },
-  { id: "f8", label: "Me reí de verdad", sabotaje: "Un momento tonto... enseguida vuelve la rutina de siempre.", destello: "Tu cuerpo y tu mente se aliviaron juntos. Eso no pasa por casualidad" },
+  { id: "f8",  label: "Me reí de verdad",                      sabotaje: "Un momento tonto... enseguida vuelve la rutina de siempre.",               destello: "Tu cuerpo y tu mente se aliviaron juntos. Eso no pasa por casualidad" },
+  { id: "f9",  label: "Escuché música que me gusta",           sabotaje: "Solo una canción... tampoco es que haya hecho algo productivo.",          destello: "Le diste a tu mente un descanso y dejaste que algo bonito te llegara" },
+  { id: "f10", label: "Salí a caminar aunque sea un momento",  sabotaje: "Fue poquísimo tiempo. No cuenta como ejercicio real.",                    destello: "Tu cuerpo se movió y tu mente respiró distinto aunque fuera un rato" },
+  { id: "f11", label: "Vi algo bonito hoy",                    sabotaje: "Una tontería... no es nada importante lo que vi.",                        destello: "Tus ojos y tu mente se detuvieron en algo bueno. Eso no es poca cosa" },
+  { id: "f12", label: "Me cuidé un momento",                   sabotaje: "Lo mínimo... cualquiera lo hace y no es ningún mérito.",                  destello: "Te pusiste en primer lugar aunque sea un instante. Eso te lo diste tú" },
+  { id: "f13", label: "Pensé en alguien que quiero",           sabotaje: "Solo un pensamiento... ni siquiera le dije nada a esa persona.",         destello: "Llevas amor dentro. Pensar en quien quieres ya es una forma de cuidarlo" },
+  { id: "f14", label: "Leí o vi algo que me entretuvo",        sabotaje: "Perdí el tiempo... había cosas más importantes que hacer.",               destello: "Le diste permiso a tu mente de descansar y disfrutar. Eso también se necesita" },
 ];
 
 export const SUPERPOWERS: Superpower[] = [

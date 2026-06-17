@@ -1,11 +1,11 @@
 import { AREA_META } from "@/constants/diagnosticData";
+import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useRef } from "react";
 import { Animated, Easing, StyleSheet, Text, View } from "react-native";
 
-const BAR_MAX_H = 110;
-const GRID_FRACS = [0, 0.33, 0.66, 1];
+const BAR_H = 20;
 
-interface BarColumnProps {
+interface HBarProps {
   area: string;
   score: number;
   maxScore: number;
@@ -13,37 +13,36 @@ interface BarColumnProps {
   isTop: boolean;
 }
 
-function BarColumn({ area, score, maxScore, delay, isTop }: BarColumnProps) {
+function HBar({ area, score, maxScore, delay, isTop }: HBarProps) {
   const meta = AREA_META[area];
-  const targetH = maxScore > 0 ? (score / maxScore) * BAR_MAX_H : 0;
-  const heightAnim = useRef(new Animated.Value(0)).current;
-  const scoreOp = useRef(new Animated.Value(0)).current;
+  const targetPct = maxScore > 0 && score > 0 ? score / maxScore : 0;
+
+  const widthAnim = useRef(new Animated.Value(0)).current;
+  const rowFade  = useRef(new Animated.Value(0)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.sequence([
       Animated.delay(delay),
       Animated.parallel([
-        Animated.timing(heightAnim, {
-          toValue: targetH,
-          duration: 700,
-          easing: Easing.out(Easing.back(1.2)),
+        Animated.timing(widthAnim, {
+          toValue: targetPct,
+          duration: 680,
+          easing: Easing.out(Easing.back(1.1)),
           useNativeDriver: false,
         }),
-        Animated.timing(scoreOp, {
+        Animated.timing(rowFade, {
           toValue: 1,
-          duration: 350,
-          delay: 300,
-          easing: Easing.out(Easing.cubic),
+          duration: 320,
           useNativeDriver: false,
         }),
       ]),
     ]).start(() => {
-      if (isTop) {
+      if (isTop && score > 0) {
         Animated.loop(
           Animated.sequence([
-            Animated.timing(glowAnim, { toValue: 1, duration: 900, useNativeDriver: false }),
-            Animated.timing(glowAnim, { toValue: 0, duration: 900, useNativeDriver: false }),
+            Animated.timing(glowAnim, { toValue: 1, duration: 1100, useNativeDriver: false }),
+            Animated.timing(glowAnim, { toValue: 0, duration: 1100, useNativeDriver: false }),
           ]),
         ).start();
       }
@@ -53,141 +52,123 @@ function BarColumn({ area, score, maxScore, delay, isTop }: BarColumnProps) {
 
   if (!meta) return null;
 
-  const glowOpacity = glowAnim.interpolate({ inputRange: [0, 1], outputRange: [0.18, 0.45] });
+  const barWidthPct = widthAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0%", "100%"],
+  });
+
+  const glowOpacity = glowAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.7, 1.0],
+  });
+
+  const labelColor =
+    isTop && score > 0
+      ? meta.color
+      : score > 0
+      ? "rgba(28,27,41,0.48)"
+      : "rgba(28,27,41,0.18)";
 
   return (
-    <View style={bc.col}>
-      <Animated.Text style={[bc.scoreVal, { color: meta.color, opacity: scoreOp }]}>
-        {score}
-      </Animated.Text>
-
-      <View style={bc.track}>
-        {/* Glow layer for top bar */}
-        {isTop && (
-          <Animated.View
-            style={[
-              bc.glow,
-              { backgroundColor: meta.color, opacity: glowOpacity },
-            ]}
-          />
-        )}
-        <Animated.View
-          style={[
-            bc.fill,
-            {
-              height: heightAnim,
-              backgroundColor: meta.color,
-              shadowColor: meta.color,
-              shadowOpacity: isTop ? 0.45 : 0.12,
-              shadowOffset: { width: 0, height: -3 },
-              shadowRadius: isTop ? 10 : 4,
-              elevation: isTop ? 6 : 2,
-            },
-          ]}
-        />
-      </View>
-
+    <Animated.View style={[hb.row, { opacity: rowFade }]}>
       <Text
-        style={[
-          bc.label,
-          {
-            color: isTop ? meta.color : "rgba(28,27,41,0.35)",
-            fontWeight: isTop ? "700" : "500",
-          },
-        ]}
+        style={[hb.label, { color: labelColor, fontWeight: isTop && score > 0 ? "700" : "500" }]}
         numberOfLines={1}
       >
         {meta.short}
       </Text>
-    </View>
+
+      <View style={hb.track}>
+        {score > 0 && (
+          <Animated.View style={[hb.fill, { width: barWidthPct }]}>
+            {isTop ? (
+              <Animated.View style={[StyleSheet.absoluteFill, { opacity: glowOpacity }]}>
+                <LinearGradient
+                  colors={[meta.color + "BB", meta.color, meta.color + "DD"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={StyleSheet.absoluteFill}
+                />
+              </Animated.View>
+            ) : (
+              <View style={[StyleSheet.absoluteFill, { backgroundColor: meta.color + "88" }]} />
+            )}
+          </Animated.View>
+        )}
+      </View>
+
+      <Text
+        style={[
+          hb.scoreVal,
+          {
+            color: score > 0 ? meta.color : "rgba(28,27,41,0.15)",
+            fontWeight: isTop && score > 0 ? "800" : "500",
+          },
+        ]}
+      >
+        {score > 0 ? score : "–"}
+      </Text>
+    </Animated.View>
   );
 }
-
-// ── AreaBarChart ─────────────────────────────────────────────────────────────
 
 interface Props {
   areas: [string, number][];
 }
 
 export function AreaBarChart({ areas }: Props) {
-  const maxScore = areas[0]?.[1] ?? 1;
+  const maxScore = Math.max(...areas.map(([, v]) => v), 1);
 
   return (
     <View style={s.root}>
-      <View style={s.chartArea}>
-        {/* Grid lines */}
-        <View style={s.gridLines} pointerEvents="none">
-          {GRID_FRACS.map((frac) => (
-            <View key={frac} style={[s.gridLine, { bottom: frac * BAR_MAX_H }]} />
-          ))}
-        </View>
-        {/* Bars */}
-        <View style={s.barsRow}>
-          {areas.map(([area, score], i) => (
-            <BarColumn
-              key={area}
-              area={area}
-              score={score}
-              maxScore={maxScore}
-              delay={i * 90}
-              isTop={i === 0}
-            />
-          ))}
-        </View>
-      </View>
+      {areas.map(([area, score], i) => (
+        <HBar
+          key={area}
+          area={area}
+          score={score}
+          maxScore={maxScore}
+          delay={i * 65}
+          isTop={i === 0}
+        />
+      ))}
     </View>
   );
 }
 
-const bc = StyleSheet.create({
-  col: { flex: 1, alignItems: "center", gap: 5 },
-  scoreVal: { fontSize: 12, fontWeight: "800", letterSpacing: -0.3 },
-  track: {
-    width: "62%",
-    height: BAR_MAX_H,
-    borderRadius: 10,
-    backgroundColor: "rgba(137,128,184,0.08)",
-    justifyContent: "flex-end",
-    overflow: "hidden",
-    position: "relative",
+const hb = StyleSheet.create({
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    height: 32,
   },
-  glow: {
-    position: "absolute",
-    top: 0, left: 0, right: 0, bottom: 0,
-    borderRadius: 10,
+  label: {
+    width: 60,
+    fontSize: 11,
+    textAlign: "right",
+  },
+  track: {
+    flex: 1,
+    height: BAR_H,
+    borderRadius: BAR_H / 2,
+    backgroundColor: "rgba(137,128,184,0.07)",
+    overflow: "hidden",
   },
   fill: {
-    borderRadius: 10,
-    width: "100%",
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    borderBottomLeftRadius: 3,
-    borderBottomRightRadius: 3,
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    borderRadius: BAR_H / 2,
+    overflow: "hidden",
   },
-  label: { fontSize: 9.5, textAlign: "center" },
+  scoreVal: {
+    width: 22,
+    fontSize: 11,
+    textAlign: "right",
+  },
 });
 
 const s = StyleSheet.create({
-  root: { width: "100%" },
-  chartArea: {
-    height: BAR_MAX_H + 30,
-    position: "relative",
-    justifyContent: "flex-end",
-  },
-  gridLines: {
-    position: "absolute",
-    left: 0, right: 0, bottom: 24,
-    height: BAR_MAX_H,
-  },
-  gridLine: {
-    position: "absolute",
-    left: 0, right: 0,
-    height: 1,
-    backgroundColor: "rgba(137,128,184,0.08)",
-  },
-  barsRow: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    height: BAR_MAX_H + 30,
-  },
+  root: { gap: 4 },
 });
