@@ -19,6 +19,7 @@ import { PROPOSITO_STYLE_META, PROPOSITO_STYLE_ORDER } from "@/data/propositoTes
 import { router, useLocalSearchParams } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { markTestCompleted } from "@/store/selfTestResults";
 
 type StyleMeta = {
   label: string;
@@ -108,6 +109,7 @@ export default function SelfTestResultScreen() {
   const maxVal = Math.max(...Object.values(averages), 1);
 
   const handleDone = () => {
+    if (testId) void markTestCompleted(testId);
     if (router.canGoBack()) {
       router.back();
       router.back();

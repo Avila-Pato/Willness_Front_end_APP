@@ -1,5 +1,6 @@
 import { HabitosProfile } from "@/components/profile/HabitosProfile";
 import { HumorTab } from "@/components/profile/HumorTab";
+import { LogrosTab } from "@/components/profile/LogrosTab";
 import { ProgresoTab } from "@/components/profile/ProgresoTab";
 import { SPACING, TAB_ITEM_SIZE } from "@/constants/constants";
 import { ARCHETYPE, AREA_META } from "@/constants/diagnosticData";
@@ -28,12 +29,13 @@ const BAR_HEIGHT = TAB_ITEM_SIZE + SPACING * 1.5;
 const BANNER_H = 220;
 const AVATAR_CARD = 148;
 
-type Tab = "progreso" | "Mis Habitos" | "humor";
+type Tab = "progreso" | "Mis Habitos" | "humor" | "logros";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "progreso", label: "Progreso" },
   { id: "Mis Habitos", label: "Hábitos" },
   { id: "humor", label: "Humor" },
+  { id: "logros", label: "Logros" },
 ];
 
 export default function ProfileScreen() {
@@ -164,6 +166,7 @@ export default function ProfileScreen() {
         )}
         {tab === "Mis Habitos" && <HabitosProfile />}
         {tab === "humor" && <HumorTab moodHistory={moodHistory} />}
+        {tab === "logros" && <LogrosTab />}
       </ScrollView>
 
       {/* ── About modal ── */}
