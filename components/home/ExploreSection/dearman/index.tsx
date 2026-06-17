@@ -9,9 +9,9 @@ import { CONTEXTS, GRADIENT_COLORS, INTROS, NEDRA_DATA, PARTICLES } from "./cons
 import { s } from "./styles";
 import { useDearMan } from "./useDearMan";
 
-interface Props { visible: boolean; onClose: () => void; }
+interface Props { visible: boolean; onClose: () => void; onComplete?: () => void; }
 
-export default function DearManAssistant({ visible, onClose }: Props) {
+export default function DearManAssistant({ visible, onClose, onComplete }: Props) {
   const {
     context, phase, selectedTrigger, nedraMode, copied,
     screenFade, cardFade, cardSlideX, contentFade, switchTranslateX,
@@ -124,7 +124,7 @@ export default function DearManAssistant({ visible, onClose }: Props) {
               <>
                 <Text style={s.triggerTitle}>{`"${selectedTrigger?.tag}"`}</Text>
 
-                <Pressable style={s.switchRow} onPress={toggleNedra}>
+                <Pressable style={s.switchRow} onPress={() => { if (!nedraMode) onComplete?.(); toggleNedra(); }}>
                   <Text style={[s.switchLabel, !nedraMode && s.switchLabelActive]}>{"Modo Miedo"}</Text>
                   <View style={[s.switchTrack, nedraMode && s.switchTrackActive]}>
                     <Animated.View style={[s.switchThumb, { transform: [{ translateX: switchTranslateX }] }]} />

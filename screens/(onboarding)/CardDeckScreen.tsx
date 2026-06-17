@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native";
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
@@ -20,23 +21,24 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-const ANALYSIS_MESSAGES = [
-  "Analizando tus respuestas...",
-  "Identificando tus patrones...",
-  "Construyendo tu perfil...",
-  "Calculando tus fortalezas...",
-  "Casi listo...",
+// Cada mensaje tiene su propio timestamp — "Casi listo" dura ~2.5 s
+const MSG_SCHEDULE = [
+  { at: 0,    text: "Analizando tus respuestas..." },
+  { at: 1800, text: "Identificando tus patrones..." },
+  { at: 3800, text: "Construyendo tu perfil..." },
+  { at: 5800, text: "Calculando tus fortalezas..." },
+  { at: 7800, text: "Evaluando tu bienestar..." },
+  { at: 9500, text: "Casi listo..." },           // se queda ~2.5 s
 ];
-const ANALYSIS_DURATION = 6000;
-const MSG_INTERVAL = ANALYSIS_DURATION / ANALYSIS_MESSAGES.length; // 1200ms
+const ANALYSIS_DURATION = 12000;
 
 function AnimDot({ delay }: { delay: number }) {
   const s = useSharedValue(0.4);
   useEffect(() => {
     s.value = withRepeat(
       withSequence(
-        withTiming(0.4, { duration: delay }),
-        withTiming(1, { duration: 500 }),
+        withTiming(0.4, { duration: delay || 1 }),
+        withTiming(1,   { duration: 500 }),
         withTiming(0.4, { duration: 500 }),
       ),
       -1,
@@ -49,47 +51,83 @@ function AnimDot({ delay }: { delay: number }) {
 }
 
 function AnalysisOverlay() {
-  const [msgIdx, setMsgIdx] = useState(0);
-  const barWidth = useSharedValue(0);
+  const [msg, setMsg] = useState(MSG_SCHEDULE[0].text);
+  const barWidth   = useSharedValue(0);
   const msgOpacity = useSharedValue(1);
-  const logoY = useSharedValue(12);
+  const logoY      = useSharedValue(14);
   const logoOpacity = useSharedValue(0);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const flipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const logoRotate  = useSharedValue(0);
+  const timersRef  = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const flipTo = (text: string) => {
+    msgOpacity.value = withTiming(0, { duration: 220 });
+    timersRef.current.push(
+      setTimeout(() => {
+        setMsg(text);
+        msgOpacity.value = withTiming(1, { duration: 320 });
+      }, 230),
+    );
+  };
 
   useEffect(() => {
-    logoY.value = withTiming(0, { duration: 600 });
+    // Logo entra y rota continuamente
+    logoY.value       = withTiming(0, { duration: 600 });
     logoOpacity.value = withTiming(1, { duration: 700 });
-    barWidth.value = withTiming(100, { duration: ANALYSIS_DURATION - 400 });
+    logoRotate.value  = withRepeat(
+      withTiming(360, { duration: 3200, easing: Easing.linear }),
+      -1,
+      false,
+    );
 
-    let i = 0;
-    intervalRef.current = setInterval(() => {
-      // Fade out en JS, luego cambia mensaje y fade in — sin worklet
-      msgOpacity.value = withTiming(0, { duration: 250 });
-      flipTimerRef.current = setTimeout(() => {
-        i = (i + 1) % ANALYSIS_MESSAGES.length;
-        setMsgIdx(i);
-        msgOpacity.value = withTiming(1, { duration: 350 });
-      }, 260);
-    }, MSG_INTERVAL);
+    // Barra con pausas/stutters — secuencia de ~12 s
+    barWidth.value = withSequence(
+      withTiming(8,   { duration: 500 }),
+      withTiming(8,   { duration: 350 }),   // pausa
+      withTiming(18,  { duration: 600 }),
+      withTiming(18,  { duration: 450 }),   // pausa
+      withTiming(28,  { duration: 700 }),
+      withTiming(28,  { duration: 350 }),   // pausa
+      withTiming(38,  { duration: 580 }),
+      withTiming(38,  { duration: 600 }),   // stutter largo
+      withTiming(48,  { duration: 650 }),
+      withTiming(48,  { duration: 900 }),   // pausa muy larga — suspense
+      withTiming(57,  { duration: 450 }),
+      withTiming(57,  { duration: 480 }),   // pausa
+      withTiming(65,  { duration: 500 }),
+      withTiming(65,  { duration: 350 }),   // pausa
+      withTiming(72,  { duration: 580 }),
+      withTiming(72,  { duration: 850 }),   // pausa larga
+      withTiming(80,  { duration: 420 }),
+      withTiming(80,  { duration: 560 }),   // pausa
+      withTiming(88,  { duration: 480 }),
+      withTiming(88,  { duration: 520 }),   // pausa
+      withTiming(94,  { duration: 380 }),
+      withTiming(94,  { duration: 440 }),   // pausa final
+      withTiming(100, { duration: 310 }),
+    );
 
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      if (flipTimerRef.current) clearTimeout(flipTimerRef.current);
-    };
+    // Mensajes en sus tiempos específicos (excepto el primero que ya está)
+    MSG_SCHEDULE.slice(1).forEach(({ at, text }) => {
+      timersRef.current.push(setTimeout(() => flipTo(text), at));
+    });
+
+    return () => timersRef.current.forEach(clearTimeout);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const barStyle = useAnimatedStyle(() => ({ width: `${barWidth.value}%` as any }));
-  const msgStyle = useAnimatedStyle(() => ({ opacity: msgOpacity.value }));
+  const barStyle  = useAnimatedStyle(() => ({ width: `${barWidth.value}%` as any }));
+  const msgStyle  = useAnimatedStyle(() => ({ opacity: msgOpacity.value }));
   const logoStyle = useAnimatedStyle(() => ({
-    opacity: logoOpacity.value,
-    transform: [{ translateY: logoY.value }],
+    opacity:   logoOpacity.value,
+    transform: [
+      { translateY: logoY.value },
+      { rotate: `${logoRotate.value}deg` },
+    ],
   }));
 
   return (
     <View style={ao.root}>
-      {/* Logo */}
+      {/* Logo rotando */}
       <Animated.View style={[ao.logoWrap, logoStyle]}>
         <Image
           source={require("@/assets/logo.png")}
@@ -106,9 +144,7 @@ function AnalysisOverlay() {
       </View>
 
       {/* Mensaje */}
-      <Animated.Text style={[ao.msg, msgStyle]}>
-        {ANALYSIS_MESSAGES[msgIdx]}
-      </Animated.Text>
+      <Animated.Text style={[ao.msg, msgStyle]}>{msg}</Animated.Text>
 
       {/* Barra de progreso */}
       <View style={ao.barTrack}>

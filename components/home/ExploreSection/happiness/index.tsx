@@ -9,9 +9,9 @@ import { CHEMICALS, FACTS, GRADIENT_COLORS, JACKPOT_PARTICLES, PARTICLES, SUPERP
 import { s } from "./styles";
 import { useHappiness } from "./useHappiness";
 
-interface Props { visible: boolean; onClose: () => void; }
+interface Props { visible: boolean; onClose: () => void; onComplete?: () => void; }
 
-export default function HappinessGameAssistant({ visible, onClose }: Props) {
+export default function HappinessGameAssistant({ visible, onClose, onComplete }: Props) {
   const {
     phase, result, display, locked, alchemistMode, saved, copied, jackpot,
     screenFade, reel1Bounce, reel2Bounce, reel3Bounce, reel1Scale, reel2Scale, reel3Scale,
@@ -101,7 +101,7 @@ export default function HappinessGameAssistant({ visible, onClose }: Props) {
                   />
                 </View>
                 <Animated.View style={{ transform: [{ scale: spinBtnScale }] }}>
-                  <Pressable style={[s.spinBtn, isSpinning && s.spinBtnBusy]} onPress={spin} disabled={isSpinning}>
+                  <Pressable style={[s.spinBtn, isSpinning && s.spinBtnBusy]} onPress={() => { onComplete?.(); spin(); }} disabled={isSpinning}>
                     <Zap size={18} color="#fff" strokeWidth={2.5} />
                     <Text style={s.spinBtnTxt}>{isSpinning ? "Girando..." : "Cosechar Momento"}</Text>
                   </Pressable>

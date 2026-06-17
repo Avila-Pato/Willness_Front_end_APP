@@ -8,9 +8,9 @@ import { BG_PARTICLES, COMPASS_X, COMPASS_Y, GRADIENT_COLORS, ITEMS, NODE_DEFS, 
 import { s } from "./styles";
 import { usePurposeCompass } from "./usePurposeCompass";
 
-interface Props { visible: boolean; onClose: () => void; }
+interface Props { visible: boolean; onClose: () => void; onComplete?: () => void; }
 
-export default function PurposeCompassAssistant({ visible, onClose }: Props) {
+export default function PurposeCompassAssistant({ visible, onClose, onComplete }: Props) {
   const {
     phase, selected, alignedCount, copied, anchored, completedIds, alignedRef,
     nodePositions, nodeScales, nodeGlows,
@@ -176,7 +176,7 @@ export default function PurposeCompassAssistant({ visible, onClose }: Props) {
             </Animated.View>
 
             <Animated.View style={[s.actionsRow, { opacity: btnsFade }]}>
-              <Pressable style={[s.actionBtn, anchored && s.actionBtnSuccess]} onPress={handleAnchor}>
+              <Pressable style={[s.actionBtn, anchored && s.actionBtnSuccess]} onPress={() => { if (!anchored) onComplete?.(); handleAnchor(); }}>
                 {anchored ? <Check size={15} color="#fff" strokeWidth={2.5} /> : <Compass size={15} color="#fff" strokeWidth={2} />}
                 <Text style={s.actionBtnTxt}>{anchored ? "¡Anclado!" : "Anclar propósito"}</Text>
               </Pressable>

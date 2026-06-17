@@ -256,7 +256,7 @@ export default function HomeScreen() {
     ]).start();
   };
 
-  const VISITED_KEY = "home_visited_categories";
+  const VISITED_KEY = "home_completed_categories";
 
   useEffect(() => {
     AsyncStorage.getItem(VISITED_KEY).then((raw) => {
@@ -286,30 +286,12 @@ export default function HomeScreen() {
   }, [nombre]);
 
   const categoryHandlers: Record<CategoryAction, () => void> = {
-    breathing: () => {
-      markVisited("breathing");
-      setBreathingVisible(true);
-    },
-    dear_man: () => {
-      markVisited("dear_man");
-      setDearManVisible(true);
-    },
-    felicidad: () => {
-      markVisited("felicidad");
-      setHappinessVisible(true);
-    },
-    autoestima: () => {
-      markVisited("autoestima");
-      setSelfEsteemVisible(true);
-    },
-    vinculos: () => {
-      markVisited("vinculos");
-      setVinculosVisible(true);
-    },
-    proposito: () => {
-      markVisited("proposito");
-      setPropositoVisible(true);
-    },
+    breathing:  () => setBreathingVisible(true),
+    dear_man:   () => setDearManVisible(true),
+    felicidad:  () => setHappinessVisible(true),
+    autoestima: () => setSelfEsteemVisible(true),
+    vinculos:   () => setVinculosVisible(true),
+    proposito:  () => setPropositoVisible(true),
   };
 
   const day = new Date().getDay();
@@ -618,26 +600,32 @@ export default function HomeScreen() {
       <BreathingScreen
         visible={breathingVisible}
         onClose={() => setBreathingVisible(false)}
+        onComplete={() => markVisited("breathing")}
       />
       <DearManAssistant
         visible={dearManVisible}
         onClose={() => setDearManVisible(false)}
+        onComplete={() => markVisited("dear_man")}
       />
       <HappinessGameAssistant
         visible={happinessVisible}
         onClose={() => setHappinessVisible(false)}
+        onComplete={() => markVisited("felicidad")}
       />
       <SelfEsteemMirrorAssistant
         visible={selfEsteemVisible}
         onClose={() => setSelfEsteemVisible(false)}
+        onComplete={() => markVisited("autoestima")}
       />
       <VinculosDelHilo
         visible={vinculosVisible}
         onClose={() => setVinculosVisible(false)}
+        onComplete={() => markVisited("vinculos")}
       />
       <PurposeCompassAssistant
         visible={propositoVisible}
         onClose={() => setPropositoVisible(false)}
+        onComplete={() => markVisited("proposito")}
       />
     </SafeAreaView>
   );

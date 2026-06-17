@@ -204,8 +204,7 @@ export function RecorderModal({ visible, onClose }: Props) {
   }, [transcript]);
 
   useEffect(() => {
-    if (!visible) { setIsRecording(false); setTranscript(""); setDetectedMood(null); return; }
-    startRecording();
+    if (!visible) { setIsRecording(false); setTranscript(""); setDetectedMood(null); }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
@@ -270,7 +269,15 @@ export function RecorderModal({ visible, onClose }: Props) {
     }
   };
 
-  const handleClose = () => { recRef.current?.stop(); recRef.current = null; onClose(); };
+  const handleClose = async () => {
+    recRef.current?.stop();
+    recRef.current = null;
+    if (Platform.OS !== "web" && isRecording) {
+      try { await recorder.stop(); } catch { /* ignorar */ }
+    }
+    setIsRecording(false);
+    onClose();
+  };
 
   return (
     <Modal visible={visible} transparent animationType="none" statusBarTranslucent>
@@ -304,11 +311,7 @@ export function RecorderModal({ visible, onClose }: Props) {
             <View style={s.orbWrap}>
               <VoiceOrb active={isRecording} />
               <Text style={s.orbHint}>
-                {transcript
-                  ? ""
-                  : isRecording
-                  ? "Escuchando tu voz..."
-                  : "Iniciando micrófono..."}
+                {transcript ? "" : isRecording ? "Escuchando tu voz..." : "Presiona el botón para comenzar"}
               </Text>
             </View>
 
@@ -337,15 +340,17 @@ export function RecorderModal({ visible, onClose }: Props) {
               })}
             </View>
 
-            {/* Botón detener */}
-            <Pressable
-              style={[s.stopBtn, !isRecording && s.stopBtnOff]}
-              onPress={stopRecording}
-              disabled={!isRecording}
-            >
-              <Square size={14} color="#fff" fill="#fff" strokeWidth={0} />
-              <Text style={s.stopTxt}>{"Terminar reflexión"}</Text>
-            </Pressable>
+            {/* Botón iniciar / terminar */}
+            {isRecording ? (
+              <Pressable style={s.stopBtn} onPress={stopRecording}>
+                <Square size={14} color="#fff" fill="#fff" strokeWidth={0} />
+                <Text style={s.stopTxt}>{"Terminar reflexión"}</Text>
+              </Pressable>
+            ) : (
+              <Pressable style={s.startBtn} onPress={startRecording}>
+                <Text style={s.stopTxt}>{"Iniciar reflexión"}</Text>
+              </Pressable>
+            )}
           </BlurView>
         </View>
       </Animated.View>
@@ -384,7 +389,7 @@ const s = StyleSheet.create({
   transcript: { fontSize: 14, fontFamily: "Poppins-Regular", color: "#2D1F60", lineHeight: 22, marginBottom: 14, fontStyle: "italic", textAlign: "center" },
 
   stopBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: "#7B6BB5", borderRadius: 16, paddingVertical: 14, marginTop: 4 },
-  stopBtnOff: { backgroundColor: "#C8BEE0" },
+  startBtn: { alignItems: "center", justifyContent: "center", backgroundColor: "#7B6BB5", borderRadius: 16, paddingVertical: 14, marginTop: 4 },
   stopTxt: { fontSize: 14, fontFamily: "Poppins-SemiBold", color: "#fff" },
 
   moodLabel: { fontSize: 10, fontFamily: "Poppins-SemiBold", letterSpacing: 1.6, color: "#A895C8", textAlign: "center", marginBottom: 10 },

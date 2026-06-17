@@ -11,9 +11,10 @@ import { useBreathing } from "./useBreathing";
 interface Props {
   visible: boolean;
   onClose: () => void;
+  onComplete?: () => void;
 }
 
-export default function BreathingScreen({ visible, onClose }: Props) {
+export default function BreathingScreen({ visible, onClose, onComplete }: Props) {
   const {
     showIntro, done, phase, countdown, cycleNum,
     fadeAnim, introOpacity, exerciseOpacity, doneOpacity,
@@ -115,7 +116,7 @@ export default function BreathingScreen({ visible, onClose }: Props) {
             <Pressable style={s.startBtn} onPress={handleRepeat}>
               <Text style={s.startTxt}>{"Repetir"}</Text>
             </Pressable>
-            <Pressable style={s.repeatBtn} onPress={onClose}>
+            <Pressable style={s.repeatBtn} onPress={() => { onComplete?.(); onClose(); }}>
               <Text style={s.repeatTxt}>{"Cerrar"}</Text>
             </Pressable>
           </View>

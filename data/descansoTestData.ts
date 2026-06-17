@@ -21,6 +21,7 @@ export const DESCANSO_STYLE_META: Record<DescansoStyle, StyleMeta> = {
   },
   rutina: {
     label: "Rutina nocturna",
+    
     color: "#7C3AED",
     bg: "#F5F3FF",
     short: "Rutina",

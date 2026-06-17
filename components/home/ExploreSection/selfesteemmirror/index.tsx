@@ -9,9 +9,9 @@ import { BG_PARTICLES, GRADIENT_COLORS, MIRROR_DATA, REVEAL_PARTICLES } from "./
 import { s } from "./styles";
 import { useSelfEsteemMirror } from "./useSelfEsteemMirror";
 
-interface Props { visible: boolean; onClose: () => void; }
+interface Props { visible: boolean; onClose: () => void; onComplete?: () => void; }
 
-export default function SelfEsteemMirrorAssistant({ visible, onClose }: Props) {
+export default function SelfEsteemMirrorAssistant({ visible, onClose, onComplete }: Props) {
   const {
     phase, selected, revealed, copied, accepted, revealBurst, cellsCleared,
     screenFade, cardFade, cardSlideY, revealOpacity, revealScale, btnsFade,
@@ -146,7 +146,7 @@ export default function SelfEsteemMirrorAssistant({ visible, onClose }: Props) {
 
               {revealed && (
                 <Animated.View style={[s.actionsRow, { opacity: btnsFade }]}>
-                  <Pressable style={[s.actionBtn, accepted && s.actionBtnSuccess]} onPress={handleAccept}>
+                  <Pressable style={[s.actionBtn, accepted && s.actionBtnSuccess]} onPress={() => { if (!accepted) onComplete?.(); handleAccept(); }}>
                     {accepted ? <Check size={15} color="#fff" strokeWidth={2.5} /> : <Eye size={15} color="#fff" strokeWidth={2} />}
                     <Text style={s.actionBtnTxt}>{accepted ? "¡Aceptado!" : "Aceptar mi reflejo"}</Text>
                   </Pressable>

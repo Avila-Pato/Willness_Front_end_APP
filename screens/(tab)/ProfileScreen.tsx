@@ -1,4 +1,3 @@
-import { AjustesTab } from "@/components/profile/AjustesTab";
 import { HabitosProfile } from "@/components/profile/HabitosProfile";
 import { HumorTab } from "@/components/profile/HumorTab";
 import { ProgresoTab } from "@/components/profile/ProgresoTab";
@@ -10,9 +9,10 @@ import { getMoodHistory, MoodHistory } from "@/store/moodHistory";
 import { useUserStore } from "@/store/useUserStore";
 import { Image } from "expo-image";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
-import { AlignJustify } from "lucide-react-native";
+import { AlignJustify, X } from "lucide-react-native";
 import { useCallback, useState } from "react";
 import {
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -28,13 +28,12 @@ const BAR_HEIGHT = TAB_ITEM_SIZE + SPACING * 1.5;
 const BANNER_H = 220;
 const AVATAR_CARD = 148;
 
-type Tab = "progreso" | "Mis Habitos" | "humor" | "ajustes";
+type Tab = "progreso" | "Mis Habitos" | "humor";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "progreso", label: "Progreso" },
   { id: "Mis Habitos", label: "Hábitos" },
   { id: "humor", label: "Humor" },
-  { id: "ajustes", label: "Ajustes" },
 ];
 
 export default function ProfileScreen() {
@@ -42,6 +41,7 @@ export default function ProfileScreen() {
   const [tab, setTab] = useState<Tab>("progreso");
   const [progress, setProgress] = useState<Record<string, number>>({});
   const [moodHistory, setMoodHistory] = useState<MoodHistory>({});
+  const [showAbout, setShowAbout] = useState(false);
 
   const diagnostic = useUserStore((s) => s.diagnostic);
   const scores = diagnostic?.scores ?? {};
@@ -62,12 +62,13 @@ export default function ProfileScreen() {
     }, []),
   );
 
-
   return (
     <SafeAreaView edges={["left", "right"]} style={s.root}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: BAR_HEIGHT + bottom + SPACING * 2 }}
+        contentContainerStyle={{
+          paddingBottom: BAR_HEIGHT + bottom + SPACING * 2,
+        }}
       >
         {/* ── Banner ── */}
         <View style={s.bannerWrap}>
@@ -79,12 +80,16 @@ export default function ProfileScreen() {
           {/* Dark overlay */}
           <View style={[StyleSheet.absoluteFill, s.bannerOverlay]} />
           {/* Colored tint */}
-          <View style={[StyleSheet.absoluteFill, { backgroundColor: archetype.color + "55" }]} />
+          <View
+            style={[
+              StyleSheet.absoluteFill,
+              { backgroundColor: archetype.color + "55" },
+            ]}
+          />
 
           {/* Nav row */}
           <SafeAreaView edges={["top"]} style={s.bannerNav}>
-            <Pressable style={s.navBtn} />
-            <Pressable style={s.navBtn}>
+            <Pressable style={s.navBtn} onPress={() => setShowAbout(true)}>
               <AlignJustify size={20} color="#fff" strokeWidth={1.8} />
             </Pressable>
           </SafeAreaView>
@@ -93,7 +98,12 @@ export default function ProfileScreen() {
         {/* ── Avatar card superpuesta ── */}
         <View style={s.avatarCardWrap}>
           <View style={[s.avatarCard, { borderColor: archetype.color + "30" }]}>
-            <View style={[s.avatarInner, { backgroundColor: archetype.color + "18" }]}>
+            <View
+              style={[
+                s.avatarInner,
+                { backgroundColor: archetype.color + "18" },
+              ]}
+            >
               <Text style={[s.avatarInitial, { color: archetype.color }]}>
                 {userNombre.charAt(0).toUpperCase()}
               </Text>
@@ -110,13 +120,14 @@ export default function ProfileScreen() {
           <Text style={s.tagline}>{archetype.tagline}</Text>
 
           {areaMeta && (
-            <View style={[s.areaTag, { backgroundColor: areaMeta.color + "18" }]}>
+            <View
+              style={[s.areaTag, { backgroundColor: areaMeta.color + "18" }]}
+            >
               <Text style={[s.areaTagText, { color: areaMeta.color }]}>
                 {areaMeta.label}
               </Text>
             </View>
           )}
-
         </View>
 
         {/* ── Tabs ── */}
@@ -129,11 +140,18 @@ export default function ProfileScreen() {
                 style={s.tabItem}
                 onPress={() => setTab(t.id)}
               >
-                <Text style={[s.tabLabel, active && { color: archetype.color }]}>
+                <Text
+                  style={[s.tabLabel, active && { color: archetype.color }]}
+                >
                   {t.label}
                 </Text>
                 {active && (
-                  <View style={[s.tabUnderline, { backgroundColor: archetype.color }]} />
+                  <View
+                    style={[
+                      s.tabUnderline,
+                      { backgroundColor: archetype.color },
+                    ]}
+                  />
                 )}
               </Pressable>
             );
@@ -146,8 +164,56 @@ export default function ProfileScreen() {
         )}
         {tab === "Mis Habitos" && <HabitosProfile />}
         {tab === "humor" && <HumorTab moodHistory={moodHistory} />}
-        {tab === "ajustes" && <AjustesTab />}
       </ScrollView>
+
+      {/* ── About modal ── */}
+      <Modal
+        visible={showAbout}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowAbout(false)}
+      >
+        <Pressable
+          style={s.modalBackdrop}
+          onPress={() => setShowAbout(false)}
+        />
+        <View style={s.modalSheet}>
+          <View style={s.modalHandle} />
+
+          <Image
+            source={require("@/assets/logo.png")}
+            style={s.modalLogo}
+            contentFit="contain"
+          />
+
+          <Text style={s.modalAppName}>Lumina</Text>
+          <Text style={s.modalTagline}>Tu espacio de bienestar personal</Text>
+
+          <View style={s.modalDivider} />
+
+          <Text style={s.modalDesc}>
+            Lumina es una app de bienestar y autoconocimiento que te acompaña a
+            explorar tus emociones, construir hábitos saludables y entender
+            mejor cómo piensas, sientes y te relacionas con el mundo.
+          </Text>
+
+          <View style={s.modalDivider} />
+
+          <View style={s.modalRow}>
+            <Text style={s.modalRowLabel}>Desarrollado por</Text>
+            <Text style={s.modalRowValue}>Patricio Avila</Text>
+          </View>
+          <View style={s.modalRow}>
+            <Text style={s.modalRowLabel}>Versión</Text>
+            <Text style={s.modalRowValue}>1.0.0</Text>
+          </View>
+
+          <Pressable style={s.modalClose} onPress={() => setShowAbout(false)}>
+            <X size={18} color={MUTED} strokeWidth={2} />
+            <Text style={s.modalCloseTxt}>Cerrar</Text>
+          </Pressable>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -167,7 +233,7 @@ const s = StyleSheet.create({
   },
   bannerNav: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     alignItems: "center",
     paddingHorizontal: SPACING * 2,
     paddingVertical: SPACING,
@@ -283,5 +349,89 @@ const s = StyleSheet.create({
     right: 8,
     height: 2.5,
     borderRadius: 2,
+  },
+
+  /* About modal */
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+  },
+  modalSheet: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    paddingHorizontal: SPACING * 2.5,
+    paddingBottom: SPACING * 4,
+    paddingTop: SPACING,
+    alignItems: "center",
+    gap: SPACING * 1.2,
+  },
+  modalHandle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: BORDER,
+    marginBottom: SPACING,
+  },
+  modalLogo: {
+    width: 80,
+    height: 80,
+  },
+  modalAppName: {
+    fontSize: 26,
+    fontWeight: "900",
+    color: TEXT,
+    letterSpacing: -0.6,
+    marginTop: -SPACING * 0.5,
+  },
+  modalTagline: {
+    fontSize: 13,
+    color: MUTED,
+    textAlign: "center",
+    marginTop: -SPACING * 0.5,
+  },
+  modalDivider: {
+    width: "100%",
+    height: 1,
+    backgroundColor: BORDER,
+    marginVertical: SPACING * 0.4,
+  },
+  modalDesc: {
+    fontSize: 14,
+    color: TEXT,
+    lineHeight: 22,
+    textAlign: "center",
+  },
+  modalRow: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: SPACING * 0.4,
+  },
+  modalRowLabel: {
+    fontSize: 13,
+    color: MUTED,
+    fontWeight: "500",
+  },
+  modalRowValue: {
+    fontSize: 13,
+    color: TEXT,
+    fontWeight: "700",
+  },
+  modalClose: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING * 0.6,
+    marginTop: SPACING,
+    paddingVertical: SPACING,
+    paddingHorizontal: SPACING * 2,
+    borderRadius: 14,
+    backgroundColor: "#F3F4F6",
+  },
+  modalCloseTxt: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: MUTED,
   },
 });

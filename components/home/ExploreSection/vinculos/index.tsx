@@ -7,9 +7,9 @@ import { BG_PARTICLES, FUSION_PARTICLES, GRADIENT_COLORS, INTRO_AUTHORS, NODE_A,
 import { s } from "./styles";
 import { useVinculos } from "./useVinculos";
 
-interface Props { visible: boolean; onClose: () => void; }
+interface Props { visible: boolean; onClose: () => void; onComplete?: () => void; }
 
-export default function VinculosDelHilo({ visible, onClose }: Props) {
+export default function VinculosDelHilo({ visible, onClose, onComplete }: Props) {
   const {
     phase, selected, fusionBurst, isDragging, copied, accepted,
     screenFade, revealFade, revealSlideY, btnsFade,
@@ -183,7 +183,7 @@ export default function VinculosDelHilo({ visible, onClose }: Props) {
               </View>
 
               <Animated.View style={[s.actionsRow, { opacity: btnsFade }]}>
-                <Pressable style={[s.actionBtn, accepted && s.actionBtnSuccess]} onPress={handleAccept}>
+                <Pressable style={[s.actionBtn, accepted && s.actionBtnSuccess]} onPress={() => { if (!accepted) onComplete?.(); handleAccept(); }}>
                   {accepted ? <Check size={15} color="#fff" strokeWidth={2.5} /> : <Heart size={15} color="#fff" strokeWidth={2} />}
                   <Text style={s.actionBtnTxt}>{accepted ? "¡Integrado!" : "Integrar reflexión"}</Text>
                 </Pressable>
