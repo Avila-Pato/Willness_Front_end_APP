@@ -178,25 +178,23 @@ export default function DiagnosticoScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>Lo que evaluaremos</Text>
             <View style={styles.chipsRow}>
-              {areas.map((area) => (
-                <View
-                  key={area}
-                  style={[
-                    styles.areaChip,
-                    { borderColor: (AREA_COLORS[area] ?? ACCENT) + "44" },
-                  ]}
-                >
+              {areas.map((area) => {
+                const c = AREA_COLORS[area] ?? ACCENT;
+                return (
                   <View
+                    key={area}
                     style={[
-                      styles.chipDot,
-                      { backgroundColor: AREA_COLORS[area] ?? ACCENT },
+                      styles.areaChip,
+                      { borderColor: c + "44", backgroundColor: c + "18" },
                     ]}
-                  />
-                  <Text style={styles.chipLabel}>
-                    {AREA_LABELS[area] ?? area}
-                  </Text>
-                </View>
-              ))}
+                  >
+                    <View style={[styles.chipDot, { backgroundColor: c }]} />
+                    <Text style={[styles.chipLabel, { color: c }]}>
+                      {AREA_LABELS[area] ?? area}
+                    </Text>
+                  </View>
+                );
+              })}
             </View>
           </View>
         )}

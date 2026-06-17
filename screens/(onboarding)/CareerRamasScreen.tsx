@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -29,48 +30,72 @@ const RAMAS = [
     icon: "heart-outline" as const,
     label: "Emociones",
     desc: "Entender y gestionar lo que siento cada día",
+    bg: require("@/assets/background/1.jpg"),
+    color: "#C45E7A",
+    asset: require("@/assets/abstracts/Group-1.png"),
   },
   {
     id: "limites",
     icon: "shield-outline" as const,
     label: "Límites",
     desc: "Aprender a decir no y cuidar mi energía",
+    bg: require("@/assets/background/5.jpg"),
+    color: "#4A80C4",
+    asset: require("@/assets/abstracts/Group-11.png"),
   },
   {
     id: "relaciones",
     icon: "people-outline" as const,
     label: "Relaciones",
     desc: "Mejorar mis vínculos y comunicación con otros",
+    bg: require("@/assets/background/4.jpg"),
+    color: "#7B68BF",
+    asset: require("@/assets/abstracts/Group-3.png"),
   },
   {
     id: "autoestima",
     icon: "star-outline" as const,
     label: "Autoestima",
     desc: "Fortalecer mi relación conmigo mismo",
+    bg: require("@/assets/background/8.jpg"),
+    color: "#C49030",
+    asset: require("@/assets/abstracts/Group-7.png"),
   },
   {
     id: "estres",
     icon: "flash-outline" as const,
     label: "Estrés y ansiedad",
     desc: "Herramientas para calmarme y recuperar la paz",
+    bg: require("@/assets/background/9.jpg"),
+    color: "#C46030",
+    asset: require("@/assets/abstracts/Group-9.png"),
   },
   {
     id: "mindfulness",
     icon: "moon-outline" as const,
     label: "Mindfulness",
     desc: "Vivir más en el presente y cultivar la calma interior",
+    bg: require("@/assets/background/2.jpg"),
+    color: "#3B9A5A",
+    asset: require("@/assets/abstracts/Group-8.png"),
   },
   {
     id: "proposito",
     icon: "compass-outline" as const,
     label: "Propósito",
     desc: "Encontrar dirección y sentido en mi vida cotidiana",
+    bg: require("@/assets/background/6.jpg"),
+    color: "#8980B8",
+    asset: require("@/assets/abstracts/Group-4.png"),
   },
   {
     id: "comunicacion",
     icon: "chatbubbles-outline" as const,
     label: "Comunicación",
     desc: "Expresarme mejor y conectar de forma auténtica",
+    bg: require("@/assets/background/7.jpg"),
+    color: "#5B9EC9",
+    asset: require("@/assets/abstracts/Group-5.png"),
   },
 ];
 
@@ -81,6 +106,9 @@ function RamaRow({
   active,
   suggested,
   onPress,
+  bg,
+  color,
+  asset,
 }: {
   icon: React.ComponentProps<typeof Ionicons>["name"];
   label: string;
@@ -88,6 +116,9 @@ function RamaRow({
   active: boolean;
   suggested: boolean;
   onPress: () => void;
+  bg: number;
+  color: string;
+  asset: number;
 }) {
   const progress = useSharedValue(active ? 1 : 0);
 
@@ -96,20 +127,20 @@ function RamaRow({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
-  const rowStyle = useAnimatedStyle(() => ({
-    backgroundColor: `rgba(137,128,184,${0.065 * progress.value})`,
+  const bgOpacityStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
   }));
 
   const borderStyle = useAnimatedStyle(() => ({
     backgroundColor: interpolateColor(
       progress.value,
       [0, 1],
-      ["rgba(137,128,184,0.15)", "#8980B8"],
+      ["rgba(0,0,0,0.06)", color],
     ),
   }));
 
   const iconStyle = useAnimatedStyle(() => ({
-    opacity: 0.28 + 0.72 * progress.value,
+    opacity: 0.35 + 0.65 * progress.value,
   }));
 
   const checkStyle = useAnimatedStyle(() => ({
@@ -119,26 +150,37 @@ function RamaRow({
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.65}>
-      <Animated.View style={[styles.row, rowStyle]}>
+      <Animated.View style={styles.row}>
+        <Animated.View style={[StyleSheet.absoluteFill, bgOpacityStyle]}>
+          <Image source={bg} style={StyleSheet.absoluteFill} resizeMode="cover" />
+        </Animated.View>
         <Animated.View style={[styles.rowBorder, borderStyle]} />
+        <View style={styles.rowDecorWrap} pointerEvents="none">
+          <Image source={asset} style={styles.rowDecor} resizeMode="contain" />
+        </View>
         <Animated.View style={iconStyle}>
-          <Ionicons name={icon} size={20} color="#8980B8" />
+          <Ionicons name={icon} size={20} color={color} />
         </Animated.View>
         <View style={{ flex: 1 }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-            <Text style={[styles.rowLabel, active && styles.rowLabelActive]}>
-              {label}
-            </Text>
+            <Text style={[styles.rowLabel, active && { color }]}>{label}</Text>
             {suggested && !active && (
-              <View style={styles.suggestedBadge}>
-                <Text style={styles.suggestedText}>Recomendado.</Text>
+              <View
+                style={[
+                  styles.suggestedBadge,
+                  { backgroundColor: color + "18", borderColor: color + "35" },
+                ]}
+              >
+                <Text style={[styles.suggestedText, { color }]}>
+                  Recomendado.
+                </Text>
               </View>
             )}
           </View>
           <Text style={styles.rowDesc}>{desc}</Text>
         </View>
         <Animated.View style={checkStyle}>
-          <Ionicons name="checkmark" size={20} color="#8980B8" />
+          <Ionicons name="checkmark" size={20} color={color} />
         </Animated.View>
       </Animated.View>
     </TouchableOpacity>
@@ -327,6 +369,9 @@ export default function CareerRamasScreen() {
               active={selectedRamas.includes(rama.id)}
               suggested={suggested.has(rama.id)}
               onPress={() => toggleRama(rama.id)}
+              bg={rama.bg}
+              color={rama.color}
+              asset={rama.asset}
             />
           ))}
 
@@ -467,6 +512,7 @@ const styles = StyleSheet.create({
     gap: 16,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(137,128,184,0.12)",
+    overflow: "hidden",
   },
   rowBorder: {
     position: "absolute",
@@ -655,6 +701,18 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 15,
     fontWeight: "700",
+  },
+  rowDecorWrap: {
+    position: "absolute",
+    right: -6,
+    bottom: -6,
+    width: 72,
+    height: 72,
+    opacity: 0.18,
+  },
+  rowDecor: {
+    width: "100%",
+    height: "100%",
   },
   suggestedBadge: {
     backgroundColor: "rgba(137,128,184,0.12)",

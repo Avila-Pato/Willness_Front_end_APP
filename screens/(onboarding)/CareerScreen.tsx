@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -27,6 +28,7 @@ const GOALS = [
     label: "Conocerme mejor",
     desc: "Quiero entender mis emociones y crecer como persona",
     startNode: "crecimiento_personal",
+    bg: require("@/assets/background/10.jpg"),
   },
   {
     id: "relaciones",
@@ -34,6 +36,7 @@ const GOALS = [
     label: "Mejorar mis relaciones",
     desc: "Quiero trabajar mis vínculos, límites y comunicación",
     startNode: "relaciones_vinculos",
+    bg: require("@/assets/background/4.jpg"),
   },
   {
     id: "equilibrio",
@@ -41,6 +44,7 @@ const GOALS = [
     label: "Encontrar equilibrio",
     desc: "Quiero reducir el estrés y cuidar mi bienestar diario",
     startNode: "equilibrio_bienestar",
+    bg: require("@/assets/background/2.jpg"),
   },
   {
     id: "autoestima",
@@ -48,6 +52,7 @@ const GOALS = [
     label: "Fortalecer mi autoestima",
     desc: "Quiero sentirme más seguro y valorarme como soy",
     startNode: "crecimiento_personal",
+    bg: require("@/assets/background/8.jpg"),
   },
   {
     id: "sanacion",
@@ -55,55 +60,84 @@ const GOALS = [
     label: "Sanar y soltar",
     desc: "Quiero superar heridas del pasado y seguir adelante",
     startNode: "equilibrio_bienestar",
+    bg: require("@/assets/background/12.jpg"),
   },
 ];
+
+function GoalCard({
+  goal,
+  selected,
+  onPress,
+  index,
+}: {
+  goal: (typeof GOALS)[number];
+  selected: boolean;
+  onPress: () => void;
+  index: number;
+}) {
+  const progress = useSharedValue(selected ? 1 : 0);
+  const entryOpacity = useSharedValue(0);
+  const entryY = useSharedValue(60);
+
+  useEffect(() => {
+    const delay = 200 + index * 120;
+    entryOpacity.value = withDelay(delay, withTiming(1, { duration: 350 }));
+    entryY.value = withDelay(delay, withSpring(0, { damping: 16, stiffness: 100 }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    progress.value = withTiming(selected ? 1 : 0, { duration: 260 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected]);
+
+  const entryStyle = useAnimatedStyle(() => ({
+    opacity: entryOpacity.value,
+    transform: [{ translateY: entryY.value }],
+  }));
+
+  const bgOpacityStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+  }));
+
+  return (
+    <Animated.View style={entryStyle}>
+      <TouchableOpacity
+        style={[styles.card, selected && styles.cardSelected]}
+        onPress={onPress}
+        activeOpacity={0.78}
+      >
+        <Animated.View style={[StyleSheet.absoluteFill, bgOpacityStyle]}>
+          <Image source={goal.bg} style={StyleSheet.absoluteFill} resizeMode="cover" />
+        </Animated.View>
+        <View style={[styles.cardIcon, selected && styles.cardIconSelected]}>
+          <Ionicons name={goal.icon} size={22} color="#8980B8" />
+        </View>
+        <View style={styles.cardText}>
+          <Text style={styles.cardLabel}>{goal.label}</Text>
+          <Text style={styles.cardDesc}>{goal.desc}</Text>
+        </View>
+        <Ionicons
+          name={selected ? "checkmark-circle" : "ellipse-outline"}
+          size={20}
+          color={selected ? "#8980B8" : "rgba(137,128,184,0.3)"}
+        />
+      </TouchableOpacity>
+    </Animated.View>
+  );
+}
 
 export default function GoalScreen() {
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
 
   const titleOpacity = useSharedValue(0);
   const titleY = useSharedValue(30);
-  const card1Opacity = useSharedValue(0);
-  const card1Y = useSharedValue(60);
-  const card2Opacity = useSharedValue(0);
-  const card2Y = useSharedValue(60);
-  const card3Opacity = useSharedValue(0);
-  const card3Y = useSharedValue(60);
-  const card4Opacity = useSharedValue(0);
-  const card4Y = useSharedValue(60);
-  const card5Opacity = useSharedValue(0);
-  const card5Y = useSharedValue(60);
   const btnOpacity = useSharedValue(0);
   const btnY = useSharedValue(24);
 
   useEffect(() => {
     titleOpacity.value = withTiming(1, { duration: 400 });
     titleY.value = withSpring(0, { damping: 18, stiffness: 100 });
-    card1Opacity.value = withDelay(200, withTiming(1, { duration: 350 }));
-    card1Y.value = withDelay(
-      200,
-      withSpring(0, { damping: 16, stiffness: 100 }),
-    );
-    card2Opacity.value = withDelay(320, withTiming(1, { duration: 350 }));
-    card2Y.value = withDelay(
-      320,
-      withSpring(0, { damping: 16, stiffness: 100 }),
-    );
-    card3Opacity.value = withDelay(440, withTiming(1, { duration: 350 }));
-    card3Y.value = withDelay(
-      440,
-      withSpring(0, { damping: 16, stiffness: 100 }),
-    );
-    card4Opacity.value = withDelay(560, withTiming(1, { duration: 350 }));
-    card4Y.value = withDelay(
-      560,
-      withSpring(0, { damping: 16, stiffness: 100 }),
-    );
-    card5Opacity.value = withDelay(660, withTiming(1, { duration: 350 }));
-    card5Y.value = withDelay(
-      660,
-      withSpring(0, { damping: 16, stiffness: 100 }),
-    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -140,28 +174,6 @@ export default function GoalScreen() {
     opacity: titleOpacity.value,
     transform: [{ translateY: titleY.value }],
   }));
-  const cardAnimStyles = [
-    useAnimatedStyle(() => ({
-      opacity: card1Opacity.value,
-      transform: [{ translateY: card1Y.value }],
-    })),
-    useAnimatedStyle(() => ({
-      opacity: card2Opacity.value,
-      transform: [{ translateY: card2Y.value }],
-    })),
-    useAnimatedStyle(() => ({
-      opacity: card3Opacity.value,
-      transform: [{ translateY: card3Y.value }],
-    })),
-    useAnimatedStyle(() => ({
-      opacity: card4Opacity.value,
-      transform: [{ translateY: card4Y.value }],
-    })),
-    useAnimatedStyle(() => ({
-      opacity: card5Opacity.value,
-      transform: [{ translateY: card5Y.value }],
-    })),
-  ];
   const btnStyle = useAnimatedStyle(() => ({
     opacity: btnOpacity.value,
     transform: [{ translateY: btnY.value }],
@@ -196,42 +208,13 @@ export default function GoalScreen() {
 
         <View style={styles.cards}>
           {GOALS.map((goal, i) => (
-            <Animated.View key={goal.id} style={cardAnimStyles[i]}>
-              <TouchableOpacity
-                style={[
-                  styles.card,
-                  selectedGoals.includes(goal.id) && styles.cardSelected,
-                ]}
-                onPress={() => handleCardPress(goal.id, goal.startNode)}
-                activeOpacity={0.78}
-              >
-                <View
-                  style={[
-                    styles.cardIcon,
-                    selectedGoals.includes(goal.id) && styles.cardIconSelected,
-                  ]}
-                >
-                  <Ionicons name={goal.icon} size={22} color="#8980B8" />
-                </View>
-                <View style={styles.cardText}>
-                  <Text style={styles.cardLabel}>{goal.label}</Text>
-                  <Text style={styles.cardDesc}>{goal.desc}</Text>
-                </View>
-                <Ionicons
-                  name={
-                    selectedGoals.includes(goal.id)
-                      ? "checkmark-circle"
-                      : "ellipse-outline"
-                  }
-                  size={20}
-                  color={
-                    selectedGoals.includes(goal.id)
-                      ? "#8980B8"
-                      : "rgba(137,128,184,0.3)"
-                  }
-                />
-              </TouchableOpacity>
-            </Animated.View>
+            <GoalCard
+              key={goal.id}
+              goal={goal}
+              selected={selectedGoals.includes(goal.id)}
+              onPress={() => handleCardPress(goal.id, goal.startNode)}
+              index={i}
+            />
           ))}
         </View>
 
@@ -293,6 +276,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(137,128,184,0.2)",
     gap: 12,
+    overflow: "hidden",
   },
   cardSelected: {
     borderColor: "#8980B8",
