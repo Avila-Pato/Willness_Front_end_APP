@@ -66,7 +66,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
   },
   {
     label: "Relaciones",
-    emoji: "❤",
+    emoji: "♥",
     tests: [
       {
         id: "tk_conflicto",

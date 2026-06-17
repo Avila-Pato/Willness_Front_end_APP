@@ -37,30 +37,19 @@ export function LogrosTab() {
     }, []),
   );
 
-  const total = TEST_CATEGORIES.reduce((acc, c) => acc + c.tests.length, 0);
-
   return (
     <View style={s.container}>
-      {/* Summary */}
-      <View style={s.summary}>
-        <Text style={s.summaryCount}>
-          <Text style={s.summaryNum}>{completed.length}</Text>
-          <Text style={s.summaryDen}>/{total}</Text>
-        </Text>
-        <Text style={s.summaryLabel}>evaluaciones completadas</Text>
-      </View>
+      {/* Info hint */}
+      <Text style={s.hint}>
+        Completa las evaluaciones del Explora para desbloquear tus logros
+      </Text>
 
-      {TEST_CATEGORIES.map((cat) => {
-        const catUnlocked = cat.tests.filter((t) => completed.includes(t.id)).length;
-        return (
+      {TEST_CATEGORIES.map((cat) => (
           <View key={cat.label} style={s.category}>
             {/* Category header */}
             <View style={s.catHeader}>
               <Text style={s.catEmoji}>{cat.emoji}</Text>
               <Text style={s.catLabel}>{cat.label}</Text>
-              <View style={s.catPill}>
-                <Text style={s.catPillText}>{catUnlocked}/{cat.tests.length}</Text>
-              </View>
             </View>
 
             {/* Badges */}
@@ -95,8 +84,8 @@ export function LogrosTab() {
               })}
             </View>
           </View>
-        );
-      })}
+        )
+      )}
     </View>
   );
 }
@@ -108,36 +97,14 @@ const s = StyleSheet.create({
     gap: SPACING * 2.5,
   },
 
-  /* Summary */
-  summary: {
-    alignItems: "center",
-    paddingVertical: SPACING * 1.5,
-    marginHorizontal: SPACING * 2,
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    shadowColor: "#1C1B29",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 2,
-    gap: 4,
-  },
-  summaryCount: { lineHeight: 50 },
-  summaryNum: {
-    fontSize: 42,
-    fontWeight: "900",
-    color: TEXT,
-    letterSpacing: -1,
-  },
-  summaryDen: {
-    fontSize: 22,
-    fontWeight: "700",
+  /* Info hint */
+  hint: {
+    fontSize: 13,
     color: MUTED,
-  },
-  summaryLabel: {
-    fontSize: 12,
     fontWeight: "500",
-    color: MUTED,
+    textAlign: "center",
+    lineHeight: 19,
+    paddingHorizontal: SPACING * 3,
   },
 
   /* Category */
@@ -159,18 +126,6 @@ const s = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.7,
   },
-  catPill: {
-    backgroundColor: "#F0EEF8",
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-  },
-  catPillText: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: "#8980B8",
-  },
-
   /* Badges */
   badgesRow: {
     flexDirection: "row",
