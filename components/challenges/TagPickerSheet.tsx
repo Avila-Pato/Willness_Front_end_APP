@@ -119,16 +119,19 @@ export function TagPickerSheet({
           <Pressable style={{ flex: 1 }} onPress={() => dismiss(onClose)} />
         </Animated.View>
 
-        <GestureDetector gesture={panGesture}>
-          <Animated.View style={[styles.sheet, sheetStyle]}>
-            <View style={styles.handle} />
-
-            <View style={styles.headerPad}>
-              <Text style={styles.title}>{heading}</Text>
-              <Text style={styles.subtitle}>{subheading}</Text>
+        <Animated.View style={[styles.sheet, sheetStyle]}>
+          <GestureDetector gesture={panGesture}>
+            <View>
+              <View style={styles.handle} />
+              <View style={styles.headerPad}>
+                <Text style={styles.title}>{heading}</Text>
+                <Text style={styles.subtitle}>{subheading}</Text>
+              </View>
             </View>
+          </GestureDetector>
 
             <ScrollView
+              style={{ flex: 1 }}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scroll}
             >
@@ -223,9 +226,8 @@ export function TagPickerSheet({
                 </Text>
               </Pressable>
             </View>
-          </Animated.View>
-        </GestureDetector>
-      </GestureHandlerRootView>
+        </Animated.View>
+        </GestureHandlerRootView>
     </Modal>
   );
 }

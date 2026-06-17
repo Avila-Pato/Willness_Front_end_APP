@@ -27,9 +27,7 @@ function healthToIdx(health: number): number {
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 
-const FLOR_KEY = "eco_flor_v8";
-const WATER_KEY = "eco_flor_watered_v14";
-const WATER_AMT = 8;
+const WATER_KEY = "eco_flor_watered_v15";
 
 const STAGES = [
   {
@@ -145,32 +143,16 @@ export function EcosistemaCard({ diagnosticScores = {} }: Props) {
     undefined,
   );
 
-  // Cargar desde AsyncStorage
+  // Cargar desde AsyncStorage — lógica binaria: regó hoy → 100%, si no → 0%
   useEffect(() => {
     (async () => {
-      const [hRaw, wRaw] = await Promise.all([
-        AsyncStorage.getItem(FLOR_KEY),
-        AsyncStorage.getItem(WATER_KEY),
-      ]);
-
-      let h = hRaw ? Number(hRaw) : 0;
-
-      if (!hRaw) {
-        h = 100;
-        await AsyncStorage.setItem(FLOR_KEY, "100");
-      }
-
-      // Decaimiento diario: si no se regó hoy → vuelve a marchitada
-      if (wRaw && wRaw !== todayISO()) {
-        h = 0;
-        await AsyncStorage.setItem(FLOR_KEY, "0");
-      }
+      const wRaw = await AsyncStorage.getItem(WATER_KEY);
+      const h = wRaw === todayISO() ? 100 : 0;
 
       _fillW.value = h;
       setHealth(h);
       setWatered(wRaw ?? "");
-      // Marchitada al iniciar; florecida solo si ya regó hoy
-      setDisplayFrame(wRaw === todayISO() ? healthToIdx(h) : 0);
+      setDisplayFrame(h > 0 ? healthToIdx(h) : 0);
       setReady(true);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -192,9 +174,9 @@ export function EcosistemaCard({ diagnosticScores = {} }: Props) {
   }, [health, ready]);
 
   const handleWater = async () => {
-    const newH = Math.min(100, health + WATER_AMT);
+    const newH = 100;
     const today = todayISO();
-    const toFrame = healthToIdx(newH);
+    const toFrame = healthToIdx(newH); // = PEAK (69) → frame_070, pico florecida
 
     // Bounce del contenedor
     florScale.value = withSequence(
@@ -226,10 +208,7 @@ export function EcosistemaCard({ diagnosticScores = {} }: Props) {
     setHealth(newH);
     setWatered(today);
 
-    await Promise.all([
-      AsyncStorage.setItem(FLOR_KEY, String(newH)),
-      AsyncStorage.setItem(WATER_KEY, today),
-    ]);
+    await AsyncStorage.setItem(WATER_KEY, today);
   };
 
   const florStyle = useAnimatedStyle(() => ({

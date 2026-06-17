@@ -27,45 +27,127 @@ import Animated, {
 
 const { width: W } = Dimensions.get("window");
 
-// ── Mood row ───────────────────────────────────────────────────────────────
+// ── Mood mapping ───────────────────────────────────────────────────────────────
 
-// Mapeo de categoría detectada → índice en MOODS (Difícil→0 … Genial→4)
 const CATEGORIA_MOOD: Record<CategoriaDetectada, number> = {
-  ESTRES_ANSIEDAD:         0, // Enojado
-  TRISTEZA_MELANCOLIA:     1, // Triste
-  CANSANCIO_APATIA:        2, // Neutro
-  CALMA_BIENESTAR: 3, // Bien
-  ALEGRIA_MOTIVACION:      4, // Genial
+  ESTRES_ANSIEDAD:      0,
+  TRISTEZA_MELANCOLIA:  1,
+  CANSANCIO_APATIA:     2,
+  CALMA_BIENESTAR:      3,
+  ALEGRIA_MOTIVACION:   4,
 };
 
-// ── Waveform ───────────────────────────────────────────────────────────────
+// ── Voice Orb ──────────────────────────────────────────────────────────────────
 
-const BAR_HEIGHTS = [14, 32, 48, 28, 56, 38, 20, 46, 30, 52, 24, 40, 16];
+const ORB_SIZE = 160;
+const ORB_CX   = ORB_SIZE / 2;
+const RING_R   = 64;
 
-function WaveBar({ target, delay, active }: { target: number; delay: number; active: boolean }) {
-  const h = useSharedValue(5);
+const DOT_COLORS  = ["#9DC4A0", "#F2B8A4", "#96B8D4", "#EAD4A8", "#C8A8D0", "#F4C4A0"];
+const DOT_R_OFF   = [0, 6, -3, 8, -4, 5, -2, 7, -5, 3, 1, 7, -3, 6, -4, 4, -2, 8, -5, 2];
+const DOT_SZ_LIST = [7, 9, 7, 8, 6, 9, 7, 8, 7, 9, 6, 8, 7, 9, 7, 8, 6, 9, 7, 8];
+
+type DotCfg = { x: number; y: number; color: string; sz: number; phaseMs: number };
+
+const ORB_DOTS: DotCfg[] = Array.from({ length: 20 }, (_, i) => {
+  const ang = (i / 20) * Math.PI * 2 - Math.PI / 2;
+  const r   = RING_R + DOT_R_OFF[i];
+  const sz  = DOT_SZ_LIST[i];
+  return {
+    x: ORB_CX + r * Math.cos(ang) - sz / 2,
+    y: ORB_CX + r * Math.sin(ang) - sz / 2,
+    color: DOT_COLORS[i % DOT_COLORS.length],
+    sz,
+    phaseMs: Math.round((i / 20) * 560),
+  };
+});
+
+function AnimDot({ x, y, color, sz, phaseMs, active }: DotCfg & { active: boolean }) {
+  const scale = useSharedValue(1);
+  const opac  = useSharedValue(0.5);
 
   useEffect(() => {
     if (active) {
-      h.value = withRepeat(
-        withSequence(
-          withDelay(delay, withTiming(target, { duration: 300 })),
-          withTiming(5, { duration: 300 }),
+      opac.value  = withTiming(1, { duration: 250 });
+      scale.value = withDelay(
+        phaseMs,
+        withRepeat(
+          withSequence(
+            withTiming(1.45, { duration: 420 }),
+            withTiming(0.7,  { duration: 380 }),
+          ),
+          -1,
+          true,
         ),
-        -1,
-        true,
       );
     } else {
-      h.value = withTiming(5, { duration: 200 });
+      opac.value  = withTiming(0.5, { duration: 400 });
+      scale.value = withTiming(1,   { duration: 300 });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
-  const style = useAnimatedStyle(() => ({ height: h.value }));
-  return <Animated.View style={[s.bar, style]} />;
+  const aStyle = useAnimatedStyle(() => ({
+    opacity: opac.value,
+    transform: [{ scale: scale.value }],
+  }));
+
+  return (
+    <Animated.View
+      style={[
+        ob.dot,
+        { left: x, top: y, width: sz, height: sz, borderRadius: sz / 2, backgroundColor: color },
+        aStyle,
+      ]}
+    />
+  );
 }
 
-// ── Web Speech API ─────────────────────────────────────────────────────────
+function VoiceOrb({ active }: { active: boolean }) {
+  const glowScale = useSharedValue(1);
+
+  useEffect(() => {
+    glowScale.value = withRepeat(
+      withSequence(
+        withTiming(active ? 1.22 : 1.05, { duration: active ? 560 : 2400 }),
+        withTiming(active ? 0.80 : 0.95, { duration: active ? 500 : 2400 }),
+      ),
+      -1,
+      true,
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
+
+  const glowAnim = useAnimatedStyle(() => ({
+    transform: [{ scale: glowScale.value }],
+  }));
+
+  // Blob centers cluster around (ORB_CX, ORB_CX) with slight offsets
+  // Green:  center ≈ (68, 88)  → left=68-39=29,  top=88-39=49
+  // Peach:  center ≈ (90, 80)  → left=90-37=53,  top=80-37=43
+  // Blue:   center ≈ (82, 70)  → left=82-36=46,  top=70-36=34
+  return (
+    <View style={ob.container}>
+      <Animated.View style={[StyleSheet.absoluteFill, glowAnim]}>
+        <View style={[ob.blob, { backgroundColor: "#B8D8A8", width: 78, height: 78, borderRadius: 39, left: 29, top: 49 }]} />
+        <View style={[ob.blob, { backgroundColor: "#F2C0A4", width: 74, height: 74, borderRadius: 37, left: 53, top: 43 }]} />
+        <View style={[ob.blob, { backgroundColor: "#A4C4DC", width: 72, height: 72, borderRadius: 36, left: 46, top: 34 }]} />
+      </Animated.View>
+
+      {ORB_DOTS.map((d, i) => (
+        <AnimDot key={i} {...d} active={active} />
+      ))}
+    </View>
+  );
+}
+
+const ob = StyleSheet.create({
+  container: { width: ORB_SIZE, height: ORB_SIZE },
+  blob: { position: "absolute", opacity: 0.55 },
+  dot: { position: "absolute" },
+});
+
+// ── Web Speech API ─────────────────────────────────────────────────────────────
 
 type SpeechRec = {
   continuous: boolean; interimResults: boolean; lang: string;
@@ -82,7 +164,7 @@ function createSpeechRec(): SpeechRec | null {
   return r;
 }
 
-// ── Backend ────────────────────────────────────────────────────────────────
+// ── Backend ────────────────────────────────────────────────────────────────────
 
 async function sendAudio(uri: string): Promise<{ categoria: string; transcripcion: string }> {
   const fd = new FormData();
@@ -98,7 +180,7 @@ async function sendAudio(uri: string): Promise<{ categoria: string; transcripcio
   return { categoria: json.categoria as string, transcripcion: (json.transcripcion as string) ?? "" };
 }
 
-// ── Component ──────────────────────────────────────────────────────────────
+// ── Component ──────────────────────────────────────────────────────────────────
 
 interface Props { visible: boolean; onClose: () => void; }
 
@@ -110,7 +192,6 @@ export function RecorderModal({ visible, onClose }: Props) {
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [detectedMood, setDetectedMood] = useState<CategoriaDetectada | null>(null);
-  // Ref para capturar el transcript sin depender del closure (se limpia antes del catch)
   const transcriptRef = useRef("");
 
   useEffect(() => {
@@ -130,14 +211,11 @@ export function RecorderModal({ visible, onClose }: Props) {
 
   const startRecording = async () => {
     try {
-      console.log("[Recorder] startRecording — platform:", Platform.OS);
       if (Platform.OS !== "web") {
         const { granted } = await AudioModule.requestRecordingPermissionsAsync();
-        console.log("[Recorder] permiso micrófono:", granted);
         if (!granted) { setError("Permiso denegado"); onClose(); return; }
         await recorder.prepareToRecordAsync();
         recorder.record();
-        console.log("[Recorder] grabando...");
       } else {
         const rec = createSpeechRec();
         if (rec) {
@@ -160,9 +238,7 @@ export function RecorderModal({ visible, onClose }: Props) {
   };
 
   const stopRecording = async () => {
-    // Capturar antes de cualquier setState que pueda limpiar el transcript
     const savedTranscript = transcriptRef.current;
-
     setIsRecording(false);
     recRef.current?.stop();
     recRef.current = null;
@@ -186,7 +262,6 @@ export function RecorderModal({ visible, onClose }: Props) {
       const { categoria, transcripcion: tx } = await Promise.race([sendAudio(uri), timeout]);
       setResult(buildResultFromCategoria(categoria as any, tx));
     } catch {
-      // savedTranscript vacío en native → Neutro es más seguro que mood aleatorio
       if (savedTranscript.trim().length > 2) {
         setResult(buildResultFromText(savedTranscript));
       } else {
@@ -221,25 +296,26 @@ export function RecorderModal({ visible, onClose }: Props) {
 
             <Text style={s.cardLabel}>{"REFLEXIÓN DEL MOMENTO"}</Text>
 
-            {/* Frase del día */}
-            <Text style={s.phrase}>
-              {"Cuéntame cómo\nte sientes hoy."}
-            </Text>
+            <Text style={s.phrase}>{"Cuéntame cómo\nte sientes hoy."}</Text>
 
             <View style={s.separator} />
 
-            {/* Waveform */}
-            <Text style={s.inputLabel}>{"Tu voz en tiempo real"}</Text>
-            <View style={s.waveRow}>
-              {BAR_HEIGHTS.map((h, i) => (
-                <WaveBar key={i} target={h} delay={i * 45} active={isRecording} />
-              ))}
+            {/* Voice Orb */}
+            <View style={s.orbWrap}>
+              <VoiceOrb active={isRecording} />
+              <Text style={s.orbHint}>
+                {transcript
+                  ? ""
+                  : isRecording
+                  ? "Escuchando tu voz..."
+                  : "Iniciando micrófono..."}
+              </Text>
             </View>
 
             {/* Transcripción */}
-            <Text style={s.transcript} numberOfLines={4}>
-              {transcript || (isRecording ? "Escuchando tu voz..." : "Iniciando micrófono...")}
-            </Text>
+            {transcript.length > 0 && (
+              <Text style={s.transcript} numberOfLines={3}>{transcript}</Text>
+            )}
 
             {/* Tu humor de hoy */}
             <Text style={s.moodLabel}>{"Tu humor de hoy"}</Text>
@@ -277,7 +353,7 @@ export function RecorderModal({ visible, onClose }: Props) {
   );
 }
 
-// ── Styles ─────────────────────────────────────────────────────────────────
+// ── Styles ─────────────────────────────────────────────────────────────────────
 
 const s = StyleSheet.create({
   overlay: { flex: 1, alignItems: "center", justifyContent: "center" },
@@ -296,25 +372,23 @@ const s = StyleSheet.create({
   oDot: { width: 5, height: 5, borderRadius: 2.5, backgroundColor: "#C8B0DC" },
   oLine: { width: 44, height: 1, backgroundColor: "#D8C8EC" },
 
-  cardLabel: { fontSize: 9, fontFamily: "Poppins-SemiBold", letterSpacing: 2.2, color: "#A895C8", textAlign: "center", marginBottom: 18 },
+  cardLabel: { fontSize: 9, fontFamily: "Poppins-SemiBold", letterSpacing: 2.2, color: "#A895C8", textAlign: "center", marginBottom: 16 },
 
-  phrase: { fontSize: 19, fontFamily: "Playfair-ExtraBold", color: "#2D1F60", lineHeight: 30, textAlign: "center", marginBottom: 22 },
+  phrase: { fontSize: 19, fontFamily: "Playfair-ExtraBold", color: "#2D1F60", lineHeight: 30, textAlign: "center", marginBottom: 18 },
 
   separator: { height: 1, backgroundColor: "rgba(180,155,215,0.28)", marginBottom: 18 },
 
-  inputLabel: { fontSize: 11, fontFamily: "Poppins-Medium", color: "#A895C8", marginBottom: 12 },
+  orbWrap: { alignItems: "center", marginBottom: 6 },
+  orbHint: { fontSize: 12, fontFamily: "Poppins-Regular", color: "#A895C8", marginTop: 10, fontStyle: "italic" },
 
-  waveRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 4, height: 64, marginBottom: 16 },
-  bar: { width: 4, borderRadius: 4, backgroundColor: "#C8B0DC" },
+  transcript: { fontSize: 14, fontFamily: "Poppins-Regular", color: "#2D1F60", lineHeight: 22, marginBottom: 14, fontStyle: "italic", textAlign: "center" },
 
-  transcript: { fontSize: 15, fontFamily: "Poppins-Regular", color: "#2D1F60", lineHeight: 24, minHeight: 60, marginBottom: 18, fontStyle: "italic" },
-
-  stopBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: "#7B6BB5", borderRadius: 16, paddingVertical: 14 },
+  stopBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: "#7B6BB5", borderRadius: 16, paddingVertical: 14, marginTop: 4 },
   stopBtnOff: { backgroundColor: "#C8BEE0" },
   stopTxt: { fontSize: 14, fontFamily: "Poppins-SemiBold", color: "#fff" },
 
   moodLabel: { fontSize: 10, fontFamily: "Poppins-SemiBold", letterSpacing: 1.6, color: "#A895C8", textAlign: "center", marginBottom: 10 },
-  moodRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 16 },
+  moodRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 14 },
   moodItem: { alignItems: "center", gap: 4, borderRadius: 12, paddingVertical: 6, paddingHorizontal: 8, flex: 1, marginHorizontal: 2 },
   moodImg: { width: 34, height: 34 },
   moodImgDim: { opacity: 0.35 },

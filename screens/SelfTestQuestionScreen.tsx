@@ -60,6 +60,26 @@ import {
   RESILIENCIA_STYLE_META,
   computeResilienciaResult,
 } from "@/data/resilienciaTestData";
+import {
+  DESCANSO_QUESTIONS,
+  DESCANSO_STYLE_META,
+  computeDescansoResult,
+} from "@/data/descansoTestData";
+import {
+  ENERGIA_QUESTIONS,
+  ENERGIA_STYLE_META,
+  computeEnergiaResult,
+} from "@/data/energiaTestData";
+import {
+  MINDFULNESS_HAB_QUESTIONS,
+  MINDFULNESS_HAB_STYLE_META,
+  computeMindfulnessHabResult,
+} from "@/data/mindfulnessHabTestData";
+import {
+  PROPOSITO_QUESTIONS,
+  PROPOSITO_STYLE_META,
+  computePropositoResult,
+} from "@/data/propositoTestData";
 import { router, useLocalSearchParams } from "expo-router";
 import { X } from "lucide-react-native";
 import { useRef, useState } from "react";
@@ -156,6 +176,30 @@ function getTestData(testId: string): {
         questions: RESILIENCIA_QUESTIONS,
         getColor: (s) => (RESILIENCIA_STYLE_META as Record<string, { color: string }>)[s]?.color ?? "#8980B8",
         compute: computeResilienciaResult,
+      };
+    case "tk_descanso":
+      return {
+        questions: DESCANSO_QUESTIONS,
+        getColor: (s) => (DESCANSO_STYLE_META as Record<string, { color: string }>)[s]?.color ?? "#8980B8",
+        compute: computeDescansoResult,
+      };
+    case "tk_energia":
+      return {
+        questions: ENERGIA_QUESTIONS,
+        getColor: (s) => (ENERGIA_STYLE_META as Record<string, { color: string }>)[s]?.color ?? "#8980B8",
+        compute: computeEnergiaResult,
+      };
+    case "tk_mindfulness_hab":
+      return {
+        questions: MINDFULNESS_HAB_QUESTIONS,
+        getColor: (s) => (MINDFULNESS_HAB_STYLE_META as Record<string, { color: string }>)[s]?.color ?? "#8980B8",
+        compute: computeMindfulnessHabResult,
+      };
+    case "tk_proposito":
+      return {
+        questions: PROPOSITO_QUESTIONS,
+        getColor: (s) => (PROPOSITO_STYLE_META as Record<string, { color: string }>)[s]?.color ?? "#8980B8",
+        compute: computePropositoResult,
       };
     default:
       return { questions: [], getColor: () => "#8980B8", compute: () => ({ primary: "", averages: {} }) };

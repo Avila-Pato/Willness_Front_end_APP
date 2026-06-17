@@ -12,6 +12,10 @@ import { ESTRES_STYLE_META, ESTRES_STYLE_ORDER } from "@/data/estresTestData";
 import { BURNOUT_STYLE_META, BURNOUT_STYLE_ORDER } from "@/data/burnoutTestData";
 import { AUTOCOMPASION_STYLE_META, AUTOCOMPASION_STYLE_ORDER } from "@/data/autocompasionTestData";
 import { RESILIENCIA_STYLE_META, RESILIENCIA_STYLE_ORDER } from "@/data/resilienciaTestData";
+import { DESCANSO_STYLE_META, DESCANSO_STYLE_ORDER } from "@/data/descansoTestData";
+import { ENERGIA_STYLE_META, ENERGIA_STYLE_ORDER } from "@/data/energiaTestData";
+import { MINDFULNESS_HAB_STYLE_META, MINDFULNESS_HAB_STYLE_ORDER } from "@/data/mindfulnessHabTestData";
+import { PROPOSITO_STYLE_META, PROPOSITO_STYLE_ORDER } from "@/data/propositoTestData";
 import { router, useLocalSearchParams } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -38,6 +42,10 @@ const STYLE_REGISTRY: Record<string, Record<string, StyleMeta>> = {
   tk_burnout:       BURNOUT_STYLE_META as Record<string, StyleMeta>,
   tk_autocompasion: AUTOCOMPASION_STYLE_META as Record<string, StyleMeta>,
   tk_resiliencia:   RESILIENCIA_STYLE_META as Record<string, StyleMeta>,
+  tk_descanso:      DESCANSO_STYLE_META as Record<string, StyleMeta>,
+  tk_energia:       ENERGIA_STYLE_META as Record<string, StyleMeta>,
+  tk_mindfulness_hab: MINDFULNESS_HAB_STYLE_META as Record<string, StyleMeta>,
+  tk_proposito:       PROPOSITO_STYLE_META as Record<string, StyleMeta>,
 };
 
 const STYLE_ORDER: Record<string, string[]> = {
@@ -53,6 +61,10 @@ const STYLE_ORDER: Record<string, string[]> = {
   tk_burnout:       BURNOUT_STYLE_ORDER,
   tk_autocompasion: AUTOCOMPASION_STYLE_ORDER,
   tk_resiliencia:   RESILIENCIA_STYLE_ORDER,
+  tk_descanso:      DESCANSO_STYLE_ORDER,
+  tk_energia:       ENERGIA_STYLE_ORDER,
+  tk_mindfulness_hab: MINDFULNESS_HAB_STYLE_ORDER,
+  tk_proposito:       PROPOSITO_STYLE_ORDER,
 };
 
 const TEST_TITLES: Record<string, string> = {
@@ -68,6 +80,10 @@ const TEST_TITLES: Record<string, string> = {
   tk_burnout:       "Señales de burnout",
   tk_autocompasion: "¿Te tratas con compasión?",
   tk_resiliencia:   "Tu pilar de resiliencia",
+  tk_descanso:      "Tus hábitos de sueño",
+  tk_energia:       "Tu mayor fuente de energía",
+  tk_mindfulness_hab: "Tu dimensión de presencia plena",
+  tk_proposito:       "Tu claridad de propósito",
 };
 
 interface TestResult {
@@ -156,7 +172,7 @@ export default function SelfTestResultScreen() {
         </View>
 
         {/* Tip */}
-        <View style={[s.tipCard, { borderLeftColor: primaryMeta.color }]}>
+        <View style={s.tipCard}>
           <Text style={[s.tipLabel, { color: primaryMeta.color }]}>Qué puedes hacer</Text>
           <Text style={s.tipText}>{primaryMeta.tip}</Text>
         </View>
@@ -238,7 +254,6 @@ const s = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 16,
     padding: SPACING * 2,
-    borderLeftWidth: 4,
     gap: SPACING * 0.6,
   },
   tipLabel: { fontSize: 12, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.6 },

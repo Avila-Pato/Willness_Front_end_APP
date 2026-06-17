@@ -97,20 +97,24 @@ export function ConceptPickerSheet({ onConfirm, onClose }: Props) {
           <Pressable style={{ flex: 1 }} onPress={() => dismiss(onClose)} />
         </Animated.View>
 
-        <GestureDetector gesture={panGesture}>
-          <Animated.View style={[styles.sheet, sheetStyle]}>
-            {/* Handle */}
-            <View style={styles.handle} />
+        <Animated.View style={[styles.sheet, sheetStyle]}>
+          <GestureDetector gesture={panGesture}>
+            <View>
+              {/* Handle */}
+              <View style={styles.handle} />
 
-            {/* Header */}
-            <View style={styles.headerPad}>
-              <Text style={styles.title}>¿Qué áreas quieres explorar?</Text>
-              <Text style={styles.subtitle}>
-                Elige uno o más temas — las preguntas se adaptarán a ellos
-              </Text>
+              {/* Header */}
+              <View style={styles.headerPad}>
+                <Text style={styles.title}>¿Qué áreas quieres explorar?</Text>
+                <Text style={styles.subtitle}>
+                  Elige uno o más temas — las preguntas se adaptarán a ellos
+                </Text>
+              </View>
             </View>
+          </GestureDetector>
 
             <ScrollView
+              style={{ flex: 1 }}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scroll}
             >
@@ -213,8 +217,7 @@ export function ConceptPickerSheet({ onConfirm, onClose }: Props) {
                 </Text>
               </Pressable>
             </View>
-          </Animated.View>
-        </GestureDetector>
+        </Animated.View>
       </GestureHandlerRootView>
     </Modal>
   );

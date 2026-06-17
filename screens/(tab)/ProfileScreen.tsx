@@ -144,7 +144,7 @@ export default function ProfileScreen() {
         {tab === "progreso" && (
           <ProgresoTab progress={progress} topArea={topArea} />
         )}
-        {tab === "Mis Habitos" && <HabitosProfile progress={progress} />}
+        {tab === "Mis Habitos" && <HabitosProfile />}
         {tab === "humor" && <HumorTab moodHistory={moodHistory} />}
         {tab === "ajustes" && <AjustesTab />}
       </ScrollView>

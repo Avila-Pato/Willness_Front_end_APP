@@ -88,6 +88,26 @@ const TEST_STEPS: Record<string, string[]> = {
     "Algunas preguntas son sobre situaciones concretas, otras sobre actitudes habituales",
     "Descubre cuál es tu mayor pilar de resiliencia al terminar",
   ],
+  tk_descanso: [
+    "Responde según cómo son realmente tus hábitos, no cómo te gustaría que fueran",
+    "Las preguntas cubren tu entorno, tu rutina nocturna y tus hábitos de vida diarios",
+    "Descubre en qué área ya tienes buenas bases y cuál puedes mejorar",
+  ],
+  tk_energia: [
+    "Responde pensando en cómo te sientes habitualmente, no solo en los últimos días",
+    "Las preguntas cubren tu cuerpo, tus relaciones y tu gestión mental del día a día",
+    "Descubre cuál es tu mayor fuente de energía y cuál necesita más atención",
+  ],
+  tk_mindfulness_hab: [
+    "Responde según cómo eres habitualmente, no cómo te gustaría ser",
+    "Todas las frases describen situaciones de distracción o piloto automático",
+    "Descubre cuál es tu mayor dimensión de atención plena al terminar",
+  ],
+  tk_proposito: [
+    "Responde con honestidad — no hay respuestas mejores ni peores",
+    "Las preguntas exploran tu estilo de vida, lo que más valoras y tu claridad de dirección",
+    "Descubre cuál es el eje central de tu propósito vital al terminar",
+  ],
 };
 
 const TEST_STYLES_COUNT: Record<string, number> = {
@@ -103,6 +123,10 @@ const TEST_STYLES_COUNT: Record<string, number> = {
   tk_burnout:         3,
   tk_autocompasion:   3,
   tk_resiliencia:     5,
+  tk_descanso:        3,
+  tk_energia:         3,
+  tk_mindfulness_hab: 3,
+  tk_proposito:       3,
 };
 
 const DEFAULT_STEPS = [

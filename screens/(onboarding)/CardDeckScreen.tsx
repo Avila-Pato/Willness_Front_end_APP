@@ -2,8 +2,9 @@ import { OnboardingProgress } from "@/components/onboarding/OnboardingProgress";
 import { AREA_COLORS, DeckCard, buildDeck } from "@/data/cardDeckData";
 import { useUserStore } from "@/store/useUserStore";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Dimensions,
   StyleSheet,
@@ -14,8 +15,108 @@ import {
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
+  withRepeat,
+  withSequence,
   withTiming,
 } from "react-native-reanimated";
+
+const ANALYSIS_MESSAGES = [
+  "Analizando tus respuestas...",
+  "Identificando tus patrones...",
+  "Construyendo tu perfil...",
+  "Calculando tus fortalezas...",
+  "Casi listo...",
+];
+const ANALYSIS_DURATION = 6000;
+const MSG_INTERVAL = ANALYSIS_DURATION / ANALYSIS_MESSAGES.length; // 1200ms
+
+function AnimDot({ delay }: { delay: number }) {
+  const s = useSharedValue(0.4);
+  useEffect(() => {
+    s.value = withRepeat(
+      withSequence(
+        withTiming(0.4, { duration: delay }),
+        withTiming(1, { duration: 500 }),
+        withTiming(0.4, { duration: 500 }),
+      ),
+      -1,
+      false,
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const style = useAnimatedStyle(() => ({ opacity: s.value }));
+  return <Animated.View style={[ao.dot, style]} />;
+}
+
+function AnalysisOverlay() {
+  const [msgIdx, setMsgIdx] = useState(0);
+  const barWidth = useSharedValue(0);
+  const msgOpacity = useSharedValue(1);
+  const logoY = useSharedValue(12);
+  const logoOpacity = useSharedValue(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const flipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    logoY.value = withTiming(0, { duration: 600 });
+    logoOpacity.value = withTiming(1, { duration: 700 });
+    barWidth.value = withTiming(100, { duration: ANALYSIS_DURATION - 400 });
+
+    let i = 0;
+    intervalRef.current = setInterval(() => {
+      // Fade out en JS, luego cambia mensaje y fade in — sin worklet
+      msgOpacity.value = withTiming(0, { duration: 250 });
+      flipTimerRef.current = setTimeout(() => {
+        i = (i + 1) % ANALYSIS_MESSAGES.length;
+        setMsgIdx(i);
+        msgOpacity.value = withTiming(1, { duration: 350 });
+      }, 260);
+    }, MSG_INTERVAL);
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (flipTimerRef.current) clearTimeout(flipTimerRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const barStyle = useAnimatedStyle(() => ({ width: `${barWidth.value}%` as any }));
+  const msgStyle = useAnimatedStyle(() => ({ opacity: msgOpacity.value }));
+  const logoStyle = useAnimatedStyle(() => ({
+    opacity: logoOpacity.value,
+    transform: [{ translateY: logoY.value }],
+  }));
+
+  return (
+    <View style={ao.root}>
+      {/* Logo */}
+      <Animated.View style={[ao.logoWrap, logoStyle]}>
+        <Image
+          source={require("@/assets/logo.png")}
+          style={ao.logo}
+          contentFit="contain"
+        />
+      </Animated.View>
+
+      {/* Dots */}
+      <View style={ao.dotsRow}>
+        <AnimDot delay={0} />
+        <AnimDot delay={200} />
+        <AnimDot delay={400} />
+      </View>
+
+      {/* Mensaje */}
+      <Animated.Text style={[ao.msg, msgStyle]}>
+        {ANALYSIS_MESSAGES[msgIdx]}
+      </Animated.Text>
+
+      {/* Barra de progreso */}
+      <View style={ao.barTrack}>
+        <Animated.View style={[ao.barFill, barStyle]} />
+      </View>
+    </View>
+  );
+}
 
 const { width } = Dimensions.get("window");
 const CARD_W = width * 0.84;
@@ -113,6 +214,7 @@ export default function CardDeckScreen() {
     right: boolean;
   } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const handleChoice = (resonates: boolean) => {
     if (busy) return;
@@ -140,14 +242,17 @@ export default function CardDeckScreen() {
         const strengths = areas.filter((a) => (newScores[a] ?? 0) <= 1);
         const challenges = areas.filter((a) => (newScores[a] ?? 0) >= 2);
         saveDiagnostic({ scores: newScores, strengths, challenges });
-        router.replace({
-          pathname: "/(onboarding)/results",
-          params: {
-            startNode: params.startNode ?? "",
-            formacion: params.formacion ?? "",
-            ramas: params.ramas ?? "",
-          },
-        });
+        setIsAnalyzing(true);
+        setTimeout(() => {
+          router.replace({
+            pathname: "/(onboarding)/results",
+            params: {
+              startNode: params.startNode ?? "",
+              formacion: params.formacion ?? "",
+              ramas: params.ramas ?? "",
+            },
+          });
+        }, ANALYSIS_DURATION);
       }
     }, 400);
   };
@@ -171,6 +276,8 @@ export default function CardDeckScreen() {
       visibleSlots.push({ card: cards[idx], idx, position: i });
     }
   }
+
+  if (isAnalyzing) return <AnalysisOverlay />;
 
   return (
     <View style={styles.root}>
@@ -349,5 +456,56 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 15,
     fontWeight: "700",
+  },
+});
+
+const ao = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: "#FAF8F5",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 32,
+    paddingHorizontal: 48,
+  },
+  logoWrap: {
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
+  },
+  logo: {
+    width: 130,
+    height: 130,
+  },
+  dotsRow: {
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "center",
+    marginTop: -8,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#8980B8",
+  },
+  msg: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#4B4B6A",
+    textAlign: "center",
+    letterSpacing: -0.2,
+    lineHeight: 24,
+  },
+  barTrack: {
+    width: "100%",
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: "rgba(137,128,184,0.15)",
+    overflow: "hidden",
+  },
+  barFill: {
+    height: "100%",
+    borderRadius: 2,
+    backgroundColor: "#8980B8",
   },
 });

@@ -583,12 +583,7 @@ export function ChallengeSheet({ challenge, onClose }: Props) {
                 </View>
 
                 {answerState !== "idle" && (
-                  <View
-                    style={[
-                      styles.explanationBox,
-                      { borderLeftColor: answerState === "correct" ? "#059669" : "#DC2626" },
-                    ]}
-                  >
+                  <View style={styles.explanationBox}>
                     <Text style={styles.explanationTitle}>
                       {answerState === "correct" ? "Correcto" : "Incorrecto"}
                     </Text>
@@ -710,7 +705,6 @@ const styles = StyleSheet.create({
   explanationBox: {
     backgroundColor: "#F9FAFB",
     borderRadius: 14,
-    borderLeftWidth: 4,
     padding: SPACING * 1.5,
     marginBottom: SPACING * 1.5,
   },
