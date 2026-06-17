@@ -81,6 +81,7 @@ export default function ExploraScreen() {
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={s.catScroll}
+              style={s.catScrollView}
             >
               {cat.tests.map((test: SelfTest) => (
                 <Pressable
@@ -235,8 +236,12 @@ const s = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.7,
   },
+  catScrollView: {
+    overflow: "visible" as const,
+  },
   catScroll: {
     paddingHorizontal: SPACING * 2,
+    paddingBottom: SPACING * 2.5,
     gap: SPACING * 1.2,
   },
   testCard: {
