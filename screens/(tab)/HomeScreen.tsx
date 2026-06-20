@@ -338,7 +338,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Saludo */}
-          <Text style={s.heroGreeting}>{`Hola, ${userName} 👋`}</Text>
+          <Text style={s.heroGreeting}>{`Hola, ${userName.split(" ")[0]} 👋`}</Text>
 
           {/* Pregunta con texto mixto */}
           <Text style={s.heroQuestion}>

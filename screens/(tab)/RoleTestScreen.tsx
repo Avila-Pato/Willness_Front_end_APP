@@ -111,7 +111,7 @@ export default function RoleTestScreen() {
             {completed
               ? "Tu mapa de bienestar."
               : onboarding?.nombre
-                ? `Hola, ${onboarding.nombre}.`
+                ? `Hola, ${onboarding.nombre.split(" ")[0]}.`
                 : "Mi Mapa."}
           </Text>
           <Text style={s.heroSub}>
@@ -406,6 +406,7 @@ const s = StyleSheet.create({
     color: TEXT,
     letterSpacing: -1.2,
     lineHeight: 40,
+    maxWidth: "58%",
   },
   heroSub: {
     fontSize: 13,
