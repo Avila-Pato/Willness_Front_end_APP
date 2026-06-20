@@ -19,17 +19,19 @@ import { PROPOSITO_STYLE_META, PROPOSITO_STYLE_ORDER } from "@/data/propositoTes
 import { TEST_CATEGORIES } from "@/data/selfTestsData";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withDelay,
+  withRepeat,
+  withSequence,
   withSpring,
   withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { markTestCompleted } from "@/store/selfTestResults";
+import { getCompletedTests, markTestCompleted, saveTestResult } from "@/store/selfTestResults";
 
 const ACHIEVEMENT_IMG: Record<string, number> = {
   tk_apego:           require("@/assets/achievements/Layer 1 copy 5.png"),
@@ -139,20 +141,66 @@ export default function SelfTestResultScreen() {
   const testMeta = TEST_CATEGORIES.flatMap((c) => c.tests).find((t) => t.id === testId);
   const achieveImg = testId ? ACHIEVEMENT_IMG[testId] : undefined;
 
+  const [alreadyCompleted, setAlreadyCompleted] = useState(false);
+  const [loading, setLoading] = useState(true);
+
   const achieveScale = useSharedValue(0.6);
   const achieveOpacity = useSharedValue(0);
+
+  // Loading dots animation
+  const dot1 = useSharedValue(0);
+  const dot2 = useSharedValue(0);
+  const dot3 = useSharedValue(0);
+  const loadingOpacity = useSharedValue(1);
+
   useEffect(() => {
-    achieveScale.value = withDelay(600, withSpring(1, { damping: 14, stiffness: 110 }));
-    achieveOpacity.value = withDelay(600, withTiming(1, { duration: 450 }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Animate loading dots
+    const bounce = { damping: 8, stiffness: 120 };
+    dot1.value = withRepeat(withSequence(withSpring(-10, bounce), withSpring(0, bounce)), -1, false);
+    dot2.value = withDelay(140, withRepeat(withSequence(withSpring(-10, bounce), withSpring(0, bounce)), -1, false));
+    dot3.value = withDelay(280, withRepeat(withSequence(withSpring(-10, bounce), withSpring(0, bounce)), -1, false));
   }, []);
+
+  useEffect(() => {
+    if (!testId) return;
+    // Comprobar si ya estaba completado ANTES de marcar
+    getCompletedTests().then((list) => {
+      const wasCompleted = list.includes(testId);
+      setAlreadyCompleted(wasCompleted);
+      void markTestCompleted(testId);
+      void saveTestResult(testId, { primary, averages });
+
+      // Mostrar loading ~1.8s luego revelar resultado
+      setTimeout(() => {
+        loadingOpacity.value = withTiming(0, { duration: 350 }, () => {
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+        });
+        setTimeout(() => {
+          setLoading(false);
+          if (!wasCompleted) {
+            achieveScale.value = withDelay(600, withSpring(1, { damping: 14, stiffness: 110 }));
+            achieveOpacity.value = withDelay(600, withTiming(1, { duration: 450 }));
+          } else {
+            achieveScale.value = 1;
+            achieveOpacity.value = 1;
+          }
+        }, 350);
+      }, 1800);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [testId]);
+
   const achieveAnimStyle = useAnimatedStyle(() => ({
     opacity: achieveOpacity.value,
     transform: [{ scale: achieveScale.value }],
   }));
 
+  const dot1Style = useAnimatedStyle(() => ({ transform: [{ translateY: dot1.value }] }));
+  const dot2Style = useAnimatedStyle(() => ({ transform: [{ translateY: dot2.value }] }));
+  const dot3Style = useAnimatedStyle(() => ({ transform: [{ translateY: dot3.value }] }));
+  const loadingFadeStyle = useAnimatedStyle(() => ({ opacity: loadingOpacity.value }));
+
   const handleDone = () => {
-    if (testId) void markTestCompleted(testId);
     if (router.canGoBack()) {
       router.back();
       router.back();
@@ -161,7 +209,38 @@ export default function SelfTestResultScreen() {
     }
   };
 
-  if (!primaryMeta) return null;
+  const handleRestart = () => {
+    router.replace({
+      pathname: "/self-test-question",
+      params: { testId: testId ?? "" },
+    });
+  };
+
+  if (!primaryMeta && !loading) return null;
+
+  if (loading) {
+    return (
+      <Animated.View style={[s.loadingScreen, loadingFadeStyle]}>
+        {testMeta && (
+          <View style={[s.loadingIconWrap, { backgroundColor: testMeta.color }]}>
+            <Image
+              source={testMeta.character}
+              style={s.loadingIcon}
+              contentFit="contain"
+              contentPosition="bottom center"
+            />
+          </View>
+        )}
+        <Text style={s.loadingTitle}>Analizando tus respuestas</Text>
+        <Text style={s.loadingSub}>Preparando tu resultado personalizado…</Text>
+        <View style={s.dotsRow}>
+          <Animated.View style={[s.dot, dot1Style, { backgroundColor: primaryMeta?.color ?? "#8980B8" }]} />
+          <Animated.View style={[s.dot, dot2Style, { backgroundColor: primaryMeta?.color ?? "#8980B8" }]} />
+          <Animated.View style={[s.dot, dot3Style, { backgroundColor: primaryMeta?.color ?? "#8980B8" }]} />
+        </View>
+      </Animated.View>
+    );
+  }
 
   return (
     <SafeAreaView edges={["top", "left", "right"]} style={s.root}>
@@ -222,13 +301,13 @@ export default function SelfTestResultScreen() {
           <Text style={s.tipText}>{primaryMeta.tip}</Text>
         </View>
 
-        {/* Achievement unlock */}
+        {/* Achievement */}
         {achieveImg && testMeta && (
           <Animated.View
             style={[s.achieveCard, { borderColor: primaryMeta.color + "40" }, achieveAnimStyle]}
           >
             <Text style={[s.achieveTag, { color: primaryMeta.color }]}>
-              ✦ Logro desbloqueado
+              {alreadyCompleted ? "✦ Logro ya ganado" : "✦ Logro desbloqueado"}
             </Text>
             <View style={[s.achieveBadge, { backgroundColor: testMeta.color }]}>
               <Image
@@ -238,11 +317,22 @@ export default function SelfTestResultScreen() {
                 contentPosition="bottom center"
               />
             </View>
-            <Text style={s.achieveTitle}>¡Felicidades!</Text>
-            <Text style={s.achieveDesc}>
-              Completaste <Text style={{ fontWeight: "800" }}>{title}</Text> y
-              ganaste este logro. Encuéntralo en tu perfil.
-            </Text>
+            {alreadyCompleted ? (
+              <>
+                <Text style={s.achieveTitle}>Ya lo tienes</Text>
+                <Text style={s.achieveDesc}>
+                  Este logro ya está en tu perfil. Puedes volver a hacerlo cuando quieras.
+                </Text>
+              </>
+            ) : (
+              <>
+                <Text style={s.achieveTitle}>¡Felicidades!</Text>
+                <Text style={s.achieveDesc}>
+                  Completaste <Text style={{ fontWeight: "800" }}>{title}</Text> y
+                  ganaste este logro. Encuéntralo en tu perfil.
+                </Text>
+              </>
+            )}
           </Animated.View>
         )}
 
@@ -252,6 +342,11 @@ export default function SelfTestResultScreen() {
       </ScrollView>
 
       <View style={[s.footer, { paddingBottom: bottom + SPACING }]}>
+        <Pressable style={s.restartBtn} onPress={handleRestart}>
+          <Text style={[s.restartBtnText, { color: primaryMeta.color }]}>
+            Reiniciar test
+          </Text>
+        </Pressable>
         <Pressable
           style={[s.doneBtn, { backgroundColor: primaryMeta.color }]}
           onPress={handleDone}
@@ -382,6 +477,53 @@ const s = StyleSheet.create({
     paddingHorizontal: SPACING,
   },
 
+  /* Loading screen */
+  loadingScreen: {
+    flex: 1,
+    backgroundColor: BG,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: SPACING * 1.5,
+    paddingHorizontal: SPACING * 4,
+  },
+  loadingIconWrap: {
+    width: 110,
+    height: 130,
+    borderRadius: 28,
+    overflow: "hidden",
+    marginBottom: SPACING,
+  },
+  loadingIcon: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: "110%",
+  },
+  loadingTitle: {
+    fontSize: 22,
+    fontWeight: "900",
+    color: TEXT,
+    letterSpacing: -0.5,
+    textAlign: "center",
+  },
+  loadingSub: {
+    fontSize: 13,
+    color: MUTED,
+    textAlign: "center",
+    lineHeight: 19,
+  },
+  dotsRow: {
+    flexDirection: "row",
+    gap: SPACING * 0.8,
+    marginTop: SPACING,
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+
   footer: {
     position: "absolute",
     bottom: 0,
@@ -392,6 +534,16 @@ const s = StyleSheet.create({
     backgroundColor: BG,
     borderTopWidth: 1,
     borderTopColor: "#F3F4F6",
+  },
+  restartBtn: {
+    borderRadius: 18,
+    paddingVertical: SPACING * 1.4,
+    alignItems: "center",
+    backgroundColor: "transparent",
+  },
+  restartBtnText: {
+    fontSize: 15,
+    fontWeight: "700",
   },
   doneBtn: {
     borderRadius: 18,

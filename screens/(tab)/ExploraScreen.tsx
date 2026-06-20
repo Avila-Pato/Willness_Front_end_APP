@@ -2,8 +2,10 @@ import { SPACING, TAB_ITEM_SIZE } from "@/constants/constants";
 import { BG, MUTED, TEXT } from "@/constants/theme";
 import { SelfTest, TEST_CATEGORIES } from "@/data/selfTestsData";
 import { ABSTRACT_IMAGES, TIPS } from "@/data/tipsData";
+import { getCompletedTests } from "@/store/selfTestResults";
 import { Image } from "expo-image";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import {
   Dimensions,
   Pressable,
@@ -34,6 +36,13 @@ const dailyTipImage =
 
 export default function ExploraScreen() {
   const { bottom } = useSafeAreaInsets();
+  const [completed, setCompleted] = useState<string[]>([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      getCompletedTests().then(setCompleted);
+    }, []),
+  );
 
   return (
     <SafeAreaView edges={["top", "left", "right"]} style={s.root}>
@@ -106,6 +115,11 @@ export default function ExploraScreen() {
                       contentFit="contain"
                       contentPosition="bottom center"
                     />
+                    {completed.includes(test.id) && (
+                      <View style={s.doneBadge}>
+                        <Text style={s.doneBadgeText}>✓</Text>
+                      </View>
+                    )}
                   </View>
 
                   <View style={s.testCardBody}>
@@ -297,5 +311,26 @@ const s = StyleSheet.create({
   metaBadgeText: {
     fontSize: 10,
     fontWeight: "700",
+  },
+  doneBadge: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: "#059669",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  doneBadgeText: {
+    color: "#fff",
+    fontSize: 13,
+    fontWeight: "800",
   },
 });

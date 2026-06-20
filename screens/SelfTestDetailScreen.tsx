@@ -1,10 +1,11 @@
 import { SPACING } from "@/constants/constants";
 import { BG, MUTED, TEXT } from "@/constants/theme";
 import { TEST_CATEGORIES, SelfTest } from "@/data/selfTestsData";
+import { getCompletedTests, getTestResult, StoredResult } from "@/store/selfTestResults";
 import { Image } from "expo-image";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { ChevronLeft, Clock } from "lucide-react-native";
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -149,6 +150,19 @@ export default function SelfTestDetailScreen() {
 
   const test = useMemo(() => findTest(testId ?? ""), [testId]);
 
+  const [completed, setCompleted] = useState(false);
+  const [storedResult, setStoredResult] = useState<StoredResult | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!testId) return;
+      Promise.all([getCompletedTests(), getTestResult(testId)]).then(([list, result]) => {
+        setCompleted(list.includes(testId));
+        setStoredResult(result);
+      });
+    }, [testId]),
+  );
+
   if (!test) return null;
 
   const accent = TEST_ACCENT[test.id] ?? "#8980B8";
@@ -162,6 +176,14 @@ export default function SelfTestDetailScreen() {
 
   const handleStart = () => {
     router.push({ pathname: "/self-test-question", params: { testId: test.id } });
+  };
+
+  const handleViewResult = () => {
+    if (!storedResult) return;
+    router.push({
+      pathname: "/self-test-result",
+      params: { testId: test.id, result: JSON.stringify(storedResult) },
+    });
   };
 
   return (
@@ -226,12 +248,21 @@ export default function SelfTestDetailScreen() {
           <Clock size={13} color={MUTED} />
           <Text style={s.timeText}>~{test.minutes} min · responde a tu ritmo</Text>
         </View>
-        <Pressable
-          style={[s.startBtn, { backgroundColor: accent }]}
-          onPress={handleStart}
-        >
-          <Text style={s.startBtnText}>Comenzar test →</Text>
-        </Pressable>
+        {completed && storedResult ? (
+          <Pressable
+            style={[s.startBtn, { backgroundColor: accent }]}
+            onPress={handleViewResult}
+          >
+            <Text style={s.startBtnText}>Ver mi resultado →</Text>
+          </Pressable>
+        ) : (
+          <Pressable
+            style={[s.startBtn, { backgroundColor: accent }]}
+            onPress={handleStart}
+          >
+            <Text style={s.startBtnText}>Comenzar test →</Text>
+          </Pressable>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -350,4 +381,12 @@ const s = StyleSheet.create({
     alignItems: "center",
   },
   startBtnText: { color: "#fff", fontSize: 16, fontWeight: "800" },
+  restartBtn: {
+    paddingVertical: SPACING * 1.2,
+    alignItems: "center",
+  },
+  restartBtnText: {
+    fontSize: 14,
+    fontWeight: "700",
+  },
 });
