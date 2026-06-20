@@ -1,14 +1,24 @@
 import { ChallengeSheet } from "@/components/challenges/ChallengeSheet";
-import { TagPickerSheet, TagItem } from "@/components/challenges/TagPickerSheet";
+import {
+  TagItem,
+  TagPickerSheet,
+} from "@/components/challenges/TagPickerSheet";
 import { SPACING } from "@/constants/constants";
 import { BG, MUTED, TEXT } from "@/constants/theme";
 import { COMPLETA_REFLEXION_GROUPS } from "@/data/completaReflexionGroups";
 import { IDENTIFICA_PATRON_GROUPS } from "@/data/identificaPatronGroups";
-import { CONCEPT_GROUPS, getQuestionsForConcepts } from "@/data/languageQuestions";
+import {
+  CONCEPT_GROUPS,
+  getQuestionsForConcepts,
+} from "@/data/languageQuestions";
 import { VERDAD_MITO_TOPICS } from "@/data/verdadMitoTopics";
 import { WEEKLY_CHALLENGES } from "@/data/weeklyData";
 import { getBestScore, recordResult } from "@/store/challengeProgress";
-import { Challenge, ChallengeQuestion, ChallengeType } from "@/types/challenges";
+import {
+  Challenge,
+  ChallengeQuestion,
+  ChallengeType,
+} from "@/types/challenges";
 import { router, useLocalSearchParams } from "expo-router";
 import { ChevronLeft, Clock } from "lucide-react-native";
 import { useMemo, useState } from "react";
@@ -20,8 +30,10 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 const DESCRIPTIONS: Record<ChallengeType, string> = {
   adivina_concepto:
@@ -62,7 +74,15 @@ const TAG_CONFIG: Record<
 
 const H_PAD = SPACING * 2;
 
-function BlobChar({ color, size, rotate }: { color: string; size: number; rotate: string }) {
+function BlobChar({
+  color,
+  size,
+  rotate,
+}: {
+  color: string;
+  size: number;
+  rotate: string;
+}) {
   const blob: ViewStyle = {
     width: size,
     height: size * 0.92,
@@ -78,9 +98,29 @@ function BlobChar({ color, size, rotate }: { color: string; size: number; rotate
   const eye = Math.max(4, Math.round(size * 0.057));
   return (
     <View style={blob}>
-      <View style={{ flexDirection: "row", gap: size * 0.1, marginTop: size * 0.06 }}>
-        <View style={{ width: eye, height: eye, borderRadius: eye / 2, backgroundColor: "#1C1B2988" }} />
-        <View style={{ width: eye, height: eye, borderRadius: eye / 2, backgroundColor: "#1C1B2988" }} />
+      <View
+        style={{
+          flexDirection: "row",
+          gap: size * 0.1,
+          marginTop: size * 0.06,
+        }}
+      >
+        <View
+          style={{
+            width: eye,
+            height: eye,
+            borderRadius: eye / 2,
+            backgroundColor: "#1C1B2988",
+          }}
+        />
+        <View
+          style={{
+            width: eye,
+            height: eye,
+            borderRadius: eye / 2,
+            backgroundColor: "#1C1B2988",
+          }}
+        />
       </View>
     </View>
   );
@@ -88,18 +128,38 @@ function BlobChar({ color, size, rotate }: { color: string; size: number; rotate
 
 function getEstimatedTime(challengeId: ChallengeType): string {
   switch (challengeId) {
-    case "adivina_concepto":   return "~7 min";
-    case "verdad_mito":        return "2–15 min";
-    case "identifica_patron":  return "2–8 min";
-    case "completa_reflexion": return "2–8 min";
+    case "adivina_concepto":
+      return "~7 min";
+    case "verdad_mito":
+      return "2–15 min";
+    case "identifica_patron":
+      return "2–8 min";
+    case "completa_reflexion":
+      return "2–8 min";
   }
 }
 
 const STEPS: Record<ChallengeType, string[]> = {
-  adivina_concepto:   ["Elige las áreas que quieres explorar", "Identifica el concepto en cada situación", "Descubre tu resultado al terminar"],
-  verdad_mito:        ["Elige los temas que te interesan", "Decide si cada afirmación es verdad o mito", "Lee la explicación de cada respuesta"],
-  identifica_patron:  ["Elige qué tipo de patrón explorar", "Analiza la situación y elige el patrón", "Aprende a reconocerlos en tu vida diaria"],
-  completa_reflexion: ["Elige los temas de reflexión", "Completa la frase con la opción correcta", "Incorpora conceptos clave de bienestar"],
+  adivina_concepto: [
+    "Elige las áreas que quieres explorar",
+    "Identifica el concepto en cada situación",
+    "Descubre tu resultado al terminar",
+  ],
+  verdad_mito: [
+    "Elige los temas que te interesan",
+    "Decide si cada afirmación es verdad o mito",
+    "Lee la explicación de cada respuesta",
+  ],
+  identifica_patron: [
+    "Elige qué tipo de patrón explorar",
+    "Analiza la situación y elige el patrón",
+    "Aprende a reconocerlos en tu vida diaria",
+  ],
+  completa_reflexion: [
+    "Elige los temas de reflexión",
+    "Completa la frase con la opción correcta",
+    "Incorpora conceptos clave de bienestar",
+  ],
 };
 
 function getTagItems(challengeId: ChallengeType): TagItem[] {
@@ -115,13 +175,34 @@ function getTagItems(challengeId: ChallengeType): TagItem[] {
         })),
       );
     case "verdad_mito": {
-      const MYTH_LABELS: Record<string, { title: string; description: string }> = {
-        vm_limites:      { title: "¿Límites = egoísmo?",          description: "¿Poner límites te hace mala persona? Descúbrelo" },
-        vm_emociones:    { title: "¿Las emociones debilitan?",     description: "Lo que crees sobre sentir: ¿verdad o mito?" },
-        vm_autoestima:   { title: "Quererte sin culpa",            description: "Mitos sobre la autoestima y el amor propio" },
-        vm_comunicacion: { title: "¿Asertivo o agresivo?",        description: "Lo que confundimos sobre comunicarnos bien" },
-        vm_relaciones:   { title: "El amor sano",                  description: "Creencias sobre los vínculos: ¿cuáles son falsas?" },
-        vm_felicidad:    { title: "¿Qué tan real es ser feliz?",   description: "Mitos sobre la felicidad y el bienestar" },
+      const MYTH_LABELS: Record<
+        string,
+        { title: string; description: string }
+      > = {
+        vm_limites: {
+          title: "¿Límites = egoísmo?",
+          description: "¿Poner límites te hace mala persona? Descúbrelo",
+        },
+        vm_emociones: {
+          title: "¿Las emociones debilitan?",
+          description: "Lo que crees sobre sentir: ¿verdad o mito?",
+        },
+        vm_autoestima: {
+          title: "Quererte sin culpa",
+          description: "Mitos sobre la autoestima y el amor propio",
+        },
+        vm_comunicacion: {
+          title: "¿Asertivo o agresivo?",
+          description: "Lo que confundimos sobre comunicarnos bien",
+        },
+        vm_relaciones: {
+          title: "El amor sano",
+          description: "Creencias sobre los vínculos: ¿cuáles son falsas?",
+        },
+        vm_felicidad: {
+          title: "¿Qué tan real es ser feliz?",
+          description: "Mitos sobre la felicidad y el bienestar",
+        },
       };
       return VERDAD_MITO_TOPICS.map((t) => ({
         id: t.id,
@@ -157,9 +238,15 @@ function getTotalQuestions(challengeId: ChallengeType): number {
     case "verdad_mito":
       return VERDAD_MITO_TOPICS.reduce((s, t) => s + t.questions.length, 0);
     case "identifica_patron":
-      return IDENTIFICA_PATRON_GROUPS.reduce((s, g) => s + g.questions.length, 0);
+      return IDENTIFICA_PATRON_GROUPS.reduce(
+        (s, g) => s + g.questions.length,
+        0,
+      );
     case "completa_reflexion":
-      return COMPLETA_REFLEXION_GROUPS.reduce((s, g) => s + g.questions.length, 0);
+      return COMPLETA_REFLEXION_GROUPS.reduce(
+        (s, g) => s + g.questions.length,
+        0,
+      );
   }
 }
 
@@ -240,14 +327,22 @@ export default function ChallengeDetailScreen() {
         ]}
       >
         {/* Hero */}
-        <View style={[styles.hero, { backgroundColor: challenge.color + "12" }]}>
+        <View
+          style={[styles.hero, { backgroundColor: challenge.color + "12" }]}
+        >
           <View style={styles.blobRow}>
-            <BlobChar color={challenge.color + "50"} size={72} rotate="-10deg" />
+            <BlobChar
+              color={challenge.color + "50"}
+              size={72}
+              rotate="-10deg"
+            />
             <BlobChar color={challenge.color + "99"} size={96} rotate="0deg" />
             <BlobChar color={challenge.color + "40"} size={68} rotate="8deg" />
           </View>
           <Text style={styles.title}>{challenge.title}</Text>
-          <Text style={styles.description}>{DESCRIPTIONS[challenge.id as ChallengeType]}</Text>
+          <Text style={styles.description}>
+            {DESCRIPTIONS[challenge.id as ChallengeType]}
+          </Text>
         </View>
 
         {/* Stats */}
@@ -275,8 +370,15 @@ export default function ChallengeDetailScreen() {
           <Text style={styles.stepsTitle}>¿Cómo funciona?</Text>
           {STEPS[challenge.id as ChallengeType].map((text, i) => (
             <View key={i} style={styles.step}>
-              <View style={[styles.stepBullet, { backgroundColor: challenge.color + "22" }]}>
-                <Text style={[styles.stepNum, { color: challenge.color }]}>{i + 1}</Text>
+              <View
+                style={[
+                  styles.stepBullet,
+                  { backgroundColor: challenge.color + "22" },
+                ]}
+              >
+                <Text style={[styles.stepNum, { color: challenge.color }]}>
+                  {i + 1}
+                </Text>
               </View>
               <Text style={styles.stepText}>{text}</Text>
             </View>
@@ -289,7 +391,8 @@ export default function ChallengeDetailScreen() {
         <View style={styles.timeRow}>
           <Clock size={13} color={MUTED} />
           <Text style={styles.timeText}>
-            {getEstimatedTime(challenge.id as ChallengeType)} según los temas que elijas
+            {getEstimatedTime(challenge.id as ChallengeType)} según los temas
+            que elijas
           </Text>
         </View>
         <Pressable
@@ -437,5 +540,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   stepNum: { fontSize: 13, fontWeight: "800" },
-  stepText: { flex: 1, fontSize: 13, color: TEXT, lineHeight: 19, fontWeight: "500" },
+  stepText: {
+    flex: 1,
+    fontSize: 13,
+    color: TEXT,
+    lineHeight: 19,
+    fontWeight: "500",
+  },
 });

@@ -1,4 +1,3 @@
-import { Image } from "expo-image";
 import { SPACING } from "@/constants/constants";
 import { BG, CARD_BG, MUTED, TEXT } from "@/constants/theme";
 import {
@@ -6,8 +5,8 @@ import {
   getImprovementQuestionsForConcepts,
 } from "@/data/improvementQuestions";
 import { Challenge, ChallengeQuestion } from "@/types/challenges";
+import { Image } from "expo-image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Dimensions,
   Modal,
@@ -30,6 +29,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { height: SCREEN_H } = Dimensions.get("window");
 const SHEET_H = SCREEN_H;
@@ -134,7 +134,10 @@ function buildPracticeQuestions(
   mainQuestions: ChallengeQuestion[],
   results: boolean[],
 ): ChallengeQuestion[] {
-  const failedIndices = results.map((ok, i) => ({ ok, i })).filter((r) => !r.ok).map((r) => r.i);
+  const failedIndices = results
+    .map((ok, i) => ({ ok, i }))
+    .filter((r) => !r.ok)
+    .map((r) => r.i);
   if (failedIndices.length === 0) return [];
 
   if (challengeId === "adivina_concepto") {
@@ -170,7 +173,9 @@ export function ChallengeSheet({ challenge, onClose }: Props) {
   const [done, setDone] = useState(false);
 
   // Práctica de refuerzo
-  const [practiceQuestions, setPracticeQuestions] = useState<ChallengeQuestion[]>([]);
+  const [practiceQuestions, setPracticeQuestions] = useState<
+    ChallengeQuestion[]
+  >([]);
   const [practiceStep, setPracticeStep] = useState(0);
   const [practiceSelected, setPracticeSelected] = useState<number | null>(null);
   const [practiceAnswered, setPracticeAnswered] = useState(false);
@@ -182,7 +187,11 @@ export function ChallengeSheet({ challenge, onClose }: Props) {
   const correctCount = results.filter(Boolean).length;
 
   useEffect(() => {
-    translateY.value = withSpring(0, { damping: 20, stiffness: 160, mass: 0.85 });
+    translateY.value = withSpring(0, {
+      damping: 20,
+      stiffness: 160,
+      mass: 0.85,
+    });
     backdropOpacity.value = withTiming(1, { duration: 220 });
   }, []);
 
@@ -284,19 +293,34 @@ export function ChallengeSheet({ challenge, onClose }: Props) {
   const isTrueFalse = (q: ChallengeQuestion) =>
     q.type === "true_false" || isVerdadMito;
 
-  const optionBg = (i: number, q: ChallengeQuestion, sel: number | null, state: AnswerState) => {
+  const optionBg = (
+    i: number,
+    q: ChallengeQuestion,
+    sel: number | null,
+    state: AnswerState,
+  ) => {
     if (state === "idle") return CARD_BG;
     if (i === q.correctIndex) return "#DCFCE7";
     if (i === sel) return "#FEE2E2";
     return CARD_BG;
   };
-  const optionBorder = (i: number, q: ChallengeQuestion, sel: number | null, state: AnswerState) => {
+  const optionBorder = (
+    i: number,
+    q: ChallengeQuestion,
+    sel: number | null,
+    state: AnswerState,
+  ) => {
     if (state === "idle") return "#E5E7EB";
     if (i === q.correctIndex) return "#059669";
     if (i === sel) return "#DC2626";
     return "#E5E7EB";
   };
-  const optionColor = (i: number, q: ChallengeQuestion, sel: number | null, state: AnswerState) => {
+  const optionColor = (
+    i: number,
+    q: ChallengeQuestion,
+    sel: number | null,
+    state: AnswerState,
+  ) => {
     if (state === "idle") return TEXT;
     if (i === q.correctIndex) return "#059669";
     if (i === sel) return "#DC2626";
@@ -305,7 +329,8 @@ export function ChallengeSheet({ challenge, onClose }: Props) {
 
   const pct = done ? Math.round((correctCount / totalSteps) * 100) : 0;
   const review = done ? getReview(challenge.id, pct) : null;
-  const pctColor = pct >= 80 ? "#059669" : pct >= 50 ? challenge.color : "#DC2626";
+  const pctColor =
+    pct >= 80 ? "#059669" : pct >= 50 ? challenge.color : "#DC2626";
 
   const currentPQ = practiceQuestions[practiceStep];
   const practiceState: AnswerState = practiceAnswered
@@ -321,380 +346,668 @@ export function ChallengeSheet({ challenge, onClose }: Props) {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Pressable
           style={StyleSheet.absoluteFill}
-          onPress={() => dismiss(done ? correctCount : 0, done ? totalSteps : 0)}
+          onPress={() =>
+            dismiss(done ? correctCount : 0, done ? totalSteps : 0)
+          }
         >
           <Animated.View style={[styles.backdrop, backdropStyle]} />
         </Pressable>
 
         <Animated.View style={[styles.sheet, sheetStyle]}>
-            {/* Barra superior: handle de arrastre + botón cerrar + progreso */}
-            <GestureDetector gesture={panGesture}>
-              <View style={[styles.topBar, { paddingTop: top + 8 }]}>
-                <View style={styles.topBarRow}>
-                  <View style={styles.topBarSpacer} />
-                  <View style={styles.handle} />
-                  <Pressable
-                    style={styles.closeTopBtn}
-                    onPress={() => dismiss(done ? correctCount : 0, done ? totalSteps : 0)}
-                  >
-                    <Text style={styles.closeTopBtnText}>✕</Text>
-                  </Pressable>
+          {/* Barra superior: handle de arrastre + botón cerrar + progreso */}
+          <GestureDetector gesture={panGesture}>
+            <View style={[styles.topBar, { paddingTop: top }]}>
+              {/* X absolutamente arriba a la derecha */}
+              <Pressable
+                style={[
+                  styles.closeTopBtn,
+                  { position: "absolute", top: top + -16, right: SPACING * 2 },
+                ]}
+                onPress={() =>
+                  dismiss(done ? correctCount : 0, done ? totalSteps : 0)
+                }
+              >
+                <Text style={styles.closeTopBtnText}>✕</Text>
+              </Pressable>
+              {/* Pill centrada */}
+              <View style={styles.handleRow}>
+                <View style={styles.handle} />
+              </View>
+              {!done && (
+                <View style={styles.thinProgressTrack}>
+                  <View
+                    style={[
+                      styles.thinProgressFill,
+                      {
+                        width: `${((step + (answerState !== "idle" ? 1 : 0)) / totalSteps) * 100}%`,
+                        backgroundColor: challenge.color,
+                      },
+                    ]}
+                  />
                 </View>
-                {!done && (
-                  <View style={styles.thinProgressTrack}>
+              )}
+            </View>
+          </GestureDetector>
+
+          {done ? (
+            /* ── Resultado + Práctica ── */
+            <ScrollView
+              ref={scrollRef}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.resultScroll}
+            >
+              {/* Porcentaje */}
+              <View style={styles.pctBlock}>
+                <Text style={[styles.pctNumber, { color: pctColor }]}>
+                  {pct}
+                  <Text style={styles.pctSign}>%</Text>
+                </Text>
+                <Text style={styles.pctSub}>
+                  {correctCount} de {totalSteps} correctas
+                </Text>
+              </View>
+
+              {/* Dots resumen */}
+              <View style={styles.dotsRow}>
+                {results.map((ok, i) => (
+                  <View
+                    key={i}
+                    style={[
+                      styles.dot,
+                      { backgroundColor: ok ? "#059669" : "#DC2626" },
+                    ]}
+                  />
+                ))}
+              </View>
+
+              {/* Review card */}
+              {review && (
+                <View style={styles.reviewCard}>
+                  <Text style={styles.reviewTitle}>{review.title}</Text>
+                  <Text style={styles.reviewBody}>{review.body}</Text>
+                </View>
+              )}
+
+              {/* ── Práctica de refuerzo ── */}
+              {practiceQuestions.length > 0 && !practiceDone && (
+                <View style={styles.practiceSection}>
+                  {/* Hero de práctica */}
+                  <View
+                    style={[
+                      styles.practiceHero,
+                      { backgroundColor: challenge.color + "18" },
+                    ]}
+                  >
                     <View
                       style={[
-                        styles.thinProgressFill,
-                        {
-                          width: `${((step + (answerState !== "idle" ? 1 : 0)) / totalSteps) * 100}%`,
-                          backgroundColor: challenge.color,
-                        },
+                        styles.heroDeco,
+                        { backgroundColor: challenge.color + "15" },
                       ]}
                     />
-                  </View>
-                )}
-              </View>
-            </GestureDetector>
-
-            {done ? (
-              /* ── Resultado + Práctica ── */
-              <ScrollView
-                ref={scrollRef}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.resultScroll}
-              >
-                {/* Porcentaje */}
-                <View style={styles.pctBlock}>
-                  <Text style={[styles.pctNumber, { color: pctColor }]}>
-                    {pct}
-                    <Text style={styles.pctSign}>%</Text>
-                  </Text>
-                  <Text style={styles.pctSub}>
-                    {correctCount} de {totalSteps} correctas
-                  </Text>
-                </View>
-
-                {/* Dots resumen */}
-                <View style={styles.dotsRow}>
-                  {results.map((ok, i) => (
                     <View
-                      key={i}
-                      style={[styles.dot, { backgroundColor: ok ? "#059669" : "#DC2626" }]}
-                    />
-                  ))}
-                </View>
-
-                {/* Review card */}
-                {review && (
-                  <View style={styles.reviewCard}>
-                    <Text style={styles.reviewTitle}>{review.title}</Text>
-                    <Text style={styles.reviewBody}>{review.body}</Text>
-                  </View>
-                )}
-
-                {/* ── Práctica de refuerzo ── */}
-                {practiceQuestions.length > 0 && !practiceDone && (
-                  <View style={styles.practiceSection}>
-                    {/* Hero de práctica */}
-                    <View style={[styles.practiceHero, { backgroundColor: challenge.color + "18" }]}>
-                      <View style={[styles.heroDeco, { backgroundColor: challenge.color + "15" }]} />
-                      <View style={[styles.heroChip, { backgroundColor: challenge.color + "28" }]}>
-                        <Text style={[styles.heroChipText, { color: challenge.color }]}>Refuerzo</Text>
-                      </View>
-                      <View style={styles.practiceLabelRow}>
-                        <View style={styles.practiceLabelDot} />
-                        <Text style={styles.practiceLabel}>Refuerza lo que fallaste</Text>
-                        <Text style={styles.practiceCounter}>
-                          {practiceStep + 1}/{practiceQuestions.length}
-                        </Text>
-                      </View>
-                      <Text style={styles.practiceStatement}>{currentPQ.statement}</Text>
+                      style={[
+                        styles.heroChip,
+                        { backgroundColor: challenge.color + "28" },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.heroChipText,
+                          { color: challenge.color },
+                        ]}
+                      >
+                        Refuerzo
+                      </Text>
                     </View>
-
-                    {currentPQ.code && (
-                      <View style={styles.codeBlock}>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                          <Text style={styles.codeText}>{currentPQ.code}</Text>
-                        </ScrollView>
-                      </View>
-                    )}
-
-                    {/* Verdad / Mito práctica */}
-                    {currentPQ.type === "true_false" && (
-                      <View style={[styles.optionsRow, { marginBottom: SPACING }]}>
-                        {currentPQ.options.map((opt, i) => {
-                          const bg = optionBg(i, currentPQ, practiceSelected, practiceState);
-                          const border = optionBorder(i, currentPQ, practiceSelected, practiceState);
-                          const color = optionColor(i, currentPQ, practiceSelected, practiceState);
-                          return (
-                            <Pressable key={i} style={[styles.optionBig, { backgroundColor: bg, borderColor: border }]} onPress={() => handlePracticeSelect(i)}>
-                              <Text style={[styles.vmIcon, { color }]}>{opt === "Verdad" ? "✓" : "✗"}</Text>
-                              <Text style={[styles.optionBigText, { color }]}>{opt}</Text>
-                              {practiceAnswered && i === currentPQ.correctIndex && <Text style={styles.optionCheck}>✓</Text>}
-                              {practiceAnswered && i === practiceSelected && i !== currentPQ.correctIndex && <Text style={styles.optionX}>✗</Text>}
-                            </Pressable>
-                          );
-                        })}
-                      </View>
-                    )}
-
-                    {/* Grid 2×2 imagen práctica — adivina_concepto */}
-                    {currentPQ.type !== "true_false" && challenge.id === "adivina_concepto" && (
-                      <View style={styles.optionsGrid}>
-                        {currentPQ.options.map((opt, i) => {
-                          const border = optionBorder(i, currentPQ, practiceSelected, practiceState);
-                          const color = optionColor(i, currentPQ, practiceSelected, practiceState);
-                          const isCorrect = i === currentPQ.correctIndex;
-                          const isWrong = i === practiceSelected && !isCorrect;
-                          const letter = String.fromCharCode(65 + i);
-                          const img = CARD_IMAGES[(practiceStep * 4 + i) % CARD_IMAGES.length];
-                          const rotation = CARD_ROTATIONS[i];
-                          return (
-                            <Pressable
-                              key={i}
-                              style={[
-                                styles.optionImgCard,
-                                { borderColor: border, transform: [{ rotate: `${rotation}deg` }] },
-                              ]}
-                              onPress={() => handlePracticeSelect(i)}
-                            >
-                              <View style={[styles.optionImgArea, { backgroundColor: challenge.color + "20" }]}>
-                                <Image source={img} style={styles.optionImg} contentFit="contain" />
-                                <View style={[
-                                  styles.optionImgBadge,
-                                  {
-                                    backgroundColor: practiceAnswered
-                                      ? (isCorrect ? "#059669" : isWrong ? "#DC2626" : "rgba(0,0,0,0.12)")
-                                      : challenge.color + "CC",
-                                  },
-                                ]}>
-                                  <Text style={styles.optionImgLetter}>{letter}</Text>
-                                </View>
-                              </View>
-                              <View style={[
-                                styles.optionImgBody,
-                                { backgroundColor: practiceAnswered && isCorrect ? "#DCFCE7" : practiceAnswered && isWrong ? "#FEE2E2" : "#fff" },
-                              ]}>
-                                <Text style={[styles.optionImgText, { color }]} numberOfLines={3}>{opt}</Text>
-                              </View>
-                              {practiceAnswered && isCorrect && (
-                                <View style={styles.optionImgResultBadge}>
-                                  <Text style={styles.optionImgResultText}>✓</Text>
-                                </View>
-                              )}
-                              {practiceAnswered && isWrong && (
-                                <View style={[styles.optionImgResultBadge, { backgroundColor: "#DC2626" }]}>
-                                  <Text style={styles.optionImgResultText}>✗</Text>
-                                </View>
-                              )}
-                            </Pressable>
-                          );
-                        })}
-                      </View>
-                    )}
-
-                    {/* Grid imagen práctica — identifica_patron / completa_reflexion */}
-                    {currentPQ.type !== "true_false" && challenge.id !== "adivina_concepto" && (
-                      <View style={styles.optionsGrid}>
-                        {currentPQ.options.map((opt, i) => {
-                          const border = optionBorder(i, currentPQ, practiceSelected, practiceState);
-                          const color = optionColor(i, currentPQ, practiceSelected, practiceState);
-                          const isCorrect = i === currentPQ.correctIndex;
-                          const isWrong = i === practiceSelected && !isCorrect;
-                          const letter = String.fromCharCode(65 + i);
-                          const img = CARD_IMAGES[(practiceStep * 4 + i + 4) % CARD_IMAGES.length];
-                          const rotation = CARD_ROTATIONS[i];
-                          return (
-                            <Pressable
-                              key={i}
-                              style={[
-                                styles.optionImgCard,
-                                { borderColor: border, transform: [{ rotate: `${rotation}deg` }] },
-                              ]}
-                              onPress={() => handlePracticeSelect(i)}
-                            >
-                              <View style={[styles.optionImgArea, { backgroundColor: challenge.color + "20" }]}>
-                                <Image source={img} style={styles.optionImg} contentFit="contain" />
-                                <View style={[
-                                  styles.optionImgBadge,
-                                  {
-                                    backgroundColor: practiceAnswered
-                                      ? (isCorrect ? "#059669" : isWrong ? "#DC2626" : "rgba(0,0,0,0.12)")
-                                      : challenge.color + "CC",
-                                  },
-                                ]}>
-                                  <Text style={styles.optionImgLetter}>{letter}</Text>
-                                </View>
-                              </View>
-                              <View style={[
-                                styles.optionImgBody,
-                                { backgroundColor: practiceAnswered && isCorrect ? "#DCFCE7" : practiceAnswered && isWrong ? "#FEE2E2" : "#fff" },
-                              ]}>
-                                <Text style={[styles.optionImgText, { color }]} numberOfLines={4}>{opt}</Text>
-                              </View>
-                              {practiceAnswered && isCorrect && (
-                                <View style={styles.optionImgResultBadge}>
-                                  <Text style={styles.optionImgResultText}>✓</Text>
-                                </View>
-                              )}
-                              {practiceAnswered && isWrong && (
-                                <View style={[styles.optionImgResultBadge, { backgroundColor: "#DC2626" }]}>
-                                  <Text style={styles.optionImgResultText}>✗</Text>
-                                </View>
-                              )}
-                            </Pressable>
-                          );
-                        })}
-                      </View>
-                    )}
-
-                    {practiceAnswered && (
-                      <>
-                        <View
-                          style={styles.explanationBox}
-                        >
-                          <Text style={styles.explanationTitle}>
-                            {practiceSelected === currentPQ.correctIndex
-                              ? "Correcto"
-                              : "Incorrecto"}
-                          </Text>
-                          <Text style={styles.explanationText}>
-                            {currentPQ.explanation}
-                          </Text>
-                        </View>
-                        <Pressable
-                          style={[styles.nextBtn, { backgroundColor: challenge.color }]}
-                          onPress={handlePracticeNext}
-                        >
-                          <Text style={styles.nextBtnText}>
-                            {practiceStep + 1 >= practiceQuestions.length
-                              ? "Finalizar práctica"
-                              : "Siguiente pregunta"}
-                          </Text>
-                        </Pressable>
-                      </>
-                    )}
-                  </View>
-                )}
-
-                {/* Resumen práctica completada */}
-                {practiceDone && practiceResults.length > 0 && (
-                  <View style={styles.practiceSummary}>
-                    <Text style={styles.practiceSummaryTitle}>Práctica completada</Text>
-                    <Text style={styles.practiceSummaryText}>
-                      {practiceResults.filter(Boolean).length} de {practiceResults.length} correctas en el refuerzo.
+                    <View style={styles.practiceLabelRow}>
+                      <View style={styles.practiceLabelDot} />
+                      <Text style={styles.practiceLabel}>
+                        Refuerza lo que fallaste
+                      </Text>
+                      <Text style={styles.practiceCounter}>
+                        {practiceStep + 1}/{practiceQuestions.length}
+                      </Text>
+                    </View>
+                    <Text style={styles.practiceStatement}>
+                      {currentPQ.statement}
                     </Text>
                   </View>
-                )}
 
-                {/* Botones finales */}
-                {showButtons && (
-                  <View style={styles.resultBtns}>
-                    <Pressable
-                      style={[styles.replayBtn, { borderColor: challenge.color }]}
-                      onPress={handleReplay}
+                  {currentPQ.code && (
+                    <View style={styles.codeBlock}>
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                      >
+                        <Text style={styles.codeText}>{currentPQ.code}</Text>
+                      </ScrollView>
+                    </View>
+                  )}
+
+                  {/* Verdad / Mito práctica */}
+                  {currentPQ.type === "true_false" && (
+                    <View
+                      style={[styles.optionsRow, { marginBottom: SPACING }]}
                     >
-                      <Text style={[styles.replayBtnText, { color: challenge.color }]}>
-                        Intentar de nuevo
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      style={[styles.closeBtn, { backgroundColor: challenge.color }]}
-                      onPress={() => dismiss(correctCount, totalSteps)}
-                    >
-                      <Text style={styles.closeBtnText}>Listo</Text>
-                    </Pressable>
-                  </View>
-                )}
-              </ScrollView>
-            ) : (
-              /* ── Pregunta principal ── */
-              <ScrollView
-                ref={scrollRef}
-                style={{ flex: 1 }}
-                contentContainerStyle={styles.content}
-                showsVerticalScrollIndicator={false}
-              >
-                {/* Chip + contador centrados */}
-                <View style={styles.questionMeta}>
-                  <View style={[styles.questionChip, { backgroundColor: challenge.color + "25" }]}>
-                    <Text style={[styles.questionChipText, { color: challenge.color }]}>{challenge.title}</Text>
-                  </View>
-                  <Text style={styles.questionCounter}>{step + 1} / {totalSteps}</Text>
+                      {currentPQ.options.map((opt, i) => {
+                        const bg = optionBg(
+                          i,
+                          currentPQ,
+                          practiceSelected,
+                          practiceState,
+                        );
+                        const border = optionBorder(
+                          i,
+                          currentPQ,
+                          practiceSelected,
+                          practiceState,
+                        );
+                        const color = optionColor(
+                          i,
+                          currentPQ,
+                          practiceSelected,
+                          practiceState,
+                        );
+                        return (
+                          <Pressable
+                            key={i}
+                            style={[
+                              styles.optionBig,
+                              { backgroundColor: bg, borderColor: border },
+                            ]}
+                            onPress={() => handlePracticeSelect(i)}
+                          >
+                            <Text style={[styles.vmIcon, { color }]}>
+                              {opt === "Verdad" ? "✓" : "✗"}
+                            </Text>
+                            <Text style={[styles.optionBigText, { color }]}>
+                              {opt}
+                            </Text>
+                            {practiceAnswered &&
+                              i === currentPQ.correctIndex && (
+                                <Text style={styles.optionCheck}>✓</Text>
+                              )}
+                            {practiceAnswered &&
+                              i === practiceSelected &&
+                              i !== currentPQ.correctIndex && (
+                                <Text style={styles.optionX}>✗</Text>
+                              )}
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+                  )}
+
+                  {/* Grid 2×2 imagen práctica — adivina_concepto */}
+                  {currentPQ.type !== "true_false" &&
+                    challenge.id === "adivina_concepto" && (
+                      <View style={styles.optionsGrid}>
+                        {currentPQ.options.map((opt, i) => {
+                          const border = optionBorder(
+                            i,
+                            currentPQ,
+                            practiceSelected,
+                            practiceState,
+                          );
+                          const color = optionColor(
+                            i,
+                            currentPQ,
+                            practiceSelected,
+                            practiceState,
+                          );
+                          const isCorrect = i === currentPQ.correctIndex;
+                          const isWrong = i === practiceSelected && !isCorrect;
+                          const letter = String.fromCharCode(65 + i);
+                          const img =
+                            CARD_IMAGES[
+                              (practiceStep * 4 + i) % CARD_IMAGES.length
+                            ];
+                          const rotation = CARD_ROTATIONS[i];
+                          return (
+                            <Pressable
+                              key={i}
+                              style={[
+                                styles.optionImgCard,
+                                {
+                                  borderColor: border,
+                                  transform: [{ rotate: `${rotation}deg` }],
+                                },
+                              ]}
+                              onPress={() => handlePracticeSelect(i)}
+                            >
+                              <View
+                                style={[
+                                  styles.optionImgArea,
+                                  { backgroundColor: challenge.color + "20" },
+                                ]}
+                              >
+                                <Image
+                                  source={img}
+                                  style={styles.optionImg}
+                                  contentFit="contain"
+                                />
+                                <View
+                                  style={[
+                                    styles.optionImgBadge,
+                                    {
+                                      backgroundColor: practiceAnswered
+                                        ? isCorrect
+                                          ? "#059669"
+                                          : isWrong
+                                            ? "#DC2626"
+                                            : "rgba(0,0,0,0.12)"
+                                        : challenge.color + "CC",
+                                    },
+                                  ]}
+                                >
+                                  <Text style={styles.optionImgLetter}>
+                                    {letter}
+                                  </Text>
+                                </View>
+                              </View>
+                              <View
+                                style={[
+                                  styles.optionImgBody,
+                                  {
+                                    backgroundColor:
+                                      practiceAnswered && isCorrect
+                                        ? "#DCFCE7"
+                                        : practiceAnswered && isWrong
+                                          ? "#FEE2E2"
+                                          : "#fff",
+                                  },
+                                ]}
+                              >
+                                <Text
+                                  style={[styles.optionImgText, { color }]}
+                                  numberOfLines={3}
+                                >
+                                  {opt}
+                                </Text>
+                              </View>
+                              {practiceAnswered && isCorrect && (
+                                <View style={styles.optionImgResultBadge}>
+                                  <Text style={styles.optionImgResultText}>
+                                    ✓
+                                  </Text>
+                                </View>
+                              )}
+                              {practiceAnswered && isWrong && (
+                                <View
+                                  style={[
+                                    styles.optionImgResultBadge,
+                                    { backgroundColor: "#DC2626" },
+                                  ]}
+                                >
+                                  <Text style={styles.optionImgResultText}>
+                                    ✗
+                                  </Text>
+                                </View>
+                              )}
+                            </Pressable>
+                          );
+                        })}
+                      </View>
+                    )}
+
+                  {/* Grid imagen práctica — identifica_patron / completa_reflexion */}
+                  {currentPQ.type !== "true_false" &&
+                    challenge.id !== "adivina_concepto" && (
+                      <View style={styles.optionsGrid}>
+                        {currentPQ.options.map((opt, i) => {
+                          const border = optionBorder(
+                            i,
+                            currentPQ,
+                            practiceSelected,
+                            practiceState,
+                          );
+                          const color = optionColor(
+                            i,
+                            currentPQ,
+                            practiceSelected,
+                            practiceState,
+                          );
+                          const isCorrect = i === currentPQ.correctIndex;
+                          const isWrong = i === practiceSelected && !isCorrect;
+                          const letter = String.fromCharCode(65 + i);
+                          const img =
+                            CARD_IMAGES[
+                              (practiceStep * 4 + i + 4) % CARD_IMAGES.length
+                            ];
+                          const rotation = CARD_ROTATIONS[i];
+                          return (
+                            <Pressable
+                              key={i}
+                              style={[
+                                styles.optionImgCard,
+                                {
+                                  borderColor: border,
+                                  transform: [{ rotate: `${rotation}deg` }],
+                                },
+                              ]}
+                              onPress={() => handlePracticeSelect(i)}
+                            >
+                              <View
+                                style={[
+                                  styles.optionImgArea,
+                                  { backgroundColor: challenge.color + "20" },
+                                ]}
+                              >
+                                <Image
+                                  source={img}
+                                  style={styles.optionImg}
+                                  contentFit="contain"
+                                />
+                                <View
+                                  style={[
+                                    styles.optionImgBadge,
+                                    {
+                                      backgroundColor: practiceAnswered
+                                        ? isCorrect
+                                          ? "#059669"
+                                          : isWrong
+                                            ? "#DC2626"
+                                            : "rgba(0,0,0,0.12)"
+                                        : challenge.color + "CC",
+                                    },
+                                  ]}
+                                >
+                                  <Text style={styles.optionImgLetter}>
+                                    {letter}
+                                  </Text>
+                                </View>
+                              </View>
+                              <View
+                                style={[
+                                  styles.optionImgBody,
+                                  {
+                                    backgroundColor:
+                                      practiceAnswered && isCorrect
+                                        ? "#DCFCE7"
+                                        : practiceAnswered && isWrong
+                                          ? "#FEE2E2"
+                                          : "#fff",
+                                  },
+                                ]}
+                              >
+                                <Text
+                                  style={[styles.optionImgText, { color }]}
+                                  numberOfLines={4}
+                                >
+                                  {opt}
+                                </Text>
+                              </View>
+                              {practiceAnswered && isCorrect && (
+                                <View style={styles.optionImgResultBadge}>
+                                  <Text style={styles.optionImgResultText}>
+                                    ✓
+                                  </Text>
+                                </View>
+                              )}
+                              {practiceAnswered && isWrong && (
+                                <View
+                                  style={[
+                                    styles.optionImgResultBadge,
+                                    { backgroundColor: "#DC2626" },
+                                  ]}
+                                >
+                                  <Text style={styles.optionImgResultText}>
+                                    ✗
+                                  </Text>
+                                </View>
+                              )}
+                            </Pressable>
+                          );
+                        })}
+                      </View>
+                    )}
+
+                  {practiceAnswered && (
+                    <>
+                      <View style={styles.explanationBox}>
+                        <Text style={styles.explanationTitle}>
+                          {practiceSelected === currentPQ.correctIndex
+                            ? "Correcto"
+                            : "Incorrecto"}
+                        </Text>
+                        <Text style={styles.explanationText}>
+                          {currentPQ.explanation}
+                        </Text>
+                      </View>
+                      <Pressable
+                        style={[
+                          styles.nextBtn,
+                          { backgroundColor: challenge.color },
+                        ]}
+                        onPress={handlePracticeNext}
+                      >
+                        <Text style={styles.nextBtnText}>
+                          {practiceStep + 1 >= practiceQuestions.length
+                            ? "Finalizar práctica"
+                            : "Siguiente pregunta"}
+                        </Text>
+                      </Pressable>
+                    </>
+                  )}
                 </View>
+              )}
 
-                {/* Pregunta centrada */}
-                <Text style={styles.statement}>{currentQ.statement}</Text>
+              {/* Resumen práctica completada */}
+              {practiceDone && practiceResults.length > 0 && (
+                <View style={styles.practiceSummary}>
+                  <Text style={styles.practiceSummaryTitle}>
+                    Práctica completada
+                  </Text>
+                  <Text style={styles.practiceSummaryText}>
+                    {practiceResults.filter(Boolean).length} de{" "}
+                    {practiceResults.length} correctas en el refuerzo.
+                  </Text>
+                </View>
+              )}
 
-                {currentQ.code && (
-                  <View style={styles.codeBlock}>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                      <Text style={styles.codeText}>{currentQ.code}</Text>
-                    </ScrollView>
-                  </View>
-                )}
+              {/* Botones finales */}
+              {showButtons && (
+                <View style={styles.resultBtns}>
+                  <Pressable
+                    style={[styles.replayBtn, { borderColor: challenge.color }]}
+                    onPress={handleReplay}
+                  >
+                    <Text
+                      style={[styles.replayBtnText, { color: challenge.color }]}
+                    >
+                      Intentar de nuevo
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    style={[
+                      styles.closeBtn,
+                      { backgroundColor: challenge.color },
+                    ]}
+                    onPress={() => dismiss(correctCount, totalSteps)}
+                  >
+                    <Text style={styles.closeBtnText}>Listo</Text>
+                  </Pressable>
+                </View>
+              )}
+            </ScrollView>
+          ) : (
+            /* ── Pregunta principal ── */
+            <ScrollView
+              ref={scrollRef}
+              style={{ flex: 1 }}
+              contentContainerStyle={styles.content}
+              showsVerticalScrollIndicator={false}
+            >
+              {/* Chip + contador centrados */}
+              <View style={styles.questionMeta}>
+                <View
+                  style={[
+                    styles.questionChip,
+                    { backgroundColor: challenge.color + "25" },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.questionChipText,
+                      { color: challenge.color },
+                    ]}
+                  >
+                    {challenge.title}
+                  </Text>
+                </View>
+                <Text style={styles.questionCounter}>
+                  {step + 1} / {totalSteps}
+                </Text>
+              </View>
 
-                {/* Verdad / Mito */}
-                {isTrueFalse(currentQ) && (
-                  <View style={[styles.optionsRow, { marginBottom: SPACING * 2 }]}>
-                    {currentQ.options.map((opt, i) => {
-                      const isVerdad = opt === "Verdad";
-                      const bg = answerState === "idle" ? (isVerdad ? "#ECFDF5" : "#FEF2F2") : optionBg(i, currentQ, selected, answerState);
-                      const border = answerState === "idle" ? (isVerdad ? "#6EE7B7" : "#FCA5A5") : optionBorder(i, currentQ, selected, answerState);
-                      const textColor = answerState === "idle" ? (isVerdad ? "#059669" : "#DC2626") : optionColor(i, currentQ, selected, answerState);
-                      return (
-                        <Pressable key={i} style={[styles.optionBig, { backgroundColor: bg, borderColor: border }]} onPress={() => handleSelect(i)}>
-                          <Text style={[styles.vmIcon, { color: textColor }]}>{isVerdad ? "✓" : "✗"}</Text>
-                          <Text style={[styles.optionBigText, { color: textColor }]}>{opt}</Text>
-                        </Pressable>
-                      );
-                    })}
-                  </View>
-                )}
+              {/* Pregunta centrada */}
+              <Text style={styles.statement}>{currentQ.statement}</Text>
 
-                {/* Grid 2×2 imagen — adivina_concepto */}
-                {!isTrueFalse(currentQ) && challenge.id === "adivina_concepto" && (
+              {currentQ.code && (
+                <View style={styles.codeBlock}>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <Text style={styles.codeText}>{currentQ.code}</Text>
+                  </ScrollView>
+                </View>
+              )}
+
+              {/* Verdad / Mito */}
+              {isTrueFalse(currentQ) && (
+                <View
+                  style={[styles.optionsRow, { marginBottom: SPACING * 2 }]}
+                >
+                  {currentQ.options.map((opt, i) => {
+                    const isVerdad = opt === "Verdad";
+                    const bg =
+                      answerState === "idle"
+                        ? isVerdad
+                          ? "#ECFDF5"
+                          : "#FEF2F2"
+                        : optionBg(i, currentQ, selected, answerState);
+                    const border =
+                      answerState === "idle"
+                        ? isVerdad
+                          ? "#6EE7B7"
+                          : "#FCA5A5"
+                        : optionBorder(i, currentQ, selected, answerState);
+                    const textColor =
+                      answerState === "idle"
+                        ? isVerdad
+                          ? "#059669"
+                          : "#DC2626"
+                        : optionColor(i, currentQ, selected, answerState);
+                    return (
+                      <Pressable
+                        key={i}
+                        style={[
+                          styles.optionBig,
+                          { backgroundColor: bg, borderColor: border },
+                        ]}
+                        onPress={() => handleSelect(i)}
+                      >
+                        <Text style={[styles.vmIcon, { color: textColor }]}>
+                          {isVerdad ? "✓" : "✗"}
+                        </Text>
+                        <Text
+                          style={[styles.optionBigText, { color: textColor }]}
+                        >
+                          {opt}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              )}
+
+              {/* Grid 2×2 imagen — adivina_concepto */}
+              {!isTrueFalse(currentQ) &&
+                challenge.id === "adivina_concepto" && (
                   <View style={styles.optionsGrid}>
                     {currentQ.options.map((opt, i) => {
-                      const border = optionBorder(i, currentQ, selected, answerState);
-                      const color = optionColor(i, currentQ, selected, answerState);
+                      const border = optionBorder(
+                        i,
+                        currentQ,
+                        selected,
+                        answerState,
+                      );
+                      const color = optionColor(
+                        i,
+                        currentQ,
+                        selected,
+                        answerState,
+                      );
                       const isAnswered = answerState !== "idle";
                       const isCorrect = i === currentQ.correctIndex;
                       const isWrong = i === selected && !isCorrect;
                       const letter = String.fromCharCode(65 + i);
-                      const img = CARD_IMAGES[(step * 4 + i) % CARD_IMAGES.length];
+                      const img =
+                        CARD_IMAGES[(step * 4 + i) % CARD_IMAGES.length];
                       const rotation = CARD_ROTATIONS[i];
                       return (
                         <Pressable
                           key={i}
                           style={[
                             styles.optionImgCard,
-                            { borderColor: border, transform: [{ rotate: `${rotation}deg` }] },
+                            {
+                              borderColor: border,
+                              transform: [{ rotate: `${rotation}deg` }],
+                            },
                           ]}
                           onPress={() => handleSelect(i)}
                         >
                           {/* Imagen */}
-                          <View style={[styles.optionImgArea, { backgroundColor: challenge.color + "20" }]}>
-                            <Image source={img} style={styles.optionImg} contentFit="contain" />
+                          <View
+                            style={[
+                              styles.optionImgArea,
+                              { backgroundColor: challenge.color + "20" },
+                            ]}
+                          >
+                            <Image
+                              source={img}
+                              style={styles.optionImg}
+                              contentFit="contain"
+                            />
                             {/* Badge de letra — se ilumina al seleccionar */}
-                            <View style={[
-                              styles.optionImgBadge,
-                              {
-                                backgroundColor: isAnswered
-                                  ? (isCorrect ? "#059669" : isWrong ? "#DC2626" : "rgba(0,0,0,0.12)")
-                                  : challenge.color + "CC",
-                              },
-                            ]}>
-                              <Text style={styles.optionImgLetter}>{letter}</Text>
+                            <View
+                              style={[
+                                styles.optionImgBadge,
+                                {
+                                  backgroundColor: isAnswered
+                                    ? isCorrect
+                                      ? "#059669"
+                                      : isWrong
+                                        ? "#DC2626"
+                                        : "rgba(0,0,0,0.12)"
+                                    : challenge.color + "CC",
+                                },
+                              ]}
+                            >
+                              <Text style={styles.optionImgLetter}>
+                                {letter}
+                              </Text>
                             </View>
                           </View>
 
                           {/* Texto de la opción */}
-                          <View style={[
-                            styles.optionImgBody,
-                            { backgroundColor: isAnswered && isCorrect ? "#DCFCE7" : isAnswered && isWrong ? "#FEE2E2" : "#fff" },
-                          ]}>
-                            <Text style={[styles.optionImgText, { color }]} numberOfLines={3}>{opt}</Text>
+                          <View
+                            style={[
+                              styles.optionImgBody,
+                              {
+                                backgroundColor:
+                                  isAnswered && isCorrect
+                                    ? "#DCFCE7"
+                                    : isAnswered && isWrong
+                                      ? "#FEE2E2"
+                                      : "#fff",
+                              },
+                            ]}
+                          >
+                            <Text
+                              style={[styles.optionImgText, { color }]}
+                              numberOfLines={3}
+                            >
+                              {opt}
+                            </Text>
                           </View>
 
                           {/* Indicador correcto/incorrecto */}
@@ -704,7 +1017,12 @@ export function ChallengeSheet({ challenge, onClose }: Props) {
                             </View>
                           )}
                           {isAnswered && isWrong && (
-                            <View style={[styles.optionImgResultBadge, { backgroundColor: "#DC2626" }]}>
+                            <View
+                              style={[
+                                styles.optionImgResultBadge,
+                                { backgroundColor: "#DC2626" },
+                              ]}
+                            >
                               <Text style={styles.optionImgResultText}>✗</Text>
                             </View>
                           )}
@@ -714,45 +1032,91 @@ export function ChallengeSheet({ challenge, onClose }: Props) {
                   </View>
                 )}
 
-                {/* Grid imagen — identifica_patron / completa_reflexion */}
-                {!isTrueFalse(currentQ) && challenge.id !== "adivina_concepto" && (
+              {/* Grid imagen — identifica_patron / completa_reflexion */}
+              {!isTrueFalse(currentQ) &&
+                challenge.id !== "adivina_concepto" && (
                   <View style={styles.optionsGrid}>
                     {currentQ.options.map((opt, i) => {
-                      const border = optionBorder(i, currentQ, selected, answerState);
-                      const color = optionColor(i, currentQ, selected, answerState);
+                      const border = optionBorder(
+                        i,
+                        currentQ,
+                        selected,
+                        answerState,
+                      );
+                      const color = optionColor(
+                        i,
+                        currentQ,
+                        selected,
+                        answerState,
+                      );
                       const isAnswered = answerState !== "idle";
                       const isCorrect = i === currentQ.correctIndex;
                       const isWrong = i === selected && !isCorrect;
                       const letter = String.fromCharCode(65 + i);
-                      const img = CARD_IMAGES[(step * 4 + i + 4) % CARD_IMAGES.length];
+                      const img =
+                        CARD_IMAGES[(step * 4 + i + 4) % CARD_IMAGES.length];
                       const rotation = CARD_ROTATIONS[i];
                       return (
                         <Pressable
                           key={i}
                           style={[
                             styles.optionImgCard,
-                            { borderColor: border, transform: [{ rotate: `${rotation}deg` }] },
+                            {
+                              borderColor: border,
+                              transform: [{ rotate: `${rotation}deg` }],
+                            },
                           ]}
                           onPress={() => handleSelect(i)}
                         >
-                          <View style={[styles.optionImgArea, { backgroundColor: challenge.color + "20" }]}>
-                            <Image source={img} style={styles.optionImg} contentFit="contain" />
-                            <View style={[
-                              styles.optionImgBadge,
-                              {
-                                backgroundColor: isAnswered
-                                  ? (isCorrect ? "#059669" : isWrong ? "#DC2626" : "rgba(0,0,0,0.12)")
-                                  : challenge.color + "CC",
-                              },
-                            ]}>
-                              <Text style={styles.optionImgLetter}>{letter}</Text>
+                          <View
+                            style={[
+                              styles.optionImgArea,
+                              { backgroundColor: challenge.color + "20" },
+                            ]}
+                          >
+                            <Image
+                              source={img}
+                              style={styles.optionImg}
+                              contentFit="contain"
+                            />
+                            <View
+                              style={[
+                                styles.optionImgBadge,
+                                {
+                                  backgroundColor: isAnswered
+                                    ? isCorrect
+                                      ? "#059669"
+                                      : isWrong
+                                        ? "#DC2626"
+                                        : "rgba(0,0,0,0.12)"
+                                    : challenge.color + "CC",
+                                },
+                              ]}
+                            >
+                              <Text style={styles.optionImgLetter}>
+                                {letter}
+                              </Text>
                             </View>
                           </View>
-                          <View style={[
-                            styles.optionImgBody,
-                            { backgroundColor: isAnswered && isCorrect ? "#DCFCE7" : isAnswered && isWrong ? "#FEE2E2" : "#fff" },
-                          ]}>
-                            <Text style={[styles.optionImgText, { color }]} numberOfLines={4}>{opt}</Text>
+                          <View
+                            style={[
+                              styles.optionImgBody,
+                              {
+                                backgroundColor:
+                                  isAnswered && isCorrect
+                                    ? "#DCFCE7"
+                                    : isAnswered && isWrong
+                                      ? "#FEE2E2"
+                                      : "#fff",
+                              },
+                            ]}
+                          >
+                            <Text
+                              style={[styles.optionImgText, { color }]}
+                              numberOfLines={4}
+                            >
+                              {opt}
+                            </Text>
                           </View>
                           {isAnswered && isCorrect && (
                             <View style={styles.optionImgResultBadge}>
@@ -760,7 +1124,12 @@ export function ChallengeSheet({ challenge, onClose }: Props) {
                             </View>
                           )}
                           {isAnswered && isWrong && (
-                            <View style={[styles.optionImgResultBadge, { backgroundColor: "#DC2626" }]}>
+                            <View
+                              style={[
+                                styles.optionImgResultBadge,
+                                { backgroundColor: "#DC2626" },
+                              ]}
+                            >
                               <Text style={styles.optionImgResultText}>✗</Text>
                             </View>
                           )}
@@ -770,34 +1139,41 @@ export function ChallengeSheet({ challenge, onClose }: Props) {
                   </View>
                 )}
 
-                {answerState !== "idle" && (
-                  <View style={styles.explanationBox}>
-                    <Text
-                      style={[
-                        styles.explanationTitle,
-                        { color: answerState === "correct" ? "#059669" : "#DC2626" },
-                      ]}
-                    >
-                      {answerState === "correct" ? "✓  Correcto" : "✗  Incorrecto"}
-                    </Text>
-                    <Text style={styles.explanationText}>{currentQ.explanation}</Text>
-                  </View>
-                )}
-
-                {answerState !== "idle" && (
-                  <Pressable
-                    style={[styles.nextBtn, { backgroundColor: challenge.color }]}
-                    onPress={handleNext}
+              {answerState !== "idle" && (
+                <View style={styles.explanationBox}>
+                  <Text
+                    style={[
+                      styles.explanationTitle,
+                      {
+                        color:
+                          answerState === "correct" ? "#059669" : "#DC2626",
+                      },
+                    ]}
                   >
-                    <Text style={styles.nextBtnText}>
-                      {step + 1 >= totalSteps ? "Ver resultado" : "Siguiente"}
-                    </Text>
-                  </Pressable>
-                )}
+                    {answerState === "correct"
+                      ? "✓  Correcto"
+                      : "✗  Incorrecto"}
+                  </Text>
+                  <Text style={styles.explanationText}>
+                    {currentQ.explanation}
+                  </Text>
+                </View>
+              )}
 
-                <View style={{ height: 32 }} />
-              </ScrollView>
-            )}
+              {answerState !== "idle" && (
+                <Pressable
+                  style={[styles.nextBtn, { backgroundColor: challenge.color }]}
+                  onPress={handleNext}
+                >
+                  <Text style={styles.nextBtnText}>
+                    {step + 1 >= totalSteps ? "Ver resultado" : "Siguiente"}
+                  </Text>
+                </Pressable>
+              )}
+
+              <View style={{ height: 32 }} />
+            </ScrollView>
+          )}
         </Animated.View>
       </GestureHandlerRootView>
     </Modal>
@@ -817,15 +1193,13 @@ const styles = StyleSheet.create({
   },
   topBar: {
     paddingHorizontal: SPACING * 2,
-    paddingBottom: SPACING * 1.2,
+    paddingBottom: SPACING,
   },
-  topBarRow: {
-    flexDirection: "row",
+  handleRow: {
     alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: SPACING * 1.2,
+    paddingTop: 6,
+    paddingBottom: SPACING * 1.5,
   },
-  topBarSpacer: { width: 32 },
   handle: {
     width: 40,
     height: 4,
@@ -855,7 +1229,12 @@ const styles = StyleSheet.create({
     height: 4,
     borderRadius: 2,
   },
-  content: { paddingHorizontal: SPACING * 2, paddingTop: 0, paddingBottom: SPACING * 2 },
+  content: {
+    paddingHorizontal: SPACING * 2,
+    paddingTop: 0,
+    paddingBottom: SPACING * 2,
+  },
+  // question
   questionMeta: {
     alignItems: "center",
     gap: SPACING * 0.8,
@@ -924,7 +1303,12 @@ const styles = StyleSheet.create({
     padding: SPACING * 1.5,
     marginBottom: SPACING * 2,
   },
-  codeText: { fontFamily: "monospace", fontSize: 13, color: "#E2E8F0", lineHeight: 22 },
+  codeText: {
+    fontFamily: "monospace",
+    fontSize: 13,
+    color: "#E2E8F0",
+    lineHeight: 22,
+  },
   optionsRow: { flexDirection: "row", gap: SPACING, marginBottom: SPACING * 2 },
   option: {
     flexDirection: "row",
@@ -1033,8 +1417,18 @@ const styles = StyleSheet.create({
   },
 
   optionBigText: { fontSize: 18, fontWeight: "900" },
-  optionCheck: { fontSize: 16, color: "#059669", fontWeight: "900", marginLeft: "auto" },
-  optionX: { fontSize: 16, color: "#DC2626", fontWeight: "900", marginLeft: "auto" },
+  optionCheck: {
+    fontSize: 16,
+    color: "#059669",
+    fontWeight: "900",
+    marginLeft: "auto",
+  },
+  optionX: {
+    fontSize: 16,
+    color: "#DC2626",
+    fontWeight: "900",
+    marginLeft: "auto",
+  },
   explanationBox: {
     backgroundColor: "#F9FAFB",
     borderRadius: 14,
@@ -1055,12 +1449,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: SPACING,
   },
-  nextBtnText: { color: "#fff", fontSize: 15, fontWeight: "800", letterSpacing: 0.3 },
+  nextBtnText: {
+    color: "#fff",
+    fontSize: 15,
+    fontWeight: "800",
+    letterSpacing: 0.3,
+  },
 
   // ── Resultado ──────────────────────────────────────────────────
   resultScroll: {
     paddingHorizontal: SPACING * 2.5,
-    paddingTop: SPACING * 2,
+    paddingTop: SPACING,
     paddingBottom: SPACING * 4,
     gap: SPACING * 2,
   },
@@ -1076,7 +1475,12 @@ const styles = StyleSheet.create({
     lineHeight: 84,
   },
   pctSign: { fontSize: 36, fontWeight: "700", letterSpacing: 0 },
-  pctSub: { fontSize: 14, color: MUTED, fontWeight: "600", marginTop: SPACING * 0.5 },
+  pctSub: {
+    fontSize: 14,
+    color: MUTED,
+    fontWeight: "600",
+    marginTop: SPACING * 0.5,
+  },
   dotsRow: { flexDirection: "row", gap: 6, justifyContent: "center" },
   dot: { width: 10, height: 10, borderRadius: 5 },
   reviewCard: {

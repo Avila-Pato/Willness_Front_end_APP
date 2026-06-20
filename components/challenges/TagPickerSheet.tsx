@@ -23,7 +23,6 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { height: SCREEN_H, width: SCREEN_W } = Dimensions.get("window");
 const SHEET_H = SCREEN_H * 0.85;
@@ -59,7 +58,6 @@ export function TagPickerSheet({
   onConfirm,
   onClose,
 }: Props) {
-  const { bottom } = useSafeAreaInsets();
   const translateY = useSharedValue(SHEET_H);
   const backdropOpacity = useSharedValue(0);
   const [selected, setSelected] = useState<string[]>([]);
