@@ -1,0 +1,17 @@
+export const HABIT_ICONS: number[] = [
+  require("@/assets/pincel/Group.svg"),
+  require("@/assets/pincel/Group-1.svg"),
+  require("@/assets/pincel/Group-2.svg"),
+  require("@/assets/pincel/Group-3.svg"),
+  require("@/assets/pincel/Group-4.svg"),
+  require("@/assets/pincel/Group-5.svg"),
+  require("@/assets/pincel/Group-6.svg"),
+  require("@/assets/pincel/Group-7.svg"),
+  require("@/assets/pincel/Group-8.svg"),
+  require("@/assets/pincel/Vector.svg"),
+  require("@/assets/pincel/Vector-1.svg"),
+  require("@/assets/pincel/Vector-2.svg"),
+  require("@/assets/pincel/Vector-3.svg"),
+  require("@/assets/pincel/Vector-4.svg"),
+  require("@/assets/pincel/Vector-5.svg"),
+];

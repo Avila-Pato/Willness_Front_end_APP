@@ -15,6 +15,7 @@ import { WEEKLY_CHALLENGES } from "@/data/weeklyData";
 import { getMoodHistory, saveMood, todayString } from "@/store/moodHistory";
 import { useJournalRecorder } from "@/hooks/useJournalRecorder";
 import { getUserName, saveUserName } from "@/store/userProfile";
+import { useUserStore } from "@/store/useUserStore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
@@ -178,7 +179,10 @@ export default function HomeScreen() {
     Promise.all([getMoodHistory(), getUserName()]).then(([h, n]) => {
       const idx = h[todayString()];
       if (idx !== undefined) setSelectedMood(idx);
-      if (n) setUserName(n);
+      // Zustand tiene el nombre del onboarding actual — tiene prioridad sobre AsyncStorage
+      const storeName = useUserStore.getState().onboarding?.nombre;
+      if (storeName) setUserName(storeName.split(" ")[0]);
+      else if (n) setUserName(n);
       const elapsed = Date.now() - start;
       const remaining = Math.max(0, 900 - elapsed);
       setTimeout(() => {

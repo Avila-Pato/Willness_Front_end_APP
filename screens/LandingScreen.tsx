@@ -1,3 +1,4 @@
+import { useUserStore } from "@/store/useUserStore";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
@@ -35,6 +36,15 @@ const AREAS = [
 
 export default function LandingScreen() {
   const [showSplash, setShowSplash] = useState(true);
+
+  // Cuando el splash termina, saltar onboarding si ya fue completado
+  useEffect(() => {
+    if (showSplash) return;
+    const { onboarding } = useUserStore.getState();
+    if (onboarding) {
+      router.replace("/(tab)" as any);
+    }
+  }, [showSplash]);
 
   // Splash animado
   const logoScale = useSharedValue(0.5);

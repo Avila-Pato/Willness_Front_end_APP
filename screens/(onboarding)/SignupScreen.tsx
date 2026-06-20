@@ -3,6 +3,7 @@ import { OnboardingProgress } from "@/components/onboarding/OnboardingProgress";
 import { TEXT_FONT_SIZE } from "@/constants/constants";
 import { useUserStore } from "@/store/useUserStore";
 import { Ionicons } from "@expo/vector-icons";
+import { saveUserName } from "@/store/userProfile";
 import { router, useLocalSearchParams } from "expo-router";
 import { UserCircle } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
@@ -89,11 +90,13 @@ export default function SignupScreen() {
   const isValid = email.trim().includes("@") && password.length >= 6;
 
   const persistContext = (userName?: string) => {
+    const nombre = userName ?? params.nombre ?? "";
     saveOnboarding({
       goals: params.formacion ? params.formacion.split(",").filter(Boolean) : [],
       areas: params.ramas ? params.ramas.split(",").filter(Boolean) : [],
-      nombre: userName ?? params.nombre ?? "",
+      nombre,
     });
+    void saveUserName(nombre);
   };
 
   const handleCreate = () => {

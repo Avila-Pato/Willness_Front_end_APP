@@ -18,6 +18,17 @@ export interface DiagnosticResult {
   strengths: string[];
   challenges: string[];
 }
+export type HabitTime = "any" | "morning" | "afternoon" | "night";
+export interface CustomHabit {
+  id: string;
+  title: string;
+  iconIndex: number;
+  color: string;
+  accent: string;
+  days: "all" | string[];
+  time: HabitTime;
+  goalEnabled: boolean;
+}
 
 interface UserState {
   user: GoogleUser | null;
@@ -25,6 +36,7 @@ interface UserState {
   assessment: AssessmentData | null;
   diagnostic: DiagnosticResult | null;
   habits: string[];
+  customHabits: CustomHabit[];
 
   setUser: (user: GoogleUser | null) => void;
   saveOnboarding: (data: OnboardingData) => void;
@@ -33,6 +45,8 @@ interface UserState {
   saveDiagnostic: (result: Omit<DiagnosticResult, "completed" | "completedAt">) => void;
   addHabit: (id: string) => void;
   removeHabit: (id: string) => void;
+  addCustomHabit: (habit: CustomHabit) => void;
+  removeCustomHabit: (id: string) => void;
   clearAll: () => void;
 
   // ── NUEVOS SELECTORES COMPUTADOS ──
@@ -48,6 +62,7 @@ export const useUserStore = create<UserState>()(
       assessment: null,
       diagnostic: null,
       habits: [],
+      customHabits: [],
 
       setUser: (user) => set({ user }),
       saveOnboarding: (data) => set({ onboarding: data }),
@@ -57,6 +72,8 @@ export const useUserStore = create<UserState>()(
       resetAssessment: () => set({ assessment: null }),
       addHabit: (id) => set((s) => ({ habits: s.habits.includes(id) ? s.habits : [...s.habits, id] })),
       removeHabit: (id) => set((s) => ({ habits: s.habits.filter((h) => h !== id) })),
+      addCustomHabit: (habit) => set((s) => ({ customHabits: [...s.customHabits, habit] })),
+      removeCustomHabit: (id) => set((s) => ({ customHabits: s.customHabits.filter((h) => h.id !== id) })),
       saveDiagnostic: (result) => set({
         diagnostic: { ...result, completed: true, completedAt: new Date().toISOString() }
       }),
