@@ -28,7 +28,7 @@ export function HabitosProfile() {
   const removeCustomHabit = useUserStore((s) => s.removeCustomHabit);
 
   const [shuffled] = useState(() => [...HABITS].sort(() => Math.random() - 0.5));
-  const [currentIdx] = useState(0);
+  const [currentIdx, setCurrentIdx] = useState(0);
   const [showCreate, setShowCreate] = useState(false);
   const [expandedCat, setExpandedCat] = useState<string | null>(null);
   const [detailHabit, setDetailHabit] = useState<Habit | null>(null);
@@ -65,6 +65,13 @@ export function HabitosProfile() {
             <Text style={[s.cardCategory, { color: top.accent + "AA" }]}>{top.category}</Text>
             <Text style={s.cardDesc}>{top.desc}</Text>
           </View>
+          <TouchableOpacity
+            style={[s.shuffleBtn, { backgroundColor: top.accent + "22" }]}
+            onPress={() => setCurrentIdx((i) => (i + 1) % shuffled.length)}
+            activeOpacity={0.7}
+          >
+            <Text style={[s.shuffleBtnTxt, { color: top.accent }]}>{"↻"}</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -236,6 +243,16 @@ const s = StyleSheet.create({
     width: 100, height: 100,
     opacity: 0.3,
   },
+  shuffleBtn: {
+    position: "absolute",
+    bottom: SPACING * 1.2,
+    right: SPACING * 1.2,
+    width: 36, height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  shuffleBtnTxt: { fontSize: 20, fontWeight: "700", lineHeight: 24 },
   cardContent: { gap: SPACING * 0.25, flex: 1 },
   cardTitle: { fontSize: 22, fontWeight: "900", letterSpacing: -0.5, lineHeight: 26 },
   cardCategory: { fontSize: 13, fontWeight: "600" },
