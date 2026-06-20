@@ -23,6 +23,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { height: SCREEN_H, width: SCREEN_W } = Dimensions.get("window");
 const SHEET_H = SCREEN_H * 0.85;
@@ -58,12 +59,17 @@ export function TagPickerSheet({
   onConfirm,
   onClose,
 }: Props) {
+  const { bottom } = useSafeAreaInsets();
   const translateY = useSharedValue(SHEET_H);
   const backdropOpacity = useSharedValue(0);
   const [selected, setSelected] = useState<string[]>([]);
 
   useEffect(() => {
-    translateY.value = withSpring(0, { damping: 20, stiffness: 160, mass: 0.85 });
+    translateY.value = withSpring(0, {
+      damping: 20,
+      stiffness: 160,
+      mass: 0.85,
+    });
     backdropOpacity.value = withTiming(1, { duration: 220 });
   }, []);
 
@@ -113,7 +119,11 @@ export function TagPickerSheet({
         : `Explorar ${selected.length} tema${selected.length > 1 ? "s" : ""} →`;
 
   return (
-    <Modal transparent animationType="none" onRequestClose={() => dismiss(onClose)}>
+    <Modal
+      transparent
+      animationType="none"
+      onRequestClose={() => dismiss(onClose)}
+    >
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Animated.View style={[styles.backdrop, backdropStyle]}>
           <Pressable style={{ flex: 1 }} onPress={() => dismiss(onClose)} />
@@ -130,104 +140,106 @@ export function TagPickerSheet({
             </View>
           </GestureDetector>
 
-            <ScrollView
-              style={{ flex: 1 }}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scroll}
-            >
-              <View style={styles.zigzagOuter}>
-                <View style={styles.centerLine} pointerEvents="none" />
+          <ScrollView
+            style={{ flex: 1 }}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scroll}
+          >
+            <View style={styles.zigzagOuter}>
+              <View style={styles.centerLine} pointerEvents="none" />
 
-                {items.map((item, index) => {
-                  const isLeft = index % 2 === 0;
-                  const active = selected.includes(item.id);
-                  const num = String(index + 1).padStart(2, "0");
+              {items.map((item, index) => {
+                const isLeft = index % 2 === 0;
+                const active = selected.includes(item.id);
+                const num = String(index + 1).padStart(2, "0");
 
-                  return (
-                    <View
-                      key={item.id}
-                      style={[
-                        styles.zigzagRow,
-                        isLeft ? styles.rowLeft : styles.rowRight,
+                return (
+                  <View
+                    key={item.id}
+                    style={[
+                      styles.zigzagRow,
+                      isLeft ? styles.rowLeft : styles.rowRight,
+                    ]}
+                  >
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.zigzagCard,
+                        {
+                          backgroundColor: active ? item.bg : "#fff",
+                          transform: [
+                            { rotate: isLeft ? "-1.5deg" : "1.5deg" },
+                          ],
+                        },
+                        active && { borderColor: item.color, borderWidth: 2 },
+                        pressed && { opacity: 0.88 },
                       ]}
+                      onPress={() => toggle(item.id)}
                     >
-                      <Pressable
-                        style={({ pressed }) => [
-                          styles.zigzagCard,
-                          {
-                            backgroundColor: active ? item.bg : "#fff",
-                            transform: [{ rotate: isLeft ? "-1.5deg" : "1.5deg" }],
-                          },
-                          active && { borderColor: item.color, borderWidth: 2 },
-                          pressed && { opacity: 0.88 },
+                      <View
+                        style={[
+                          styles.cardTopRow,
+                          { flexDirection: isLeft ? "row" : "row-reverse" },
                         ]}
-                        onPress={() => toggle(item.id)}
                       >
+                        <Text style={[styles.cardNum, { color: item.color }]}>
+                          {num}
+                        </Text>
                         <View
                           style={[
-                            styles.cardTopRow,
-                            { flexDirection: isLeft ? "row" : "row-reverse" },
+                            styles.pinCircle,
+                            {
+                              backgroundColor: active
+                                ? item.color
+                                : item.color + "28",
+                              borderColor: item.color,
+                            },
                           ]}
-                        >
-                          <Text style={[styles.cardNum, { color: item.color }]}>
-                            {num}
-                          </Text>
-                          <View
-                            style={[
-                              styles.pinCircle,
-                              {
-                                backgroundColor: active
-                                  ? item.color
-                                  : item.color + "28",
-                                borderColor: item.color,
-                              },
-                            ]}
-                          />
-                        </View>
+                        />
+                      </View>
 
-                        <Text
-                          style={[
-                            styles.cardTitle,
-                            { textAlign: isLeft ? "left" : "right" },
-                          ]}
-                        >
-                          {item.title}
-                        </Text>
+                      <Text
+                        style={[
+                          styles.cardTitle,
+                          { textAlign: isLeft ? "left" : "right" },
+                        ]}
+                      >
+                        {item.title}
+                      </Text>
 
-                        <Text
-                          style={[
-                            styles.cardDesc,
-                            { textAlign: isLeft ? "left" : "right" },
-                          ]}
-                          numberOfLines={2}
-                        >
-                          {item.description}
-                        </Text>
-                      </Pressable>
-                    </View>
-                  );
-                })}
-              </View>
-            </ScrollView>
-
-            <View style={styles.footer}>
-              <Pressable
-                style={[styles.btn, selected.length < 1 && styles.btnDisabled]}
-                onPress={handleConfirm}
-                disabled={selected.length < 1}
-              >
-                <Text
-                  style={[
-                    styles.btnText,
-                    selected.length < 1 && styles.btnTextDisabled,
-                  ]}
-                >
-                  {btnLabel}
-                </Text>
-              </Pressable>
+                      <Text
+                        style={[
+                          styles.cardDesc,
+                          { textAlign: isLeft ? "left" : "right" },
+                        ]}
+                        numberOfLines={2}
+                      >
+                        {item.description}
+                      </Text>
+                    </Pressable>
+                  </View>
+                );
+              })}
             </View>
+          </ScrollView>
+
+          <View style={[styles.footer, { paddingBottom: SPACING }]}>
+            <Pressable
+              style={[styles.btn, selected.length < 1 && styles.btnDisabled]}
+              onPress={handleConfirm}
+              disabled={selected.length < 1}
+            >
+              <Text
+                style={[
+                  styles.btnText,
+                  selected.length < 1 && styles.btnTextDisabled,
+                ]}
+              >
+                {btnLabel}
+              </Text>
+            </Pressable>
+          </View>
         </Animated.View>
-        </GestureHandlerRootView>
+      </GestureHandlerRootView>
     </Modal>
   );
 }
@@ -352,15 +364,14 @@ const styles = StyleSheet.create({
 
   footer: {
     paddingHorizontal: SPACING * 2,
-    paddingVertical: SPACING * 1.5,
-    paddingBottom: SPACING * 3,
+    paddingTop: SPACING,
     borderTopWidth: 1,
     borderTopColor: "#F3F4F6",
   },
   btn: {
     backgroundColor: "#7C3AED",
     borderRadius: 16,
-    paddingVertical: SPACING * 1.7,
+    paddingVertical: SPACING,
     alignItems: "center",
   },
   btnDisabled: {

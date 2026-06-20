@@ -16,10 +16,39 @@ import { DESCANSO_STYLE_META, DESCANSO_STYLE_ORDER } from "@/data/descansoTestDa
 import { ENERGIA_STYLE_META, ENERGIA_STYLE_ORDER } from "@/data/energiaTestData";
 import { MINDFULNESS_HAB_STYLE_META, MINDFULNESS_HAB_STYLE_ORDER } from "@/data/mindfulnessHabTestData";
 import { PROPOSITO_STYLE_META, PROPOSITO_STYLE_ORDER } from "@/data/propositoTestData";
+import { TEST_CATEGORIES } from "@/data/selfTestsData";
+import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
+import { useEffect } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { markTestCompleted } from "@/store/selfTestResults";
+
+const ACHIEVEMENT_IMG: Record<string, number> = {
+  tk_apego:           require("@/assets/achievements/Layer 1 copy 5.png"),
+  tk_asertividad:     require("@/assets/achievements/Layer 1 copy 9.png"),
+  tk_valores:         require("@/assets/achievements/Layer 1 copy 11.png"),
+  tk_dialogo:         require("@/assets/achievements/Layer 1 copy 15.png"),
+  tk_conflicto:       require("@/assets/achievements/Layer 1 copy 4.png"),
+  tk_codependencia:   require("@/assets/achievements/Layer 1 copy 8.png"),
+  tk_vinculos:        require("@/assets/achievements/Layer 1 copy 14.png"),
+  tk_limites_rel:     require("@/assets/achievements/Layer 1 copy 16.png"),
+  tk_estres:          require("@/assets/achievements/Layer 1 copy 6.png"),
+  tk_burnout:         require("@/assets/achievements/Layer 1 copy 13.png"),
+  tk_autocompasion:   require("@/assets/achievements/Layer 1 copy 17.png"),
+  tk_resiliencia:     require("@/assets/achievements/Layer 1 copy 20.png"),
+  tk_descanso:        require("@/assets/achievements/Layer 1 copy 21.png"),
+  tk_energia:         require("@/assets/achievements/Layer 1 copy 22.png"),
+  tk_mindfulness_hab: require("@/assets/achievements/Layer 1 copy 24.png"),
+  tk_proposito:       require("@/assets/achievements/Layer 1 copy 25.png"),
+};
 
 type StyleMeta = {
   label: string;
@@ -105,8 +134,22 @@ export default function SelfTestResultScreen() {
   const styleOrder = STYLE_ORDER[testId ?? ""] ?? Object.keys(averages);
   const primaryMeta: StyleMeta | undefined = styleMeta[primary];
   const title = TEST_TITLES[testId ?? ""] ?? "Tu resultado";
-
   const maxVal = Math.max(...Object.values(averages), 1);
+
+  const testMeta = TEST_CATEGORIES.flatMap((c) => c.tests).find((t) => t.id === testId);
+  const achieveImg = testId ? ACHIEVEMENT_IMG[testId] : undefined;
+
+  const achieveScale = useSharedValue(0.6);
+  const achieveOpacity = useSharedValue(0);
+  useEffect(() => {
+    achieveScale.value = withDelay(600, withSpring(1, { damping: 14, stiffness: 110 }));
+    achieveOpacity.value = withDelay(600, withTiming(1, { duration: 450 }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const achieveAnimStyle = useAnimatedStyle(() => ({
+    opacity: achieveOpacity.value,
+    transform: [{ scale: achieveScale.value }],
+  }));
 
   const handleDone = () => {
     if (testId) void markTestCompleted(testId);
@@ -178,6 +221,30 @@ export default function SelfTestResultScreen() {
           <Text style={[s.tipLabel, { color: primaryMeta.color }]}>Qué puedes hacer</Text>
           <Text style={s.tipText}>{primaryMeta.tip}</Text>
         </View>
+
+        {/* Achievement unlock */}
+        {achieveImg && testMeta && (
+          <Animated.View
+            style={[s.achieveCard, { borderColor: primaryMeta.color + "40" }, achieveAnimStyle]}
+          >
+            <Text style={[s.achieveTag, { color: primaryMeta.color }]}>
+              ✦ Logro desbloqueado
+            </Text>
+            <View style={[s.achieveBadge, { backgroundColor: testMeta.color }]}>
+              <Image
+                source={achieveImg}
+                style={s.achieveImg}
+                contentFit="contain"
+                contentPosition="bottom center"
+              />
+            </View>
+            <Text style={s.achieveTitle}>¡Felicidades!</Text>
+            <Text style={s.achieveDesc}>
+              Completaste <Text style={{ fontWeight: "800" }}>{title}</Text> y
+              ganaste este logro. Encuéntralo en tu perfil.
+            </Text>
+          </Animated.View>
+        )}
 
         <Text style={s.disclaimer}>
           Este test es orientativo y no reemplaza una evaluación clínica. Los resultados reflejan tendencias en tus respuestas, no diagnósticos.
@@ -260,6 +327,52 @@ const s = StyleSheet.create({
   },
   tipLabel: { fontSize: 12, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.6 },
   tipText: { fontSize: 14, color: TEXT, lineHeight: 22 },
+
+  /* Achievement unlock card */
+  achieveCard: {
+    backgroundColor: "#fff",
+    borderRadius: 24,
+    borderWidth: 1.5,
+    padding: SPACING * 2.5,
+    alignItems: "center",
+    gap: SPACING * 1.2,
+    shadowColor: "#1C1B29",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
+  },
+  achieveTag: {
+    fontSize: 11,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+  achieveBadge: {
+    width: 130,
+    height: 150,
+    borderRadius: 22,
+    overflow: "hidden",
+  },
+  achieveImg: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: "110%",
+  },
+  achieveTitle: {
+    fontSize: 22,
+    fontWeight: "900",
+    color: TEXT,
+    letterSpacing: -0.5,
+  },
+  achieveDesc: {
+    fontSize: 13,
+    color: MUTED,
+    textAlign: "center",
+    lineHeight: 19,
+  },
 
   disclaimer: {
     fontSize: 11,
