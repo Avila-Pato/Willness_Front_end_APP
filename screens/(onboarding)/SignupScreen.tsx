@@ -222,6 +222,7 @@ export default function SignupScreen() {
           </TouchableOpacity>
         </Animated.View>
       </ScrollView>
+
     </KeyboardAvoidingView>
   );
 }
@@ -348,6 +349,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "400",
   },
+
 });
 
 

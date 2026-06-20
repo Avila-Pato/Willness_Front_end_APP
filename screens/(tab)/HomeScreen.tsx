@@ -1,4 +1,5 @@
-﻿import BreathingScreen from "@/components/home/ExploreSection/breathing";
+﻿import HomeScreenSkeleton from "@/components/skeleton/HomeScreenSkeleton";
+import BreathingScreen from "@/components/home/ExploreSection/breathing";
 import DearManAssistant from "@/components/home/ExploreSection/dearman";
 import HappinessGameAssistant from "@/components/home/ExploreSection/happiness";
 import PurposeCompassAssistant from "@/components/home/ExploreSection/purposecompass";
@@ -166,14 +167,24 @@ export default function HomeScreen() {
   const { nombre } = useLocalSearchParams<{ nombre?: string }>();
   const [userName, setUserName] = useState("...");
   const [selectedMood, setSelectedMood] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const contentOpacity = useRef(new Animated.Value(0)).current;
 
   const { reset: resetRecorder, currentStep } = useJournalRecorder();
 
-  // Carga inicial
+  // Carga inicial — mínimo 900ms para que el skeleton sea visible
   useEffect(() => {
-    getMoodHistory().then((h) => {
+    const start = Date.now();
+    Promise.all([getMoodHistory(), getUserName()]).then(([h, n]) => {
       const idx = h[todayString()];
       if (idx !== undefined) setSelectedMood(idx);
+      if (n) setUserName(n);
+      const elapsed = Date.now() - start;
+      const remaining = Math.max(0, 900 - elapsed);
+      setTimeout(() => {
+        setLoading(false);
+        Animated.timing(contentOpacity, { toValue: 1, duration: 400, useNativeDriver: true }).start();
+      }, remaining);
     });
   }, []);
 
@@ -278,10 +289,6 @@ export default function HomeScreen() {
     if (nombre) {
       saveUserName(nombre);
       setUserName(nombre);
-    } else {
-      getUserName().then((n) => {
-        if (n) setUserName(n);
-      });
     }
   }, [nombre]);
 
@@ -303,7 +310,10 @@ export default function HomeScreen() {
     photoBg: require("@/assets/background/7.jpg"),
   };
 
+  if (loading) return <HomeScreenSkeleton />;
+
   return (
+    <Animated.View style={[{ flex: 1 }, { opacity: contentOpacity }]}>
     <SafeAreaView edges={["top", "left", "right"]} style={s.root}>
       <ScrollView showsVerticalScrollIndicator={false} style={s.scroll}>
         {/* ── Hero ── */}
@@ -628,6 +638,7 @@ export default function HomeScreen() {
         onComplete={() => markVisited("proposito")}
       />
     </SafeAreaView>
+    </Animated.View>
   );
 }
 

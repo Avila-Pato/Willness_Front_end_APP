@@ -267,7 +267,6 @@ export default function ChallengesScreen() {
           </View>
         </View>
       </ScrollView>
-
     </SafeAreaView>
   );
 }
@@ -466,11 +465,11 @@ const s = StyleSheet.create({
   fanWrap: {
     flexDirection: "row",
     alignItems: "flex-end",
-    height: 110,
+    height: 100,
   },
   fanCard: {
-    width: 54,
-    height: 76,
+    width: 64,
+    height: 86,
     borderRadius: 14,
     backgroundColor: "#fff",
     overflow: "hidden",

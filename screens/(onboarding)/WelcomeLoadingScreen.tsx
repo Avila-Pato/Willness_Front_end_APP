@@ -55,7 +55,7 @@ function Dot({ delay }: { delay: number }) {
 
 export default function WelcomeLoadingScreen() {
   const screenOp = useSharedValue(1);
-  const logoOp = useSharedValue(0);
+  const logoOp = useSharedValue(1);
   const logoScale = useSharedValue(0.7);
   const glowOp = useSharedValue(0);
   const glowScale = useSharedValue(0.5);
@@ -66,36 +66,25 @@ export default function WelcomeLoadingScreen() {
   const dotsOp = useSharedValue(0);
 
   useEffect(() => {
-    // Logo entrance
-    logoOp.value = withTiming(1, { duration: 700 });
+    // Logo ya visible, solo escala
     logoScale.value = withSpring(1, { damping: 12, stiffness: 70 });
 
-    // Glow behind logo
-    glowOp.value = withDelay(200, withTiming(1, { duration: 800 }));
-    glowScale.value = withDelay(
-      200,
-      withSpring(1, { damping: 10, stiffness: 60 }),
-    );
-
-    // "Lumina" name
-    nameOp.value = withDelay(500, withTiming(1, { duration: 500 }));
-    nameY.value = withDelay(
-      500,
-      withSpring(0, { damping: 16, stiffness: 100 }),
-    );
+    // Glow
+    glowOp.value = withDelay(100, withTiming(1, { duration: 600 }));
+    glowScale.value = withDelay(100, withSpring(1, { damping: 10, stiffness: 60 }));
 
     // Subtitle
-    subOp.value = withDelay(850, withTiming(1, { duration: 500 }));
-    subY.value = withDelay(850, withSpring(0, { damping: 16, stiffness: 100 }));
+    subOp.value = withDelay(350, withTiming(1, { duration: 400 }));
+    subY.value = withDelay(350, withSpring(0, { damping: 16, stiffness: 100 }));
 
     // Dots
-    dotsOp.value = withDelay(1100, withTiming(1, { duration: 400 }));
+    dotsOp.value = withDelay(600, withTiming(1, { duration: 350 }));
 
     // Fade out and navigate
-    screenOp.value = withDelay(2800, withTiming(0, { duration: 500 }));
+    screenOp.value = withDelay(2400, withTiming(0, { duration: 450 }));
     const timer = setTimeout(() => {
       router.replace("/(tab)" as any);
-    }, 3300);
+    }, 2850);
 
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
