@@ -493,29 +493,55 @@ export function ChallengeSheet({ challenge, onClose }: Props) {
                       </View>
                     )}
 
-                    {/* Tall stack práctica — identifica_patron / completa_reflexion */}
+                    {/* Grid imagen práctica — identifica_patron / completa_reflexion */}
                     {currentPQ.type !== "true_false" && challenge.id !== "adivina_concepto" && (
-                      <View style={styles.optionsCol}>
+                      <View style={styles.optionsGrid}>
                         {currentPQ.options.map((opt, i) => {
-                          const bg = optionBg(i, currentPQ, practiceSelected, practiceState);
                           const border = optionBorder(i, currentPQ, practiceSelected, practiceState);
                           const color = optionColor(i, currentPQ, practiceSelected, practiceState);
-                          const headerBg = !practiceAnswered ? challenge.color + "25" : bg;
-                          const bodyBg = !practiceAnswered ? CARD_BG : bg;
-                          const badgeColor = !practiceAnswered ? challenge.color : color;
-                          const badgeBorder = !practiceAnswered ? challenge.color + "80" : border;
+                          const isCorrect = i === currentPQ.correctIndex;
+                          const isWrong = i === practiceSelected && !isCorrect;
+                          const letter = String.fromCharCode(65 + i);
+                          const img = CARD_IMAGES[(practiceStep * 4 + i + 4) % CARD_IMAGES.length];
+                          const rotation = CARD_ROTATIONS[i];
                           return (
-                            <Pressable key={i} style={[styles.optionStack, { borderColor: border }]} onPress={() => handlePracticeSelect(i)}>
-                              <View style={[styles.optionStackTop, { backgroundColor: headerBg }]}>
-                                <View style={[styles.optionStackBadge, { borderColor: badgeBorder }]}>
-                                  <Text style={[styles.optionStackLetter, { color: badgeColor }]}>{String.fromCharCode(65 + i)}</Text>
+                            <Pressable
+                              key={i}
+                              style={[
+                                styles.optionImgCard,
+                                { borderColor: border, transform: [{ rotate: `${rotation}deg` }] },
+                              ]}
+                              onPress={() => handlePracticeSelect(i)}
+                            >
+                              <View style={[styles.optionImgArea, { backgroundColor: challenge.color + "20" }]}>
+                                <Image source={img} style={styles.optionImg} contentFit="contain" />
+                                <View style={[
+                                  styles.optionImgBadge,
+                                  {
+                                    backgroundColor: practiceAnswered
+                                      ? (isCorrect ? "#059669" : isWrong ? "#DC2626" : "rgba(0,0,0,0.12)")
+                                      : challenge.color + "CC",
+                                  },
+                                ]}>
+                                  <Text style={styles.optionImgLetter}>{letter}</Text>
                                 </View>
-                                {practiceAnswered && i === currentPQ.correctIndex && <Text style={styles.optionCheck}>✓</Text>}
-                                {practiceAnswered && i === practiceSelected && i !== currentPQ.correctIndex && <Text style={styles.optionX}>✗</Text>}
                               </View>
-                              <View style={[styles.optionStackBody, { backgroundColor: bodyBg }]}>
-                                <Text style={[styles.optionStackText, { color }]}>{opt}</Text>
+                              <View style={[
+                                styles.optionImgBody,
+                                { backgroundColor: practiceAnswered && isCorrect ? "#DCFCE7" : practiceAnswered && isWrong ? "#FEE2E2" : "#fff" },
+                              ]}>
+                                <Text style={[styles.optionImgText, { color }]} numberOfLines={4}>{opt}</Text>
                               </View>
+                              {practiceAnswered && isCorrect && (
+                                <View style={styles.optionImgResultBadge}>
+                                  <Text style={styles.optionImgResultText}>✓</Text>
+                                </View>
+                              )}
+                              {practiceAnswered && isWrong && (
+                                <View style={[styles.optionImgResultBadge, { backgroundColor: "#DC2626" }]}>
+                                  <Text style={styles.optionImgResultText}>✗</Text>
+                                </View>
+                              )}
                             </Pressable>
                           );
                         })}
@@ -688,29 +714,56 @@ export function ChallengeSheet({ challenge, onClose }: Props) {
                   </View>
                 )}
 
-                {/* Tall stack — identifica_patron / completa_reflexion */}
+                {/* Grid imagen — identifica_patron / completa_reflexion */}
                 {!isTrueFalse(currentQ) && challenge.id !== "adivina_concepto" && (
-                  <View style={styles.optionsCol}>
+                  <View style={styles.optionsGrid}>
                     {currentQ.options.map((opt, i) => {
-                      const bg = optionBg(i, currentQ, selected, answerState);
                       const border = optionBorder(i, currentQ, selected, answerState);
                       const color = optionColor(i, currentQ, selected, answerState);
-                      const headerBg = answerState === "idle" ? challenge.color + "25" : bg;
-                      const bodyBg = answerState === "idle" ? CARD_BG : bg;
-                      const badgeColor = answerState === "idle" ? challenge.color : color;
-                      const badgeBorder = answerState === "idle" ? challenge.color + "80" : border;
+                      const isAnswered = answerState !== "idle";
+                      const isCorrect = i === currentQ.correctIndex;
+                      const isWrong = i === selected && !isCorrect;
+                      const letter = String.fromCharCode(65 + i);
+                      const img = CARD_IMAGES[(step * 4 + i + 4) % CARD_IMAGES.length];
+                      const rotation = CARD_ROTATIONS[i];
                       return (
-                        <Pressable key={i} style={[styles.optionStack, { borderColor: border }]} onPress={() => handleSelect(i)}>
-                          <View style={[styles.optionStackTop, { backgroundColor: headerBg }]}>
-                            <View style={[styles.optionStackBadge, { borderColor: badgeBorder }]}>
-                              <Text style={[styles.optionStackLetter, { color: badgeColor }]}>{String.fromCharCode(65 + i)}</Text>
+                        <Pressable
+                          key={i}
+                          style={[
+                            styles.optionImgCard,
+                            { borderColor: border, transform: [{ rotate: `${rotation}deg` }] },
+                          ]}
+                          onPress={() => handleSelect(i)}
+                        >
+                          <View style={[styles.optionImgArea, { backgroundColor: challenge.color + "20" }]}>
+                            <Image source={img} style={styles.optionImg} contentFit="contain" />
+                            <View style={[
+                              styles.optionImgBadge,
+                              {
+                                backgroundColor: isAnswered
+                                  ? (isCorrect ? "#059669" : isWrong ? "#DC2626" : "rgba(0,0,0,0.12)")
+                                  : challenge.color + "CC",
+                              },
+                            ]}>
+                              <Text style={styles.optionImgLetter}>{letter}</Text>
                             </View>
-                            {answerState !== "idle" && i === currentQ.correctIndex && <Text style={styles.optionCheck}>✓</Text>}
-                            {answerState !== "idle" && i === selected && i !== currentQ.correctIndex && <Text style={styles.optionX}>✗</Text>}
                           </View>
-                          <View style={[styles.optionStackBody, { backgroundColor: bodyBg }]}>
-                            <Text style={[styles.optionStackText, { color }]}>{opt}</Text>
+                          <View style={[
+                            styles.optionImgBody,
+                            { backgroundColor: isAnswered && isCorrect ? "#DCFCE7" : isAnswered && isWrong ? "#FEE2E2" : "#fff" },
+                          ]}>
+                            <Text style={[styles.optionImgText, { color }]} numberOfLines={4}>{opt}</Text>
                           </View>
+                          {isAnswered && isCorrect && (
+                            <View style={styles.optionImgResultBadge}>
+                              <Text style={styles.optionImgResultText}>✓</Text>
+                            </View>
+                          )}
+                          {isAnswered && isWrong && (
+                            <View style={[styles.optionImgResultBadge, { backgroundColor: "#DC2626" }]}>
+                              <Text style={styles.optionImgResultText}>✗</Text>
+                            </View>
+                          )}
                         </Pressable>
                       );
                     })}
@@ -872,7 +925,6 @@ const styles = StyleSheet.create({
     marginBottom: SPACING * 2,
   },
   codeText: { fontFamily: "monospace", fontSize: 13, color: "#E2E8F0", lineHeight: 22 },
-  optionsCol: { gap: SPACING * 1.2, marginBottom: SPACING * 2 },
   optionsRow: { flexDirection: "row", gap: SPACING, marginBottom: SPACING * 2 },
   option: {
     flexDirection: "row",
@@ -980,33 +1032,6 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
 
-  /* Tall stack (identifica_patron / completa_reflexion) */
-  optionStack: {
-    borderRadius: 20,
-    borderWidth: 1.5,
-    overflow: "hidden",
-  },
-  optionStackTop: {
-    paddingHorizontal: SPACING * 1.8,
-    paddingVertical: SPACING * 1.2,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  optionStackBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
-    borderWidth: 1.5,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  optionStackLetter: { fontSize: 13, fontWeight: "800" },
-  optionStackBody: {
-    paddingHorizontal: SPACING * 1.8,
-    paddingVertical: SPACING * 1.6,
-  },
-  optionStackText: { fontSize: 15, fontWeight: "600", lineHeight: 22 },
   optionBigText: { fontSize: 18, fontWeight: "900" },
   optionCheck: { fontSize: 16, color: "#059669", fontWeight: "900", marginLeft: "auto" },
   optionX: { fontSize: 16, color: "#DC2626", fontWeight: "900", marginLeft: "auto" },

@@ -38,6 +38,7 @@ type IconConfig = {
   cardImage: ImageSourcePropType;
   character: ImageSourcePropType;
   photoBg: ImageSourcePropType;
+  fanImages: ImageSourcePropType[];
 };
 
 const TAG_LABELS: Record<string, string> = {
@@ -55,6 +56,11 @@ const ICON_MAP: Record<string, IconConfig> = {
     cardImage: require("@/assets/abstracts/Group-11.png"),
     character: require("@/assets/character/3.png"),
     photoBg: require("@/assets/background/7.jpg"),
+    fanImages: [
+      require("@/assets/character/3.png"),
+      require("@/assets/character/11.png"),
+      require("@/assets/character/15.png"),
+    ],
   },
   identifica_patron: {
     image: require("@/assets/icons/Surveillance.svg"),
@@ -63,6 +69,11 @@ const ICON_MAP: Record<string, IconConfig> = {
     cardImage: require("@/assets/abstracts/Group-6.png"),
     character: require("@/assets/character/7.png"),
     photoBg: require("@/assets/background/9.jpg"),
+    fanImages: [
+      require("@/assets/character/7.png"),
+      require("@/assets/character/4.png"),
+      require("@/assets/character/13.png"),
+    ],
   },
   verdad_mito: {
     image: require("@/assets/icons/Approval.svg"),
@@ -71,6 +82,11 @@ const ICON_MAP: Record<string, IconConfig> = {
     cardImage: require("@/assets/abstracts/Group-8.png"),
     character: require("@/assets/character/14.png"),
     photoBg: require("@/assets/background/11.jpg"),
+    fanImages: [
+      require("@/assets/character/14.png"),
+      require("@/assets/character/9.png"),
+      require("@/assets/character/17.png"),
+    ],
   },
   completa_reflexion: {
     image: require("@/assets/icons/Documentation.svg"),
@@ -79,6 +95,11 @@ const ICON_MAP: Record<string, IconConfig> = {
     cardImage: require("@/assets/abstracts/Group-1.png"),
     character: require("@/assets/character/2.png"),
     photoBg: require("@/assets/background/12.jpg"),
+    fanImages: [
+      require("@/assets/character/2.png"),
+      require("@/assets/character/8.png"),
+      require("@/assets/character/20.png"),
+    ],
   },
 };
 
@@ -173,19 +194,11 @@ export default function ChallengesScreen() {
                     </View>
                   </View>
 
-                  {/* Derecha: etiqueta encima de la card + personaje + card */}
+                  {/* Derecha: etiqueta + card con fan de imágenes */}
                   <View style={s.cardWrapper}>
                     <Text style={[s.timelineLabel, { color: cfg.color }]}>
                       {TAG_LABELS[c.id].replace("#", "")}
                     </Text>
-                    <View style={s.rowCharacter} pointerEvents="none">
-                      <Image
-                        source={cfg.character}
-                        style={{ width: "100%", height: "100%" }}
-                        contentFit="contain"
-                        contentPosition="bottom"
-                      />
-                    </View>
                     <Pressable
                       style={({ pressed }) => [
                         s.row,
@@ -202,19 +215,50 @@ export default function ChallengesScreen() {
                       <View
                         style={[
                           StyleSheet.absoluteFill,
-                          { backgroundColor: cfg.bg + "A0" },
+                          { backgroundColor: cfg.bg + "B8" },
                         ]}
                       />
-                      <Text style={[s.rowTitle, { color: cfg.color }]}>
-                        {c.title}
-                      </Text>
-                      <Text style={s.rowSub}>
-                        {completed
-                          ? "✓ Completado"
-                          : done > 0
-                            ? `${done} de ${total} correctas`
-                            : `${total} preguntas`}
-                      </Text>
+
+                      {/* Texto izquierda */}
+                      <View style={s.rowLeft}>
+                        <Text style={[s.rowTitle, { color: cfg.color }]}>
+                          {c.title}
+                        </Text>
+                        <Text style={s.rowSub}>
+                          {completed
+                            ? "✓ Completado"
+                            : done > 0
+                              ? `${done} de ${total} correctas`
+                              : `${total} preguntas`}
+                        </Text>
+                      </View>
+
+                      {/* Fan de mini-cards */}
+                      <View style={s.fanWrap} pointerEvents="none">
+                        {cfg.fanImages.map((img, fi) => {
+                          const rot = [-12, 0, 12][fi];
+                          return (
+                            <View
+                              key={fi}
+                              style={[
+                                s.fanCard,
+                                {
+                                  transform: [{ rotate: `${rot}deg` }],
+                                  zIndex: fi === 1 ? 3 : fi === 0 ? 2 : 1,
+                                  marginLeft: fi > 0 ? -22 : 0,
+                                },
+                              ]}
+                            >
+                              <Image
+                                source={img}
+                                style={s.fanImg}
+                                contentFit="contain"
+                                contentPosition="bottom center"
+                              />
+                            </View>
+                          );
+                        })}
+                      </View>
                     </Pressable>
                   </View>
                 </View>
@@ -392,21 +436,20 @@ const s = StyleSheet.create({
   cardWrapper: {
     flex: 1,
     position: "relative",
-    paddingTop: 60,
   },
   rowWrapper: {
     position: "relative",
-    paddingTop: 60,
   },
   row: {
     borderRadius: 24,
     overflow: "hidden",
-    minHeight: 120,
-    paddingTop: SPACING * 2,
-    paddingBottom: SPACING * 2,
+    minHeight: 130,
+    paddingVertical: SPACING * 2,
     paddingLeft: SPACING * 2,
-    paddingRight: 160,
-    gap: 6,
+    paddingRight: SPACING * 1.5,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING,
   },
   rowTop: {
     flexDirection: "row",
@@ -418,13 +461,28 @@ const s = StyleSheet.create({
     flex: 1,
     gap: 6,
   },
-  rowCharacter: {
-    position: "absolute",
-    right: 4,
-    bottom: 0,
-    height: 300,
-    width: 200,
-    zIndex: 1,
+
+  /* Fan de mini-cards */
+  fanWrap: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    height: 110,
+  },
+  fanCard: {
+    width: 54,
+    height: 76,
+    borderRadius: 14,
+    backgroundColor: "#fff",
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.18,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  fanImg: {
+    width: "100%",
+    height: "100%",
   },
   rowTitle: {
     fontSize: 20,
