@@ -20,7 +20,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import {
-  Bell,
   Check,
   ChevronRight,
   Mic,
@@ -336,9 +335,6 @@ export default function HomeScreen() {
           {/* Top bar */}
           <View style={s.heroTop}>
             <Text style={s.heroLabel}>{"Reflexión diaria"}</Text>
-            <Pressable style={s.bellBtn}>
-              <Bell size={20} color="#2D1F60" strokeWidth={1.8} />
-            </Pressable>
           </View>
 
           {/* Saludo */}

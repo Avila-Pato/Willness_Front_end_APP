@@ -8,7 +8,6 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withDelay,
-  withRepeat,
   withSequence,
   withSpring,
   withTiming,
@@ -125,11 +124,7 @@ const dr = StyleSheet.create({
 
 // ── Card principal ─────────────────────────────────────────────────────────────
 
-interface Props {
-  diagnosticScores?: Record<string, number>;
-}
-
-export function EcosistemaCard({ diagnosticScores = {} }: Props) {
+export function EcosistemaCard() {
   const [health, setHealth] = useState(20);
   const [watered, setWatered] = useState("");
   const [ready, setReady] = useState(false);
@@ -158,20 +153,6 @@ export function EcosistemaCard({ diagnosticScores = {} }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Respiración suave con Reanimated (escala del contenedor, no cambia frames)
-  useEffect(() => {
-    if (!ready) return;
-    const amp = 0.012 + (health / 100) * 0.03;
-    const dur = 2400 - (health / 100) * 700;
-    florScale.value = withRepeat(
-      withSequence(
-        withTiming(1 + amp, { duration: dur }),
-        withTiming(1, { duration: dur }),
-      ),
-      -1,
-      true,
-    );
-  }, [health, ready]);
 
   const handleWater = async () => {
     const newH = 100;
