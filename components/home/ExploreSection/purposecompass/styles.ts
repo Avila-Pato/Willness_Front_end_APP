@@ -62,7 +62,7 @@ export const s = StyleSheet.create({
   nodeLabel: { fontSize: 9, fontFamily: "Poppins-SemiBold", color: TEXT_MID, textAlign: "center", marginTop: 5, width: NODE_RADIUS * 2 + 10, letterSpacing: 0.3 },
 
   collectCard: { width: CARD_W, borderRadius: 22, padding: 18, marginBottom: 18, borderWidth: 1, borderColor: ACCENT_BORDER, shadowColor: ACCENT, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 16, elevation: 4 },
-  cardSheen: { ...StyleSheet.absoluteFillObject, borderRadius: 22 },
+  cardSheen: { ...StyleSheet.absoluteFill, borderRadius: 22 },
   cardTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 14 },
   cardBadge: { backgroundColor: ACCENT_MUTED, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1, borderColor: ACCENT_BORDER },
   cardBadgeTxt: { fontSize: 7, fontFamily: "Poppins-SemiBold", letterSpacing: 1.5, color: ACCENT },

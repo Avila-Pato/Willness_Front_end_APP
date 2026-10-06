@@ -136,9 +136,9 @@ export default function CareerDetail() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: BG },
   heroWrap: { height: 280 },
-  heroImg: { ...StyleSheet.absoluteFillObject },
+  heroImg: { ...StyleSheet.absoluteFill },
   heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: "rgba(0,0,0,0.22)",
   },
   navRow: {

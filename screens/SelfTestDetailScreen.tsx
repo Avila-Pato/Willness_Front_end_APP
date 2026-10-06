@@ -301,7 +301,7 @@ const s = StyleSheet.create({
     opacity: 0.7,
   },
   heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: "rgba(255,255,255,0.18)",
   },
   heroTitle: {

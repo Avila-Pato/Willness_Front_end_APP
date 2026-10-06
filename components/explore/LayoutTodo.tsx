@@ -85,7 +85,7 @@ export function LayoutTodo() {
           <Pressable key={sk.id} style={s.skillCard}>
             <Image
               source={{ uri: sk.image }}
-              style={StyleSheet.absoluteFillObject}
+              style={StyleSheet.absoluteFill}
             />
             <View
               style={[s.cardOverlay, { backgroundColor: "rgba(0,0,0,0.58)" }]}
@@ -151,7 +151,7 @@ const s = StyleSheet.create({
     marginBottom: SPACING * 2.5,
   },
   cardOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: "rgba(0,0,0,0.50)",
   },
   tag: {

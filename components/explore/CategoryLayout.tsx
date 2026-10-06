@@ -101,7 +101,7 @@ export function CategoryLayout({
               {article.urlToImage ? (
                 <Image
                   source={{ uri: article.urlToImage }}
-                  style={StyleSheet.absoluteFillObject}
+                  style={StyleSheet.absoluteFill}
                 />
               ) : null}
               <View style={s.hOverlay} />
@@ -174,7 +174,7 @@ const s = StyleSheet.create({
     backgroundColor: CARD_BG,
   },
   hOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: "rgba(0,0,0,0.48)",
   },
   hBottom: { flex: 1, justifyContent: "flex-end", padding: 12, gap: 5 },

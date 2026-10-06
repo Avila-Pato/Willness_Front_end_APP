@@ -57,37 +57,19 @@ const SLIDE_DURATION = 5000;
 
 export default function IntroScreen() {
   const [current, setCurrent] = useState(0);
-  const progressAnims = useRef(SLIDES.map(() => new Animated.Value(0))).current;
-  const slideOpacity = useRef(new Animated.Value(0)).current;
-  const mountY = useRef(new Animated.Value(24)).current;
+  const [progressAnims] = useState(() => SLIDES.map(() => new Animated.Value(0)));
+  const [slideOpacity] = useState(() => new Animated.Value(0));
+  const [mountY] = useState(() => new Animated.Value(24));
+  const [slideX] = useState(() => new Animated.Value(0));
   const currentIdx = useRef(0);
   const savedProgress = useRef(0);
   const pressStartTime = useRef(0);
-  const slideX = useRef(new Animated.Value(0)).current;
 
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-  const bounceAnim = useRef(new Animated.Value(1)).current;
-  const star1Anim = useRef(new Animated.Value(1)).current;
-  const star2Anim = useRef(new Animated.Value(1)).current;
-  const star3Anim = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(slideOpacity, {
-        toValue: 1,
-        duration: 600,
-        useNativeDriver: true,
-      }),
-      Animated.timing(mountY, {
-        toValue: 0,
-        duration: 550,
-        easing: Easing.out(Easing.quad),
-        useNativeDriver: true,
-      }),
-    ]).start();
-    runSlide(0, 0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const [pulseAnim] = useState(() => new Animated.Value(1));
+  const [bounceAnim] = useState(() => new Animated.Value(1));
+  const [star1Anim] = useState(() => new Animated.Value(1));
+  const [star2Anim] = useState(() => new Animated.Value(1));
+  const [star3Anim] = useState(() => new Animated.Value(1));
 
   useEffect(() => {
     Animated.loop(
@@ -172,6 +154,24 @@ export default function IntroScreen() {
       runSlide(currentIdx.current, savedProgress.current);
     }
   }
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(slideOpacity, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(mountY, {
+        toValue: 0,
+        duration: 550,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: true,
+      }),
+    ]).start();
+    runSlide(0, 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const slide = SLIDES[current];
 

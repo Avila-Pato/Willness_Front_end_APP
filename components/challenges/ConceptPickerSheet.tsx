@@ -45,21 +45,22 @@ export function ConceptPickerSheet({ onConfirm, onClose }: Props) {
   const [selected, setSelected] = useState<string[]>([]);
 
   useEffect(() => {
-    translateY.value = withSpring(0, { damping: 20, stiffness: 160, mass: 0.85 });
+    translateY.value = withSpring(0, {
+      damping: 20,
+      stiffness: 160,
+      mass: 0.85,
+    });
     backdropOpacity.value = withTiming(1, { duration: 220 });
   }, []);
 
-  const dismiss = useCallback(
-    (callback: () => void) => {
-      translateY.value = withTiming(
-        SHEET_H,
-        { duration: 380, easing: Easing.in(Easing.cubic) },
-        () => runOnJS(callback)(),
-      );
-      backdropOpacity.value = withTiming(0, { duration: 360 });
-    },
-    [],
-  );
+  const dismiss = useCallback((callback: () => void) => {
+    translateY.value = withTiming(
+      SHEET_H,
+      { duration: 380, easing: Easing.in(Easing.cubic) },
+      () => runOnJS(callback)(),
+    );
+    backdropOpacity.value = withTiming(0, { duration: 360 });
+  }, []);
 
   const panGesture = Gesture.Pan()
     .onUpdate((e) => {
@@ -91,7 +92,11 @@ export function ConceptPickerSheet({ onConfirm, onClose }: Props) {
   }
 
   return (
-    <Modal transparent animationType="none" onRequestClose={() => dismiss(onClose)}>
+    <Modal
+      transparent
+      animationType="none"
+      onRequestClose={() => dismiss(onClose)}
+    >
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Animated.View style={[styles.backdrop, backdropStyle]}>
           <Pressable style={{ flex: 1 }} onPress={() => dismiss(onClose)} />
@@ -113,110 +118,117 @@ export function ConceptPickerSheet({ onConfirm, onClose }: Props) {
             </View>
           </GestureDetector>
 
-            <ScrollView
-              style={{ flex: 1 }}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scroll}
-            >
-              {/* Zigzag pinboard layout */}
-              <View style={styles.zigzagOuter}>
-                {/* Center connecting line */}
-                <View style={styles.centerLine} pointerEvents="none" />
+          <ScrollView
+            style={{ flex: 1 }}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scroll}
+          >
+            {/* Zigzag pinboard layout */}
+            <View style={styles.zigzagOuter}>
+              {/* Center connecting line */}
+              <View style={styles.centerLine} pointerEvents="none" />
 
-                {allConcepts.map((concept, index) => {
-                  const isLeft = index % 2 === 0;
-                  const active = selected.includes(concept.id);
-                  const num = String(index + 1).padStart(2, "0");
+              {allConcepts.map((concept, index) => {
+                const isLeft = index % 2 === 0;
+                const active = selected.includes(concept.id);
+                const num = String(index + 1).padStart(2, "0");
 
-                  return (
-                    <View
-                      key={concept.id}
-                      style={[
-                        styles.zigzagRow,
-                        isLeft ? styles.rowLeft : styles.rowRight,
+                return (
+                  <View
+                    key={concept.id}
+                    style={[
+                      styles.zigzagRow,
+                      isLeft ? styles.rowLeft : styles.rowRight,
+                    ]}
+                  >
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.zigzagCard,
+                        {
+                          backgroundColor: active ? concept.bg : "#fff",
+                          transform: [
+                            { rotate: isLeft ? "-1.5deg" : "1.5deg" },
+                          ],
+                        },
+                        active && {
+                          borderColor: concept.color,
+                          borderWidth: 2,
+                        },
+                        pressed && { opacity: 0.88 },
                       ]}
+                      onPress={() => toggle(concept.id)}
                     >
-                      <Pressable
-                        style={({ pressed }) => [
-                          styles.zigzagCard,
-                          {
-                            backgroundColor: active ? concept.bg : "#fff",
-                            transform: [{ rotate: isLeft ? "-1.5deg" : "1.5deg" }],
-                          },
-                          active && { borderColor: concept.color, borderWidth: 2 },
-                          pressed && { opacity: 0.88 },
+                      {/* Number + pin row */}
+                      <View
+                        style={[
+                          styles.cardTopRow,
+                          { flexDirection: isLeft ? "row" : "row-reverse" },
                         ]}
-                        onPress={() => toggle(concept.id)}
                       >
-                        {/* Number + pin row */}
+                        <Text
+                          style={[styles.cardNum, { color: concept.color }]}
+                        >
+                          {num}
+                        </Text>
                         <View
                           style={[
-                            styles.cardTopRow,
-                            { flexDirection: isLeft ? "row" : "row-reverse" },
+                            styles.pinCircle,
+                            {
+                              backgroundColor: active
+                                ? concept.color
+                                : concept.color + "28",
+                              borderColor: concept.color,
+                            },
                           ]}
-                        >
-                          <Text style={[styles.cardNum, { color: concept.color }]}>
-                            {num}
-                          </Text>
-                          <View
-                            style={[
-                              styles.pinCircle,
-                              {
-                                backgroundColor: active
-                                  ? concept.color
-                                  : concept.color + "28",
-                                borderColor: concept.color,
-                              },
-                            ]}
-                          />
-                        </View>
+                        />
+                      </View>
 
-                        {/* Title */}
-                        <Text
-                          style={[
-                            styles.cardTitle,
-                            { textAlign: isLeft ? "left" : "right" },
-                          ]}
-                        >
-                          {concept.id}
-                        </Text>
+                      {/* Title */}
+                      <Text
+                        style={[
+                          styles.cardTitle,
+                          { textAlign: isLeft ? "left" : "right" },
+                        ]}
+                      >
+                        {concept.id}
+                      </Text>
 
-                        {/* Description */}
-                        <Text
-                          style={[
-                            styles.cardDesc,
-                            { textAlign: isLeft ? "left" : "right" },
-                          ]}
-                          numberOfLines={2}
-                        >
-                          {concept.description}
-                        </Text>
-                      </Pressable>
-                    </View>
-                  );
-                })}
-              </View>
-            </ScrollView>
-
-            {/* Footer */}
-            <View style={styles.footer}>
-              <Pressable
-                style={[styles.btn, selected.length < 1 && styles.btnDisabled]}
-                onPress={handleConfirm}
-                disabled={selected.length < 1}
-              >
-                <Text
-                  style={[
-                    styles.btnText,
-                    selected.length < 1 && styles.btnTextDisabled,
-                  ]}
-                >
-                  {selected.length < 1
-                    ? "Elige al menos un área"
-                    : `Explorar ${selected.length} área${selected.length > 1 ? "s" : ""} →`}
-                </Text>
-              </Pressable>
+                      {/* Description */}
+                      <Text
+                        style={[
+                          styles.cardDesc,
+                          { textAlign: isLeft ? "left" : "right" },
+                        ]}
+                        numberOfLines={2}
+                      >
+                        {concept.description}
+                      </Text>
+                    </Pressable>
+                  </View>
+                );
+              })}
             </View>
+          </ScrollView>
+
+          {/* Footer */}
+          <View style={styles.footer}>
+            <Pressable
+              style={[styles.btn, selected.length < 1 && styles.btnDisabled]}
+              onPress={handleConfirm}
+              disabled={selected.length < 1}
+            >
+              <Text
+                style={[
+                  styles.btnText,
+                  selected.length < 1 && styles.btnTextDisabled,
+                ]}
+              >
+                {selected.length < 1
+                  ? "Elige al menos un área"
+                  : `Explorar ${selected.length} área${selected.length > 1 ? "s" : ""} →`}
+              </Text>
+            </Pressable>
+          </View>
         </Animated.View>
       </GestureHandlerRootView>
     </Modal>
@@ -225,7 +237,7 @@ export function ConceptPickerSheet({ onConfirm, onClose }: Props) {
 
 const styles = StyleSheet.create({
   backdrop: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: "rgba(0,0,0,0.45)",
   },
   sheet: {

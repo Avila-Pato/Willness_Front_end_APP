@@ -1,11 +1,12 @@
 import { SPACING, TAB_ITEM_SIZE } from "@/constants/constants";
-import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import React from "react";
+import type { Tabs } from "expo-router";
+import React, { ComponentProps } from "react";
 import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import TabbarItem from "./TabbarItem";
 
-type Props = { props: BottomTabBarProps };
+type TabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>["tabBar"]>>[0];
+type Props = { props: TabBarProps };
 
 export const ACTIVE_COLOR = "#111827";
 export const INACTIVE_COLOR = "#9CA3AF";

@@ -815,7 +815,7 @@ const s = StyleSheet.create({
     alignItems: "center",
   },
   catVisitedOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: "rgba(137,128,184,0.1)",
     borderRadius: 20,
     zIndex: 1,

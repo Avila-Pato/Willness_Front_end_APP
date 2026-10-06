@@ -1,6 +1,5 @@
 import CustomTabBar from "@/components/tabBar/CustomTabBar";
 import { Octicons } from "@expo/vector-icons";
-import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { Tabs } from "expo-router";
 import { Target, Trophy, UserCircle, Users } from "lucide-react-native";
 import React from "react";
@@ -8,7 +7,7 @@ import React from "react";
 export default function TabLayout() {
   return (
     <Tabs
-      tabBar={(props: BottomTabBarProps) => <CustomTabBar props={props} />}
+      tabBar={(props) => <CustomTabBar props={props} />}
       screenOptions={{
         headerShown: false,
       }}

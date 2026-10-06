@@ -26,11 +26,11 @@ export const s = StyleSheet.create({
   situationBadgeTxt: { fontSize: 13, fontFamily: "Poppins-Regular", color: "#4A6070", lineHeight: 20, fontStyle: "italic", textAlign: "center" },
 
   mirrorContainer: { height: MIRROR_H, borderRadius: 24, overflow: "hidden", borderWidth: 1.5, borderColor: "rgba(155,190,220,0.45)", backgroundColor: "rgba(238,245,252,0.6)", marginBottom: 16, shadowColor: "#98B8D0", shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.25, shadowRadius: 20, elevation: 10 },
-  truthLayer: { ...StyleSheet.absoluteFillObject, padding: 24, justifyContent: "center" },
+  truthLayer: { ...StyleSheet.absoluteFill, padding: 24, justifyContent: "center" },
   truthLabel: { fontSize: 8, fontFamily: "Poppins-SemiBold", letterSpacing: 2, color: "#7890A8", marginBottom: 12 },
   truthText: { fontSize: 15, fontFamily: "Playfair-ExtraBold", color: "#1A2A38", lineHeight: 26 },
 
-  matrixGrid: { ...StyleSheet.absoluteFillObject, flexDirection: "row", flexWrap: "wrap" },
+  matrixGrid: { ...StyleSheet.absoluteFill, flexDirection: "row", flexWrap: "wrap" },
   matrixCell: { width: `${100 / COLS}%` as unknown as number, height: `${100 / ROWS}%` as unknown as number, overflow: "hidden" },
   fogHintLayer: { alignItems: "center", justifyContent: "center", gap: 12, paddingHorizontal: 32 },
   fogHintText: { fontSize: 12, fontFamily: "Poppins-SemiBold", color: "rgba(80,110,140,0.7)", textAlign: "center", lineHeight: 20 },

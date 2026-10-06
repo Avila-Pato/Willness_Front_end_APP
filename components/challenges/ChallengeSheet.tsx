@@ -6,7 +6,7 @@ import {
 } from "@/data/improvementQuestions";
 import { Challenge, ChallengeQuestion } from "@/types/challenges";
 import { Image } from "expo-image";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Dimensions,
   Modal,
@@ -195,17 +195,14 @@ export function ChallengeSheet({ challenge, onClose }: Props) {
     backdropOpacity.value = withTiming(1, { duration: 220 });
   }, []);
 
-  const dismiss = useCallback(
-    (correct: number, total: number) => {
-      translateY.value = withTiming(
-        SHEET_H,
-        { duration: 420, easing: Easing.in(Easing.cubic) },
-        () => runOnJS(onClose)(correct, total),
-      );
-      backdropOpacity.value = withTiming(0, { duration: 400 });
-    },
-    [onClose],
-  );
+  const dismiss = (correct: number, total: number) => {
+    translateY.value = withTiming(
+      SHEET_H,
+      { duration: 420, easing: Easing.in(Easing.cubic) },
+      () => runOnJS(onClose)(correct, total),
+    );
+    backdropOpacity.value = withTiming(0, { duration: 400 });
+  };
 
   const panGesture = Gesture.Pan()
     .onUpdate((e) => {

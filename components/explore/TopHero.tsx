@@ -138,9 +138,9 @@ const s = StyleSheet.create({
     elevation: 4,
   },
   imageWrap: { height: 220, position: "relative" },
-  image: { ...StyleSheet.absoluteFillObject },
+  image: { ...StyleSheet.absoluteFill },
   gradient: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: "rgba(0,0,0,0.45)",
   },
   topRow: {

@@ -7,7 +7,6 @@
     "icon": "./assets/logo.png",
     "scheme": "gamereact",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.avilapato.gameReact",
@@ -22,9 +21,7 @@
         "backgroundImage": "./assets/logo.png",
         "monochromeImage": "./assets/logo.png"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "usesCleartextTraffic": true,
       "package": "com.avilapato.gameReact",
       "intentFilters": [
         {
@@ -35,7 +32,10 @@
               "scheme": "com.googleusercontent.apps.628930804546-tpdfke5egrhrlfurvsbg2sq3l4obcfti"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -58,7 +58,19 @@
         }
       ],
       "expo-web-browser",
-      "expo-audio"
+      "expo-audio",
+      "expo-font",
+      "expo-image",
+      "expo-status-bar",
+      "expo-asset",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

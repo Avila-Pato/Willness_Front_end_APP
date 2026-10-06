@@ -17,7 +17,7 @@ export const s = StyleSheet.create({
   heroSub: { fontSize: 13, fontFamily: "Poppins-Regular", color: "#A895C8", lineHeight: 20, marginBottom: 22 },
 
   slotMachine: { borderRadius: 26, padding: 20, backgroundColor: "rgba(255,255,255,0.5)", borderWidth: 1.5, borderColor: "rgba(255,255,255,0.88)", overflow: "hidden", shadowColor: "#C4A855", shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 10, marginBottom: 16 },
-  jackpotOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(255,215,60,0.28)" },
+  jackpotOverlay: { ...StyleSheet.absoluteFill, backgroundColor: "rgba(255,215,60,0.28)" },
   reelsRow: { flexDirection: "row", gap: 8, marginBottom: 18 },
 
   reelWindow: { flex: 1, borderRadius: 16, minHeight: 110, backgroundColor: "rgba(255,255,255,0.72)", borderWidth: 1.5, borderColor: "rgba(200,190,230,0.5)", padding: 10, alignItems: "center", overflow: "hidden" },
